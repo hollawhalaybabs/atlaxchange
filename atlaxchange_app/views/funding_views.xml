@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem id="atlaxchange_menu" name="Atlaxchange" sequence="1"/>
+
+    <!-- Action for Funding -->
+    <record id="action_funding" model="ir.actions.act_window">
+        <field name="name">Funding</field>
+        <field name="res_model">atlaxchange.funding</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first funding record
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item for Funding -->
+    <menuitem id="menu_funding" name="Funding" parent="atlaxchange_menu" action="action_funding" sequence="10"/>
+
+    <!-- Tree View for Funding -->
+    <record id="view_funding_tree" model="ir.ui.view">
+        <field name="name">funding.tree</field>
+        <field name="model">atlaxchange.funding</field>
+        <field name="arch" type="xml">
+            <tree string="Funding">
+                <field name="name"/>
+                <field name="funding_type"/>
+                <field name="customer_name"/>
+                <field name="source_currency"/>
+                <field name="wallet_currency"/>
+                <field name="amount"/>
+                <field name="amount_credit"/>
+                <field name="state"/>
+                <field name="approval_level"/>
+                <field name="approver_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Funding -->
+    <record id="view_funding_form" model="ir.ui.view">
+        <field name="name">funding.form</field>
+        <field name="model">atlaxchange.funding</field>
+        <field name="arch" type="xml">
+            <form string="Funding">
+                <header>
+                    <!-- State Field as a Statusbar -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,approval,approved,rejected,funded"/>
+                    
+                    <!-- Action Buttons -->
+                    <button name="action_submit_for_approval" type="object" string="Submit for Approval" class="btn-primary" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-success" attrs="{'invisible': ['|',('state', '!=', 'approval'),('is_approver', '=', False)]}"/>
+                    
+                    <!-- Reject Button -->
+                    <button name="action_reject" type="object" string="Reject" class="btn-danger"
+                        attrs="{'invisible': ['|',('state', '!=', 'approval'), ('is_approver', '=', False)]}"/>
+                    
+                    <button name="action_fund_wallet" type="object" string="Fund Wallet" class="btn-success" attrs="{'invisible': [('state', '!=', 'approved')]}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Funding Details">
+                            <field name="name" readonly="1"/>
+                            <field name="funding_type" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="customer_name" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="source_currency" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="wallet_currency" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="conversion_rate" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="amount" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="amount_credit" readonly="1"/>
+                        </group>
+                        <group string="Approval Details">
+                            <field name="approval_level" readonly="1"/>
+                            <field name="approver_id" readonly="1"/>
+                            <field name="is_approver" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

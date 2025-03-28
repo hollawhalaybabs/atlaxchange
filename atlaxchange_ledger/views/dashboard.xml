@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Define the client action for the dashboard -->
+    <record id="action_atlaxchange_dashboard" model="ir.actions.client">
+        <field name="name">Atlaxchange Dashboard</field>
+        <field name="tag">atlax_dashboard</field>
+    </record>
+
+    <!-- Define the menu item for the dashboard -->
+    <menuitem id="menu_atlaxchange_ledger_dashboard"
+              name="Dashboard"
+              parent="menu_atlaxchange_ledger_root"
+              action="action_atlaxchange_dashboard"
+              sequence="20"/>
+</odoo>

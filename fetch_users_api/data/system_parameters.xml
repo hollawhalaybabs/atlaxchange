@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="fetch_users_api_key" model="ir.config_parameter">
+        <field name="key">fetch_users_api.api_key</field>
+        <field name="value">atlax_live_key_47fe4727-9ab7-4305-aa9e-21cc18714167</field>
+    </record>
+    
+    <record id="fetch_users_api_secret" model="ir.config_parameter">
+        <field name="key">fetch_users_api.api_secret</field>
+        <field name="value">atlax_live_secret_299d78db-562d-48a8-ae49-aac02e0736ec</field>
+    </record>
+</odoo>

@@ -1,0 +1,97 @@
+.dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    justify-content: center;
+}
+
+.card {
+    padding: 20px;
+    border-radius: 10px;
+    width: 250px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+}
+
+.card .title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.card .amount {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.card .count {
+    font-size: 14px;
+    color: #555;
+}
+
+.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.pending {
+    background-color: #ffc107;
+    color: black;
+}
+
+.reversed {
+    background-color: #6c757d;
+    color: white;
+}
+
+.failed {
+    background-color: #dc3545;
+    color: white;
+}
+
+.loading {
+    font-size: 18px;
+    color: #007bff;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.error {
+    font-size: 18px;
+    color: #dc3545;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filters input,
+.filters select,
+.filters button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+canvas {
+    max-width: 100%;
+    margin: 20px auto;
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        flex-direction: column;
+        align-items: center;
+    }
+    .card {
+        width: 90%;
+    }
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="seq_funding" model="ir.sequence">
+        <field name="name">Funding Sequence</field>
+        <field name="code">atlaxchange.funding</field>
+        <field name="prefix">FUND-</field>
+        <field name="padding">5</field>
+    </record>
+    <record id="seq_trade" model="ir.sequence">
+        <field name="name">Trade Sequence</field>
+        <field name="code">atlaxchange.trade</field>
+        <field name="prefix">TRADE-</field>
+        <field name="padding">5</field>
+    </record>
+    <record id="seq_refund" model="ir.sequence">
+        <field name="name">Refund Sequence</field>
+        <field name="code">atlaxchange.refund</field>
+        <field name="prefix">REFUND-</field>
+        <field name="padding">5</field>
+    </record>
+</odoo>

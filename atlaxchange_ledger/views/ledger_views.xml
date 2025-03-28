@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Tree View for Atlaxchange Ledger -->
+    <record id="view_atlaxchange_ledger_tree" model="ir.ui.view">
+        <field name="name">atlaxchange.ledger.tree</field>
+        <field name="model">atlaxchange.ledger</field>
+        <field name="arch" type="xml">
+            <tree create="false" delete="false">
+                <field name="datetime"/>
+                <field name="transaction_reference"/>
+                <field name="customer_name"/>
+                <field name="bank"/>
+                <field name="beneficiary"/>
+                <field name="wallet"/>
+                <field name="amount"/>
+                <field name="fee"/>
+                <field name="status"/>
+                <field name="type"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Atlaxchange Ledger -->
+    <record id="view_atlaxchange_ledger_form" model="ir.ui.view">
+        <field name="name">atlaxchange.ledger.form</field>
+        <field name="model">atlaxchange.ledger</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="datetime" readonly="1"/>
+                        <field name="customer_name" readonly="1"/>
+                        <field name="transaction_reference" readonly="1"/>
+                        <field name="bank" readonly="1"/>
+                        <field name="beneficiary" readonly="1"/>
+                        <field name="wallet" readonly="1"/>
+                        <field name="amount" readonly="1"/>
+                        <field name="fee" readonly="1"/>
+                        <field name="type" readonly="1"/>
+                        <field name="status" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Initiate Refund -->
+    <record model="ir.actions.server" id="action_initiate_refund">
+        <field name="name">Initiate Refund</field>
+        <field name="model_id" ref="model_atlaxchange_ledger"/>
+        <field name="binding_model_id" ref="model_atlaxchange_ledger"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.action_initiate_refund()
+        </field>
+        <field name="binding_view_types">list</field>
+    </record>
+
+    <!-- Action for Atlaxchange Ledger -->
+    <record id="action_atlaxchange_ledger" model="ir.actions.act_window">
+        <field name="name">Transaction History</field>
+        <field name="res_model">atlaxchange.ledger</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_atlaxchange_ledger_root" name="Atlax Transactions" sequence="10"/>
+    <menuitem id="menu_atlaxchange_ledger" name="Transaction History"
+              parent="menu_atlaxchange_ledger_root" action="action_atlaxchange_ledger"/>
+
+    <!-- Payout History -->
+    <record id="action_payout_history" model="ir.actions.act_window">
+        <field name="name">Payout History</field>
+        <field name="res_model">atlaxchange.ledger</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[("type", "=", "debit")]</field>
+    </record>
+    <menuitem id="menu_payout_history" name="Payout History"
+              parent="menu_atlaxchange_ledger" action="action_payout_history"/>
+
+    <!-- Collection History -->
+    <record id="action_collection_history" model="ir.actions.act_window">
+        <field name="name">Collection History</field>
+        <field name="res_model">atlaxchange.ledger</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[("type", "=", "credit")]</field>
+    </record>
+    <menuitem id="menu_collection_history" name="Collection History"
+              parent="menu_atlaxchange_ledger" action="action_collection_history"/>
+</odoo>

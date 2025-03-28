@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="theme_atlax" model="ir.ui.view">
+            <field name="name">Atlax Theme</field>
+            <field name="inherit_id" ref="web.assets_frontend"/>
+            <field name="arch" type="xml">
+                <xpath expr="." position="inside">
+                    <link rel="stylesheet" href="/theme_atlax/static/src/css/style.css"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="atlax_logo" model="ir.ui.view">
+            <field name="name">Atlax Logo</field>
+            <field name="inherit_id" ref="website.layout"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <img src="/theme_atlax/static/img/Logo_Lockup_3.png" alt="Atlax Exchange Logo" class="atlax-logo"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

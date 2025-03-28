@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="module_category_atlax" model="ir.module.category">
+        <field name="name">ATLAX</field>
+        <field name="description">ATLAX ROLE</field>
+        <field name="sequence">34</field>
+    </record>
+
+    <record id="group_treasury_officer" model="res.groups">
+        <field name="name">Treasury</field>
+        <field name="category_id" ref="module_category_atlax"/>
+    </record>
+
+    <record id="group_hoo" model="res.groups">
+        <field name="name">Head of Operations</field>
+        <field name="category_id" ref="module_category_atlax"/>
+    </record>
+    <record id="group_hot" model="res.groups">
+        <field name="name">Head of Treasury &amp; Trade</field>
+        <field name="category_id" ref="module_category_atlax"/>
+    </record>
+    <record id="group_coo" model="res.groups">
+        <field name="name">Chief Operating Officer</field>
+        <field name="category_id" ref="module_category_atlax"/>
+        <field name="implied_ids" eval="[(4, ref('atlaxchange_app.group_hot'))]"/>
+    </record>
+    <record id="group_ceo" model="res.groups">
+        <field name="name">Chief Executive Officer</field>
+        <field name="category_id" ref="module_category_atlax"/>
+        <field name="implied_ids" eval="[(4, ref('atlaxchange_app.group_coo'))]"/>
+    </record>
+</odoo>

@@ -1,0 +1,32 @@
+<odoo>
+    <record id="view_partner_form_inherit_ledger" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.ledger</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <field name="vat" position="before">
+                <field name="is_email_verified" widget="boolean_toggle" options="{'color': 'green'}" readonly="1"/>
+                <field name="business_id" readonly="1"/>
+                <field name="external_user_id" readonly="1"/>
+            </field>
+            <notebook position="inside">
+                <page string="Wallet">
+                    <field name="ledger_ids" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="currency_id"/>
+                            <field name="balance"/>
+                        </tree>
+                    </field>
+                </page>
+            </notebook>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" type="object"
+                        name="action_open_partner_ledgers"
+                        icon="fa-list"
+                        context="{'partner_id': active_id}">
+                    <field string="Ledgers" name="partner_ledger_count" widget="statinfo"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

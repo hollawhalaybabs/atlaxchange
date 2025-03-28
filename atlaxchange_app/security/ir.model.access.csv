@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_funding_request_hoo,Funding_Request_hoo,model_atlaxchange_funding,atlaxchange_app.group_hoo,1,1,1,0
+access_funding_request_hot,Funding_Request_hot,model_atlaxchange_funding,atlaxchange_app.group_hot,1,1,1,0
+access_funding_request_coo,Funding_Request_coo,model_atlaxchange_funding,atlaxchange_app.group_coo,1,1,1,0
+access_funding_request_ceo,Funding_Request_ceo,model_atlaxchange_funding,atlaxchange_app.group_ceo,1,1,1,0
+access_refund_request_hoo,Refund_Request_hoo,model_atlaxchange_refund,atlaxchange_app.group_hoo,1,1,1,0
+access_refund_request_hot,Refund_Request_hot,model_atlaxchange_refund,atlaxchange_app.group_hot,1,1,1,0
+access_refund_request_coo,Refund_Request_coo,model_atlaxchange_refund,atlaxchange_app.group_coo,1,1,1,0
+access_refund_request_ceo,Refund_Request_ceo,model_atlaxchange_refund,atlaxchange_app.group_ceo,1,1,1,0
+access_trade_request_hoo,Trade_Request_hoo,model_atlaxchange_trade,atlaxchange_app.group_hoo,1,1,1,0
+access_trade_request_hot,Trade_Request_hot,model_atlaxchange_trade,atlaxchange_app.group_hot,1,1,1,0
+access_trade_request_coo,Trade_Request_coo,model_atlaxchange_trade,atlaxchange_app.group_coo,1,1,1,0
+access_trade_request_ceo,Trade_Request_ceo,model_atlaxchange_trade,atlaxchange_app.group_ceo,1,1,1,0
+access_res_currency_manager,Res_Currency_Manager,base.model_res_currency,atlaxchange_app.group_treasury_officer,1,1,1,0

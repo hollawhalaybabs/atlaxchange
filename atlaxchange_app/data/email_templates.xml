@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Email Template: Funding Request Approval -->
+        <record id="email_template_funding_request" model="mail.template">
+            <field name="name">Funding Request Approval</field>
+            <field name="model_id" ref="model_atlaxchange_funding"/>
+            <field name="subject">Funding Request Approval Needed</field>
+            <field name="email_to">${ctx.get('approver_email') or object.approver_id.email}</field>
+            <field name="body_html"><![CDATA[
+                <p>Dear Approver,</p>
+                <p>A funding request for ${object.amount_credit} requires your approval.</p>
+                <p>Approval Level: ${object.approval_level}</p>
+                <p>Please log in to the system to review and approve the request.</p>
+                <p>Thank you,</p>
+                <p>The Atlaxchange Team</p>
+            ]]></field>
+        </record>
+
+        <!-- Email Template: Funding Request Rejected -->
+        <record id="email_template_funding_rejected" model="mail.template">
+            <field name="name">Funding Request Rejected</field>
+            <field name="model_id" ref="model_atlaxchange_funding"/>
+            <field name="subject">Funding Request Rejected</field>
+            <field name="email_to">${object.create_uid.email}</field>
+            <field name="body_html"><![CDATA[
+                <p>Dear ${object.customer_name.name},</p>
+                <p>We regret to inform you that your funding request for ${object.amount_credit} has been rejected.</p>
+                <p>If you have any questions, please contact support.</p>
+                <p>Thank you,</p>
+                <p>The Atlaxchange Team</p>
+            ]]></field>
+        </record>
+
+        <!-- Email Template: Refund Request Approval -->
+        <record id="email_template_refund_request" model="mail.template">
+            <field name="name">Refund Request Approval</field>
+            <field name="model_id" ref="model_atlaxchange_refund"/>
+            <field name="subject">Refund Request Approval Needed</field>
+            <field name="email_to">${object.approver_id.email}</field>
+            <field name="body_html"><![CDATA[
+                <p>Dear ${object.approver_id.name},</p>
+                <p>A new Reversal request for ${object.amount} requires your approval.</p>
+                ]]>
+            </field>
+        </record>
+        <!-- Email Template: Verify Account -->
+        <record id="email_template_verify_account" model="mail.template">
+            <field name="name">Verify Account Reminder</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="subject">Please Verify Your Account</field>
+            <field name="email_from">${(user.email or 'noreply@yourcompany.com')|safe}</field>
+            <field name="email_to">${object.partner_id.email|safe}</field>
+            <field name="body_html">
+                <![CDATA[
+                <p>Dear ${object.partner_id.name},</p>
+                <p>Please verify your account to start using our services.</p>
+                <p>Click <a href="https://www.atlaxchange.com/login">here</a> to verify your account.</p>
+                <p>Thank you,</p>
+                <p>The Atlaxchange Team</p>
+                ]]>
+            </field>
+        </record>
+
+        <!-- Email Template: Credit Wallet -->
+        <record id="email_template_credit_wallet" model="mail.template">
+            <field name="name">Credit Wallet Reminder</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="subject">Start Crediting Your Wallet</field>
+            <field name="email_from">${(user.email or 'noreply@yourcompany.com')|safe}</field>
+            <field name="email_to">${object.partner_id.email|safe}</field>
+            <field name="body_html">
+                <![CDATA[
+                <p>Dear ${object.partner_id.name},</p>
+                <p>Your wallet balance is zero. Please credit your wallet to start transactions.</p>
+                <p>Click <a href="https://www.atlaxchange.com/login">here</a> to credit your wallet.</p>
+                <p>Thank you,</p>
+                <p>The Atlaxchange Team</p>
+                ]]>
+            </field>
+        </record>
+
+        <!-- Email Template: Start Transaction -->
+        <record id="email_template_start_transaction" model="mail.template">
+            <field name="name">Start Transaction Reminder</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="subject">Start Your Transactions</field>
+            <field name="email_from">${(user.email or 'noreply@yourcompany.com')|safe}</field>
+            <field name="email_to">${object.partner_id.email|safe}</field>
+            <field name="body_html">
+                <![CDATA[
+                <p>Dear ${object.partner_id.name},</p>
+                <p>We noticed you have a balance in your wallet but haven't started any transactions yet.</p>
+                <p>Click <a href="https://www.atlaxchange.com/login">here</a> to start your transactions.</p>
+                <p>Thank you,</p>
+                <p>The Atlaxchange Team</p>
+                ]]>
+            </field>
+        </record>
+
+        <!-- Email Template: Resume Transaction -->
+        <record id="email_template_resume_transaction" model="mail.template">
+            <field name="name">Resume Transaction Reminder</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="subject">Resume Your Transactions</field>
+            <field name="email_from">${(user.email or 'noreply@yourcompany.com')|safe}</field>
+            <field name="email_to">${object.partner_id.email|safe}</field>
+            <field name="body_html">
+                <![CDATA[
+                <p>Dear ${object.partner_id.name},</p>
+                <p>We noticed you haven't made any transactions in the past week. Please resume your transactions.</p>
+                <p>Click <a href="https://www.atlaxchange.com/login">here</a> to resume your transactions.</p>
+                <p>Thank you,</p>
+                <p>The Atlaxchange Team</p>
+                ]]>
+            </field>
+        </record>
+
+        <!-- Email Template: Funding Request Approved -->
+        <record id="email_template_funding_approved" model="mail.template">
+            <field name="name">Funding Request Approved</field>
+            <field name="model_id" ref="model_atlaxchange_funding"/>
+            <field name="subject">Funding Request Has Been Approved</field>
+            <field name="email_to">${object.create_uid.email}</field>
+            <field name="body_html"><![CDATA[
+                <p>Dear ${object.create_uid.name},</p>
+                <p>Your funding request for ${object.amount_credit} has been approved.</p>
+                <p>Approval Level: ${object.approval_level}</p>
+                <p>Thank you,</p>
+                <p>The Atlaxchange Team</p>
+            ]]></field>
+        </record>
+
+        <!-- Email Template: Funding Request Funded -->
+        <record id="email_template_funding_funded" model="mail.template">
+            <field name="name">Funding Request Funded</field>
+            <field name="model_id" ref="model_atlaxchange_funding"/>
+            <field name="subject">Wallet Funded</field>
+            <field name="email_to">${object.create_uid.email}</field>
+            <field name="body_html"><![CDATA[
+                <p>Dear ${object.create_uid.name},</p>
+                <p>Your wallet has been successfully funded with ${object.amount_credit} in ${object.wallet_currency.name}.</p>
+                <p>Thank you for using Atlaxchange.</p>
+                <p>The Atlaxchange Team</p>
+            ]]></field>
+        </record>
+    </data>
+</odoo>

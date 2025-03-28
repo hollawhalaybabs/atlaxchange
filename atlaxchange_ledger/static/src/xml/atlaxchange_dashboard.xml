@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="AtlaxchangeDashboard">
+        <div class="o_hr_dashboard">
+            <section class="dashboard_main" id="main_section">
+                <div class="col-sm-12 mb-4">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-5 all_products oh-data">
+                            <div class="oh-card" style="width: 288px;">
+                                <div class="oh-card-body">
+                                    <div class="stat-widget-one">
+                                        <div class="stat-icon" style="background:#ff4d94">
+                                            <i class="fa fa-star"/>
+                                        </div>
+                                        <div class="stat-content">
+                                            <div class="stat-head">Total Transactions</div>
+                                            <div class="stat_count">
+                                                <span t-esc="data.total_transactions_count or 0"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-5 product_variants oh-data">
+                            <div class="oh-card" style="width: 288px;">
+                                <div class="oh-card-body">
+                                    <div class="stat-widget-one">
+                                        <div class="stat-icon" style="background:#99e6ff">
+                                            <i class="fa fa-star"/>
+                                        </div>
+                                        <div class="stat-content">
+                                            <div class="stat-head">Successful Payouts</div>
+                                            <div class="stat_count">
+                                                <span t-esc="data.total_successful_payouts_count or 0"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-5 storable_products oh-data">
+                            <div class="oh-card" style="width: 288px;">
+                                <div class="oh-card-body">
+                                    <div class="stat-widget-one">
+                                        <div class="stat-icon" style="background:#aaff80">
+                                            <i class="fa fa-star"/>
+                                        </div>
+                                        <div class="stat-content">
+                                            <div class="stat-head">Pending Payouts</div>
+                                            <div class="stat_count">
+                                                <span t-esc="data.pending_payouts_count or 0"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-5 consu_products oh-data">
+                            <div class="oh-card" style="width: 288px;">
+                                <div class="oh-card-body">
+                                    <div class="stat-widget-one">
+                                        <div class="stat-icon" style="background:#bf80ff">
+                                            <i class="fa fa-star"/>
+                                        </div>
+                                        <div class="stat-content">
+                                            <div class="stat-head">Failed Payouts</div>
+                                            <div class="stat_count">
+                                                <span t-esc="data.failed_payouts_count or 0"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </t>
+</templates>

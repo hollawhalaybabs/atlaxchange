@@ -8,7 +8,7 @@
     'category': 'Custom',
     'license': 'LGPL-3',
     'depends': [
-        "base","contacts"
+        "base","contacts","atlaxchange_app"
     ],
     'data': [
         # Add XML/CSV files here, e.g., 'views/view_file.xml',

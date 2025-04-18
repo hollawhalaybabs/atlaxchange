@@ -1,9 +1,13 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+import requests
 
 class Funding(models.Model):
     _name = 'atlaxchange.funding'
     _description = 'Funding Process'
+    _order = 'id desc'
+    _rec_name = 'name'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string="Reference", required=True, copy=False, readonly=True, default='New')
     funding_type = fields.Selection([
@@ -115,22 +119,57 @@ class Funding(models.Model):
                 record.is_approver = False
 
     def action_fund_wallet(self):
-        """Fund the customer's wallet after approval and send an email notification."""
+        """Fund the customer's wallet after approval and send an API POST request."""
         if self.state != 'approved':
             raise UserError(_("You can only fund the wallet after the funding request is approved."))
-        
-        # Logic to fund the customer's wallet
-        # Example: Add the amount_credit to the customer's ledger
-        # self.customer_name.ledger_ids.create({
-        #     'partner_id': self.customer_name.id,
-        #     'currency_id': self.wallet_currency.id,
-        #     'balance': self.amount_credit,
-        #     'description': f"Funding from {self.name}",
-        # })
-        self.state = 'funded'  # Transition to the 'funded' state
 
-        # Send funded email
-        template = self.env.ref('atlaxchange_app.email_template_funding_funded')
-        if template:
-            for record in self:
-                template.send_mail(record.id, force_send=True)
+        # Find the wallet_id from account.ledger where wallet_currency matches currency_id
+        ledger = self.env['account.ledger'].search([
+            ('partner_id', '=', self.customer_name.id),
+            ('currency_id', '=', self.wallet_currency.id)
+        ], limit=1)
+
+        if not ledger:
+            raise UserError(_("No matching wallet found for the customer in account.ledger."))
+
+        # Prepare the API request payload
+        payload = {
+            "amount": int(self.amount_credit * 100),  # Convert to the smallest unit (e.g., kobo, cents) and ensure it's an integer
+            "ledger_id": ledger.wallet_id
+        }
+
+        # API endpoint
+        api_url = "https://api.atlaxchange.com/api/v1/payments/manual-deposit"
+
+        # Fetch API key and secret from system parameters
+        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
+        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
+
+        if not api_key or not api_secret:
+            raise UserError(_("API key or secret is missing. Please configure them in System Parameters."))
+
+        # Prepare headers
+        headers = {
+            "Content-Type": "application/json",
+            "X-API-KEY": api_key,
+            "X-API-SECRET": api_secret
+        }
+
+        try:
+            # Make the POST request
+            response = requests.post(api_url, json=payload, headers=headers, timeout=10)
+
+            # Check the response status
+            if response.status_code == 200:
+                self.state = 'funded'  # Transition to the 'funded' state
+
+                # Send funded email
+                template = self.env.ref('atlaxchange_app.email_template_funding_funded')
+                if template:
+                    for record in self:
+                        template.send_mail(record.id, force_send=True)
+            else:
+                raise UserError(_("Failed to fund the wallet. API responded with: %s") % response.text)
+
+        except requests.exceptions.RequestException as e:
+            raise UserError(_("An error occurred while connecting to the API: %s") % str(e))

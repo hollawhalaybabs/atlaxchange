@@ -20,6 +20,7 @@ class FetchLedgerAudit(models.Model):
 class AtlaxchangeLedger(models.Model):
     _name = 'atlaxchange.ledger'
     _description = 'Atlaxchange Client Ledger History'
+    _order = 'id desc'
     _rec_name = 'transaction_reference'
 
     datetime = fields.Datetime(string='Date')

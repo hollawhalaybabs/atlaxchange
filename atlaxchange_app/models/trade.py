@@ -3,6 +3,9 @@ from odoo import models, fields, api
 class Trade(models.Model):
     _name = 'atlaxchange.trade'
     _description = 'Trade Process'
+    _rec_name = 'name'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _order = 'id desc'
 
     name = fields.Char(string="Reference", required=True, copy=False, readonly=True, default='New')
     trade_type = fields.Selection([

@@ -9,14 +9,8 @@ odoo.define("atlaxchange_ledger.AtlaxchangeDashboard", function(require) {
     var AtlaxchangeDashboard = AbstractAction.extend({
         contentTemplate: "AtlaxchangeDashboard",
 
-        init: function(parent, context) {
-            this._super(parent, context);
-            this.dashboard_templates = ["MainSection"];
-        },
-
         start: function() {
             var self = this;
-            this.set("title", "Dashboard");
             return this._super().then(function() {
                 self.render_dashboards();
             });
@@ -26,9 +20,7 @@ odoo.define("atlaxchange_ledger.AtlaxchangeDashboard", function(require) {
             var self = this;
             this.fetch_data().then(function(result) {
                 self.$(".o_hr_dashboard").empty();
-                _.each(self.dashboard_templates, function(template) {
-                    self.$(".o_hr_dashboard").append(QWeb.render(template, { widget: self, data: result }));
-                });
+                self.$(".o_hr_dashboard").append(QWeb.render("AtlaxchangeDashboard", { data: result }));
             });
         },
 
@@ -37,23 +29,23 @@ odoo.define("atlaxchange_ledger.AtlaxchangeDashboard", function(require) {
                 model: "atlaxchange.ledger.dashboard",
                 method: "get_dashboard_data",
             }).then(function(result) {
-                if (!result || typeof result !== "object") {
-                    console.error("Invalid data received from the backend:", result);
-                    return {
-                        total_transactions_count: 0,
-                        total_successful_payouts_count: 0,
-                        pending_payouts_count: 0,
-                        failed_payouts_count: 0,
-                    };
-                }
-                return result;
+                return {
+                    total_transactions_count: result.total_transactions_count || 0,
+                    sections: [
+                        { title: "Successful Payouts", value: result.total_successful_payouts_count || 0 },
+                        { title: "Pending Payouts", value: result.pending_payouts_count || 0 },
+                        { title: "Failed Payouts", value: result.failed_payouts_count || 0 },
+                    ],
+                };
             }).catch(function(error) {
                 console.error("Error fetching dashboard data:", error);
                 return {
                     total_transactions_count: 0,
-                    total_successful_payouts_count: 0,
-                    pending_payouts_count: 0,
-                    failed_payouts_count: 0,
+                    sections: [
+                        { title: "Successful Payouts", value: 0 },
+                        { title: "Pending Payouts", value: 0 },
+                        { title: "Failed Payouts", value: 0 },
+                    ],
                 };
             });
         },

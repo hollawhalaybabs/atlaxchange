@@ -3,6 +3,9 @@ from odoo import models, fields, api
 class Refund(models.Model):
     _name = 'atlaxchange.refund'
     _description = 'Refund/Reversal Process'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _order = 'id desc'
+    _rec_name = 'name'
 
     name = fields.Char(string="Reference", required=True, copy=False, readonly=True, default='New')
     refund_line_ids = fields.One2many('atlaxchange.refund.line', 'refund_id', string="Refund Lines")

@@ -1,57 +1,39 @@
-odoo.define("atlaxchange_ledger.AtlaxchangeDashboard", function(require) {
-    "use strict";
+/** @odoo-module **/
 
-    var AbstractAction = require("web.AbstractAction");
-    var core = require("web.core");
-    var QWeb = core.qweb;
-    var rpc = require("web.rpc");
+import { Component, useState, onWillStart } from "@odoo/owl";
+import { rpc } from "web.rpc";
 
-    var AtlaxchangeDashboard = AbstractAction.extend({
-        contentTemplate: "AtlaxchangeDashboard",
+export class AtlaxchangeDashboard extends Component {
+    static template = "atlaxchange_ledger.AtlaxchangeDashboard";
 
-        start: function() {
-            var self = this;
-            return this._super().then(function() {
-                self.render_dashboards();
-            });
-        },
-
-        render_dashboards: function() {
-            var self = this;
-            this.fetch_data().then(function(result) {
-                self.$(".o_hr_dashboard").empty();
-                self.$(".o_hr_dashboard").append(QWeb.render("AtlaxchangeDashboard", { data: result }));
-            });
-        },
-
-        fetch_data: function() {
-            return rpc.query({
-                model: "atlaxchange.ledger.dashboard",
-                method: "get_dashboard_data",
-            }).then(function(result) {
-                return {
-                    total_transactions_count: result.total_transactions_count || 0,
-                    sections: [
-                        { title: "Successful Payouts", value: result.total_successful_payouts_count || 0 },
-                        { title: "Pending Payouts", value: result.pending_payouts_count || 0 },
-                        { title: "Failed Payouts", value: result.failed_payouts_count || 0 },
-                    ],
-                };
-            }).catch(function(error) {
-                console.error("Error fetching dashboard data:", error);
-                return {
-                    total_transactions_count: 0,
-                    sections: [
-                        { title: "Successful Payouts", value: 0 },
-                        { title: "Pending Payouts", value: 0 },
-                        { title: "Failed Payouts", value: 0 },
-                    ],
-                };
-            });
-        },
+    state = useState({
+        totalTransactions: 0,
+        successfulPayouts: 0,
+        pendingPayouts: 0,
+        failedPayouts: 0,
+        loading: true,
+        error: null,
     });
 
-    core.action_registry.add("atlax_dashboard", AtlaxchangeDashboard);
+    async fetchDashboardData() {
+        try {
+            const result = await rpc.query({
+                model: "atlaxchange.ledger.dashboard",
+                method: "get_dashboard_data",
+            });
+            this.state.totalTransactions = result.total_transactions_count || 0;
+            this.state.successfulPayouts = result.total_successful_payouts_count || 0;
+            this.state.pendingPayouts = result.pending_payouts_count || 0;
+            this.state.failedPayouts = result.failed_payouts_count || 0;
+            this.state.loading = false;
+        } catch (error) {
+            console.error("Error fetching dashboard data:", error);
+            this.state.error = "Failed to load dashboard data.";
+            this.state.loading = false;
+        }
+    }
 
-    return AtlaxchangeDashboard;
-});
+    setup() {
+        onWillStart(() => this.fetchDashboardData());
+    }
+}

@@ -18,7 +18,7 @@
     "assets": {
         "web.assets_backend": [
             "atlaxchange_ledger/static/src/js/atlaxchange_dashboard.js",
-            "atlaxchange_ledger/static/src/xml/atlaxchange_dashboard_templates.xml",
+            "atlaxchange_ledger/static/src/xml/atlaxchange_dashboard.xml",
             "atlaxchange_ledger/static/src/scss/atlaxchange_dashboard.scss",
         ],
         

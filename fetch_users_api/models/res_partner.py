@@ -4,6 +4,7 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     business_id = fields.Char(string='Business ID', help="Unique identifier for the business")
+    is_atlax_customer = fields.Boolean(string='Customer', default=False)
     is_email_verified = fields.Boolean(string='Is Email Verified', default=False)
     external_user_id = fields.Char(string='External User ID', help="Unique identifier for the user from the external system")
     ledger_ids = fields.One2many('account.ledger', 'partner_id', string='Ledgers')

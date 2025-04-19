@@ -6,25 +6,7 @@
     justify-content: center;
 }
 
-.dashboard_main {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 20px;
-    justify-content: center;
-}
-
 .card {
-    padding: 20px;
-    border-radius: 10px;
-    width: 250px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-}
-
-.oh-card {
     padding: 20px;
     border-radius: 10px;
     width: 250px;
@@ -46,29 +28,6 @@
     margin-bottom: 5px;
 }
 
-.card .count {
-    font-size: 14px;
-    color: #555;
-}
-
-.stat-widget-one .stat-icon {
-    font-size: 30px;
-    padding: 10px;
-    border-radius: 50%;
-    margin-bottom: 10px;
-}
-
-.stat-widget-one .stat-content .stat-head {
-    font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 18px;
-}
-
-.stat-widget-one .stat-content .stat_count {
-    font-size: 24px;
-    font-weight: bold;
-}
-
 .success {
     background-color: #28a745;
     color: white;
@@ -77,11 +36,6 @@
 .pending {
     background-color: #ffc107;
     color: black;
-}
-
-.reversed {
-    background-color: #6c757d;
-    color: white;
 }
 
 .failed {
@@ -103,31 +57,61 @@
     margin-top: 20px;
 }
 
-.filters {
+.dashboard {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    justify-content: center;
 }
 
-.filters input,
-.filters select,
-.filters button {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+.card {
+    padding: 20px;
+    border-radius: 10px;
+    width: 250px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    font-size: 16px;
 }
 
-canvas {
-    max-width: 100%;
-    margin: 20px auto;
+.card .title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 18px;
 }
 
-@media (max-width: 768px) {
-    .dashboard {
-        flex-direction: column;
-        align-items: center;
-    }
-    .card {
-        width: 90%;
-    }
+.card .amount {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.pending {
+    background-color: #ffc107;
+    color: black;
+}
+
+.failed {
+    background-color: #dc3545;
+    color: white;
+}
+
+.loading {
+    font-size: 18px;
+    color: #007bff;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.error {
+    font-size: 18px;
+    color: #dc3545;
+    text-align: center;
+    margin-top: 20px;
 }

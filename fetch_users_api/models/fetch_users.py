@@ -78,6 +78,12 @@ class FetchUsers(models.Model):
                             'external_user_id': user.get('user_id', ''),
                         })
 
+                    # Update existing partner details if necessary
+                    else:
+                        partner.write({
+                            "is_atlax_customer": True,
+                        }) 
+                        
                     # Create or update user
                     user_obj = self.env['res.users'].search([('login', '=', user['email'])], limit=1)
                     if not user_obj:

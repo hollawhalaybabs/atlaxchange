@@ -12,17 +12,17 @@
         "security/ir.model.access.csv",
         "data/cron_job.xml",
         "views/ledger_views.xml",
-        "views/ledger_audit_views.xml",
-        "views/dashboard.xml",
+        "views/ledger_audit_views.xml"
     ],
-    "assets": {
-        "web.assets_backend": [
-            "atlaxchange_ledger/static/src/js/atlaxchange_dashboard.js",
-            "atlaxchange_ledger/static/src/xml/atlaxchange_dashboard.xml",
-            "atlaxchange_ledger/static/src/scss/atlaxchange_dashboard.scss",
-        ],
-        
-    },
+    # "assets": {
+    #     "web.assets_backend": [
+    #         "/atlaxchange_ledger/static/src/js/ledger.js",
+    #         "/atlaxchange_ledger/static/src/css/ledger.css",
+    #     ],
+    #     "web.assets_qweb": [
+    #         "atlaxchange_ledger/static/src/xml/ledger.xml",
+    #     ],
+    # },
     "installable": True,
     "application": True,
     "auto_install": False,

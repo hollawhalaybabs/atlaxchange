@@ -49,6 +49,42 @@ class AtlaxchangeLedger(models.Model):
     ], string='Status', default='pending')
     partner_id = fields.Many2one('res.partner', string='Partner')
 
+    @api.model
+    def get_dashboard_data(self):
+        """Fetch data for the dashboard."""
+        try:
+            total_credit = sum(self.search([('type', '=', 'credit')]).mapped('amount')) or 0
+            total_debit = sum(self.search([('type', '=', 'debit')]).mapped('amount')) or 0
+            status_counts = {
+                status: self.search_count([('status', '=', status)]) or 0
+                for status in ['pending', 'success', 'failed', 'reversed']
+            }
+
+            # Aggregate customer data
+            query = """
+                SELECT customer_name, COUNT(*) as txn_count, SUM(amount) as total_amount
+                FROM atlaxchange_ledger
+                WHERE customer_name IS NOT NULL
+                GROUP BY customer_name
+            """
+            self.env.cr.execute(query)
+            customer_summary = self.env.cr.dictfetchall()
+
+            return {
+                'credit': total_credit,
+                'debit': total_debit,
+                'status_counts': status_counts,
+                'customers': customer_summary or [],
+            }
+        except Exception as e:
+            _logger.error(f"Error fetching dashboard data: {str(e)}")
+            return {
+                'credit': 0,
+                'debit': 0,
+                'status_counts': {'pending': 0, 'success': 0, 'failed': 0, 'reversed': 0},
+                'customers': [],
+            }
+
     def action_initiate_refund(self):
         """Initiate refund for the current ledger records with type='debit'."""
         # Filter records to ensure they are of type 'debit' and have valid statuses

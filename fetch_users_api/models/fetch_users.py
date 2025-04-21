@@ -76,6 +76,7 @@ class FetchUsers(models.Model):
                             'business_id': user.get('business_id', ''),
                             'is_email_verified': user.get('is_email_verified', False),
                             'external_user_id': user.get('user_id', ''),
+                            "is_atlax_customer": True,
                         })
 
                     # Update existing partner details if necessary

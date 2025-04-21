@@ -12,17 +12,19 @@
         "security/ir.model.access.csv",
         "data/cron_job.xml",
         "views/ledger_views.xml",
-        "views/ledger_audit_views.xml"
+        "views/ledger_audit_views.xml",
+        "views/ledger_dashboard.xml",  # Dashboard views (Kanban, Graph, Pivot, Tree)
     ],
-    # "assets": {
-    #     "web.assets_backend": [
-    #         "/atlaxchange_ledger/static/src/js/ledger.js",
-    #         "/atlaxchange_ledger/static/src/css/ledger.css",
-    #     ],
-    #     "web.assets_qweb": [
-    #         "atlaxchange_ledger/static/src/xml/ledger.xml",
-    #     ],
-    # },
+    "assets": {
+        "web.assets_backend": [
+            "/atlaxchange_ledger/static/src/js/ledger_dashboard.js",  # JavaScript for KPI dashboard
+            "/atlaxchange_ledger/static/src/scss/ledger_dashboard.scss",  # SCSS for dashboard styling
+            "/atlaxchange_ledger/static/src/xml/ledger_dashboard_templates.xml",
+        ],
+        "web.assets_qweb": [
+            "/atlaxchange_ledger/static/src/xml/ledger_dashboard_templates.xml",  # QWeb templates for KPI dashboard
+        ],
+    },
     "installable": True,
     "application": True,
     "auto_install": False,

@@ -7,21 +7,8 @@ odoo.define('atlaxchange_ledger.LedgerDashboard', function (require) {
     const rpc = require('web.rpc');
 
     class LedgerDashboard extends Component {
-        /**
-         * Dynamically load the template for the component.
-         */
-        static async setup() {
-            try {
-                await loadTemplates(["LedgerDashboard"]);
-                console.log("Template 'LedgerDashboard' loaded successfully.");
-            } catch (error) {
-                console.error("Error loading template 'LedgerDashboard':", error);
-            }
-        }
+        static template = 'LedgerDashboard'; // Set the template statically
 
-        /**
-         * Component state initialization.
-         */
         state = useState({
             credit: 0,
             debit: 0,
@@ -36,9 +23,6 @@ odoo.define('atlaxchange_ledger.LedgerDashboard', function (require) {
             error: null,
         });
 
-        /**
-         * Fetch dashboard data from the server.
-         */
         async fetchDashboardData() {
             try {
                 const result = await rpc.query({
@@ -57,15 +41,11 @@ odoo.define('atlaxchange_ledger.LedgerDashboard', function (require) {
             }
         }
 
-        /**
-         * Lifecycle hook to fetch data before rendering.
-         */
         setup() {
             onWillStart(() => this.fetchDashboardData());
         }
     }
 
-    // Register the component in the action registry
     registry.category("actions").add("LedgerDashboard", LedgerDashboard);
 
     return LedgerDashboard;

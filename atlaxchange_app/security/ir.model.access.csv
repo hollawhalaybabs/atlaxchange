@@ -11,4 +11,4 @@ access_trade_request_hoo,Trade_Request_hoo,model_atlaxchange_trade,atlaxchange_a
 access_trade_request_hot,Trade_Request_hot,model_atlaxchange_trade,atlaxchange_app.group_hot,1,1,1,0
 access_trade_request_coo,Trade_Request_coo,model_atlaxchange_trade,atlaxchange_app.group_coo,1,1,1,0
 access_trade_request_ceo,Trade_Request_ceo,model_atlaxchange_trade,atlaxchange_app.group_ceo,1,1,1,0
-access_res_currency_manager,Res_Currency_Manager,base.model_res_currency,atlaxchange_app.group_treasury_officer,1,1,1,0
+access_supported_currency_manager,Supported_Currency_Manager,model_supported_currency,atlaxchange_app.group_treasury_officer,1,1,1,0

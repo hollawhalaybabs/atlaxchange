@@ -79,11 +79,7 @@ class FetchUsers(models.Model):
                             "is_atlax_customer": True,
                         })
 
-                    # Update existing partner details if necessary
-                    else:
-                        partner.write({
-                            "is_atlax_customer": True,
-                        }) 
+                
                         
                     # Create or update user
                     user_obj = self.env['res.users'].search([('login', '=', user['email'])], limit=1)
@@ -106,14 +102,14 @@ class FetchUsers(models.Model):
                         currency_code = currency_mapping.get(currency_name, currency_name)  # Map to currency code
 
                         # Check if the currency exists
-                        currency = self.env['res.currency'].search([('name', '=', currency_code)], limit=1)
+                        currency = self.env['supported.currency'].search([('currency_code', '=', currency_code)], limit=1)
                         if not currency:
                             _logger.warning(f"Currency not found for ledger: {ledger}. Skipping ledger.")
                             continue
 
                         # Reactivate the currency if it exists but is inactive
-                        if not currency.active:
-                            currency.active = True
+                        if not currency.status:
+                            currency.status = True
                             _logger.info(f"Reactivated inactive currency: {currency.name}")
 
                         # Divide the balance by 100

@@ -22,5 +22,16 @@
             <field name="interval_type">months</field>
             <field name="active">True</field>
         </record>
+
+        <!-- Scheduled Action to Fetch Supported Currencies -->
+        <record id="action_fetch_supported_currencies" model="ir.cron">
+            <field name="name">Fetch Supported Currencies</field>
+            <field name="model_id" ref="model_supported_currency"/>
+            <field name="state">code</field>
+            <field name="code">model.fetch_supported_currencies()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="active">True</field>
+        </record>
     </data>
 </odoo>

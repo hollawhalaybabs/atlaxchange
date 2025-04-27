@@ -1,18 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Action for Res Currency -->
-    <record id="action_res_currency" model="ir.actions.act_window">
-        <field name="name">Currencies</field>
-        <field name="res_model">res.currency</field>
-        <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Configure your currencies here.
-            </p>
+    <!-- Form View -->
+    <record id="view_supported_currency_form" model="ir.ui.view">
+        <field name="name">supported.currency.form</field>
+        <field name="model">supported.currency</field>
+        <field name="arch" type="xml">
+            <form string="Supported Currency">
+                <header>
+                    <button name="post_new_currency" type="object" string="Add New Currency" class="btn-primary"
+                        confirm="Are you sure you want to create this currency?"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="currency_code"/>
+                        <field name="name"/>
+                        <field name="symbol"/>
+                        <field name="exchanges" widget="many2many_tags"/>
+                        <field name="status"/>
+                    </group>
+                </sheet>
+            </form>
         </field>
     </record>
 
+    <!-- Tree View -->
+    <record id="view_supported_currency_tree" model="ir.ui.view">
+        <field name="name">supported.currency.tree</field>
+        <field name="model">supported.currency</field>
+        <field name="arch" type="xml">
+            <tree string="Supported Currencies">
+                <field name="currency_code"/>
+                <field name="name"/>
+                <field name="symbol"/>
+                <field name="exchanges" widget="many2many_tags"/>
+                <field name="status"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_supported_currency" model="ir.actions.act_window">
+        <field name="name">Supported Currencies</field>
+        <field name="res_model">supported.currency</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
     <!-- Menu Item for Res Currency -->
-    <menuitem id="menu_atlaxchange_config" name="Configuration" parent="atlaxchange_menu" sequence="20" action="action_res_currency"/>
-    <menuitem id="menu_res_currency" name="Currencies" parent="menu_atlaxchange_config" sequence="20" action="action_res_currency" groups="atlaxchange_app.group_treasury_officer"/>
+    <menuitem id="menu_atlaxchange_config" name="Configuration" parent="atlaxchange_menu" sequence="20"/>
+    <menuitem id="menu_supported_currency" name="Supported Currencies" parent="menu_atlaxchange_config" sequence="20" action="action_supported_currency" groups="atlaxchange_app.group_treasury_officer"/>
 </odoo>

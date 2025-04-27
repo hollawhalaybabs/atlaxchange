@@ -28,13 +28,7 @@ class AtlaxchangeLedger(models.Model):
     bank = fields.Char(string='Bank')
     beneficiary = fields.Char(string='Beneficiary')
     customer_name = fields.Char(string='Customer Name', store=True)
-    wallet = fields.Selection([
-        ('NGN', 'Nigerian Naira'),
-        ('USD', 'US Dollar'),
-        ('GBP', 'British Pound'),
-        ('KES', 'Kenyan Shilling'),
-        ('GHS', 'Ghanaian Cedi')
-    ], string='Wallet')
+    wallet = fields.Many2one('supported.currency', string='Wallet')
     amount = fields.Float(string='Amount')
     fee = fields.Float(string='Fee')
     type = fields.Selection([
@@ -166,7 +160,7 @@ class AtlaxchangeLedger(models.Model):
                             'amount': record['amount'] / 100,  # Divide amount by 100
                             'status': record['status'],
                             'type': record['direction'],
-                            'wallet': record['currency_code'],
+                            'wallet': self.env['supported.currency'].search([('currency_code', '=', record['currency_code'])], limit=1).id,
                             'fee': record['fee'] / 100,
                         })
                         existing_references.add(reference)  # Add to cache to avoid duplicate processing

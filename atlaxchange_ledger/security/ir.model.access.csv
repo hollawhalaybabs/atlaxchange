@@ -1,4 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_atlaxchange_etiti,Access for Etiti Management,model_atlaxchange_ledger,atlaxchange_app.group_etiti_officer,1,0,0,0
 access_atlaxchange_officer,Access for Officer,model_atlaxchange_ledger,atlaxchange_app.group_hoo,1,1,1,0
 access_atlaxchange_team_lead,Access for Team Lead,model_atlaxchange_ledger,atlaxchange_app.group_hot,1,0,0,0
 access_atlaxchange_manager,Access for Manager,model_atlaxchange_ledger,atlaxchange_app.group_coo,1,0,0,0

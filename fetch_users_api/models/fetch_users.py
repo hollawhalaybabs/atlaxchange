@@ -51,11 +51,11 @@ class FetchUsers(models.Model):
             fetched_count = 0
 
             # Currency mapping
-            currency_mapping = {
-                "Nigerian Naira": "NGN",
-                "Kenyan Shilling": "KES",
-                "Ghana Cedi": "GHS"
-            }
+            # currency_mapping = {
+            #     "Nigerian Naira": "NGN",
+            #     "Kenyan Shilling": "KES",
+            #     "Ghana Cedi": "GHS"
+            # }
 
             for user in users:
                 try:
@@ -64,20 +64,25 @@ class FetchUsers(models.Model):
 
                     # Create or update partner
                     partner = self.env['res.partner'].search([('email', '=', user['email'])], limit=1)
+                    partner_vals = {
+                        'name': f"{user['first_name']} {user['last_name']}",
+                        'email': user['email'],
+                        'phone': user.get('business_phone', ''),
+                        'street': user.get('business_address', ''),
+                        'country_id': self.env['res.country'].search([('name', '=', user.get('business_country', ''))], limit=1).id,
+                        'is_company': False,
+                        'company_name': user.get('business_name', '') if is_company else '',
+                        'business_id': user.get('business_id', ''),
+                        'is_email_verified': user.get('is_email_verified', False),
+                        'external_user_id': user.get('user_id', ''),
+                        'is_atlax_customer': True,
+                    }
+
                     if not partner:
-                        partner = self.env['res.partner'].create({
-                            'name': f"{user['first_name']} {user['last_name']}",
-                            'email': user['email'],
-                            'phone': user.get('business_phone', ''),
-                            'street': user.get('business_address', ''),
-                            'country_id': self.env['res.country'].search([('name', '=', user.get('business_country', ''))], limit=1).id,
-                            'is_company': False,
-                            'company_name': user.get('business_name', '') if is_company else '',
-                            'business_id': user.get('business_id', ''),
-                            'is_email_verified': user.get('is_email_verified', False),
-                            'external_user_id': user.get('user_id', ''),
-                            "is_atlax_customer": True,
-                        })
+                        partner = self.env['res.partner'].create(partner_vals)
+                    else:
+                        partner.write(partner_vals)
+
 
                 
                         
@@ -99,10 +104,10 @@ class FetchUsers(models.Model):
 
                     for ledger in ledgers:
                         currency_name = ledger.get('currency_name')
-                        currency_code = currency_mapping.get(currency_name, currency_name)  # Map to currency code
+                        # currency_code = currency_mapping.get(currency_name, currency_name)  # Map to currency code
 
                         # Check if the currency exists
-                        currency = self.env['supported.currency'].search([('currency_code', '=', currency_code)], limit=1)
+                        currency = self.env['supported.currency'].search([('name', '=', currency_name)], limit=1)
                         if not currency:
                             _logger.warning(f"Currency not found for ledger: {ledger}. Skipping ledger.")
                             continue

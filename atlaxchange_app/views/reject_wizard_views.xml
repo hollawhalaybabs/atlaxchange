@@ -1,0 +1,17 @@
+<odoo>
+    <record id="view_conversion_fee_reject_wizard_form" model="ir.ui.view">
+        <field name="name">conversion.fee.reject.wizard.form</field>
+        <field name="model">conversion.fee.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Conversion Fee">
+                <group>
+                    <field name="reason"/>
+                </group>
+                <footer>
+                    <button string="Reject" type="object" name="action_reject" class="btn-danger"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

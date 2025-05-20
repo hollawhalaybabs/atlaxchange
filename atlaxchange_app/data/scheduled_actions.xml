@@ -33,5 +33,16 @@
             <field name="interval_type">hours</field>
             <field name="active">True</field>
         </record>
+
+        <!-- Scheduled Action to Fetch Conversion Fees -->
+        <record id="action_fetch_conversion_fees" model="ir.cron">
+            <field name="name">Fetch Conversion Fees</field>
+            <field name="model_id" ref="model_conversion_fee"/>
+            <field name="state">code</field>
+            <field name="code">model.fetch_conversion_fees()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="active">True</field>
+        </record>
     </data>
 </odoo>

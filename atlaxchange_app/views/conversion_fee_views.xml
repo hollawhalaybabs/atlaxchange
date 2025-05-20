@@ -1,0 +1,64 @@
+<odoo>
+    <record id="view_conversion_fee_tree" model="ir.ui.view">
+        <field name="name">conversion.fee.tree</field>
+        <field name="model">conversion.fee</field>
+        <field name="arch" type="xml">
+            <tree create="false" delete="false">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="rate"/>
+                <field name="state"/>
+                <field name="updated_at"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_conversion_fee_form" model="ir.ui.view">
+        <field name="name">conversion.fee.form</field>
+        <field name="model">conversion.fee</field>
+        <field name="arch" type="xml">
+            <form string="Conversion Rate" create="false" delete="false">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,awaiting_approval,done,rejected"/>
+                    <button name="fetch_conversion_fees"
+                            string="Fetch Rate"
+                            type="object"
+                            class="btn-warning"/>
+                    <button name="action_open_update_fee_wizard"
+                            string="Update Fee"
+                            type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'done')]}"/>
+                    <button name="action_approve_fee"
+                            string="Approve"
+                            type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'awaiting_approval')]}"/>
+                    <button name="action_reject_fee"
+                            string="Reject"
+                            type="object"
+                            class="btn-secondary"
+                            attrs="{'invisible': [('state', '!=', 'awaiting_approval')]}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="partner_id"/>
+                        <field name="source_currency"/>
+                        <field name="target_currency"/>
+                        <field name="rate"/>
+                        <field name="updated_at"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_conversion_fee" model="ir.actions.act_window">
+        <field name="name">Conversion Fees</field>
+        <field name="res_model">conversion.fee</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_conversion_fee" name="Conversion Rate" parent="menu_atlaxchange_config" action="action_conversion_fee" sequence="1"/>
+</odoo>

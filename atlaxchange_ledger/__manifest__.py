@@ -7,7 +7,7 @@
     "website": "https://novussolutionsltd.com",
     "images": ["static/description/atlax_icon.png"],
     "license": "LGPL-3",
-    "depends": ["base", "fetch_users_api", "web", "contacts", "atlaxchange_app", "board"],
+    "depends": ["base", "fetch_users_api", "web", "contacts", "atlaxchange_app"],
     "data": [
         "security/ir.model.access.csv",
         "data/cron_job.xml",

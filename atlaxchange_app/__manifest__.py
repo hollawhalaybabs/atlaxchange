@@ -13,9 +13,13 @@
         "views/trade_views.xml",
         "views/refund_views.xml",
         "views/currency_views.xml",
+        "views/conversion_fee_views.xml",
+        "views/create_conversion_fee_view.xml",
+        "views/update_conversion_fee_wizard_view.xml",
         "data/email_templates.xml",
         "data/automated_actions.xml",
-        "data/scheduled_actions.xml"
+        "data/scheduled_actions.xml",
+        "views/reject_wizard_views.xml"
     ],
     "installable": True,
     "application": True

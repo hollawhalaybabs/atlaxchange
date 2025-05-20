@@ -1,2 +1,2 @@
 # Init file for module
-from . import models
+from . import models, wizard

@@ -14,7 +14,7 @@ class Funding(models.Model):
         ('atlax_wallet', 'Atlax Wallet'),
         ('customer_wallet', 'Customer Wallet')
     ], string="Funding Type", required=True)
-    customer_name = fields.Many2one('res.partner', string="Customer", required=True)
+    customer_name = fields.Many2one('res.partner', string="Customer", required=True, domain=[('is_atlax_customer', '=', True)])
     source_currency = fields.Many2one('supported.currency', string="Source Currency", required=True)
     wallet_currency = fields.Many2one('supported.currency', string="Wallet Currency", required=True)
     conversion_rate = fields.Float(string="Conversion Rate", required=True, default=1.0)

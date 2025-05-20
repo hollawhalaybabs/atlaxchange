@@ -6,8 +6,8 @@
         <field name="arch" type="xml">
             <field name="vat" position="before">
                 <field name="is_email_verified" widget="boolean_toggle" options="{'color': 'green'}" readonly="1"/>
-                <field name="business_id" readonly="1"/>
-                <field name="external_user_id" readonly="1"/>
+                <field name="business_id" readonly="1" groups="base.group_system"/>
+                <field name="external_user_id" readonly="1" groups="base.group_system"/>
             </field>
             <notebook position="inside">
                 <page string="Wallet">

@@ -8,6 +8,8 @@ _logger = logging.getLogger(__name__)
 class SupportedCurrency(models.Model):
     _name = 'supported.currency'
     _description = 'Supported Currency'
+    _order = 'id desc'
+    _rec_name = 'currency_code'
 
     currency_code = fields.Char(string='Currency Code', size=4, required=True, help="Currency Code (ISO 4217)")
     name = fields.Char(string='Currency Name', required=True, help="Full name of the currency")

@@ -1,0 +1,73 @@
+<odoo>
+    <record id="view_create_conversion_fee_tree" model="ir.ui.view">
+        <field name="name">create.conversion.fee.tree</field>
+        <field name="model">create.conversion.fee</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="partner_id"/>
+                <field name="source_currency"/>
+                <field name="target_currency"/>
+                <field name="rate"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_create_conversion_fee_form" model="ir.ui.view">
+        <field name="name">create.conversion.fee.form</field>
+        <field name="model">create.conversion.fee</field>
+        <field name="arch" type="xml">
+            <form string="Create Conversion Fee">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,awaiting_approval,done,rejected"/>
+                    <button name="action_submit_for_approval"
+                            string="Submit for Approval"
+                            type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="action_approve_fee"
+                            string="Approve"
+                            type="object"
+                            class="btn-success"
+                            attrs="{'invisible': [('state', '!=', 'awaiting_approval')]}"/>
+                    <button name="action_reject_fee"
+                            string="Reject"
+                            type="object"
+                            class="btn-danger"
+                            attrs="{'invisible': [('state', '!=', 'awaiting_approval')]}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="business_id"/>
+                            <field name="source_currency"/>
+                            <field name="target_currency"/>
+                        </group>
+                        <group>
+                            <field name="approver_id"/>
+                            <field name="rate"/>
+                            <field name="rejection_reason" attrs="{'invisible': [('state', '!=', 'rejected')]}"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <act_window id="action_create_conversion_fee"
+                name="Create Conversion Fee"
+                res_model="create.conversion.fee"
+                view_mode="tree,form"
+                target="current"/>
+    <act_window id="action_conversion_fee_reject_wizard"
+                name="Reject Conversion Fee"
+                res_model="conversion.fee.reject.wizard"
+                view_mode="form"
+                target="new"/>
+    <menuitem id="menu_create_conversion_fee"
+              name="Create Conversion Fee"
+              parent="menu_atlaxchange_config"
+              action="action_create_conversion_fee"
+              sequence="20"/>
+</odoo>

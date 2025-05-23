@@ -22,7 +22,8 @@ var DynamicDashboard = AbstractAction.extend({
     init: function(parent, context) {
         this.action_id = context['id'];
         this._super(parent, context);
-        this.block_ids = []
+        this.block_ids = [];
+        this.is_system = session.is_system || false; // Add this line
     },
 
     start: function() {
@@ -31,6 +32,35 @@ var DynamicDashboard = AbstractAction.extend({
 
         return this._super().then(function() {
             self.render_dashboards();
+        });
+    },
+
+    render_dashboards: function() {
+        var self = this;
+        // Render main template with is_system context
+        this.$el.html(QWeb.render('dynamic_dashboard', {
+            is_system: self.is_system
+        }));
+        _.each(this.block_ids, function(block) {
+            if (block['type'] == 'tile') {
+                self.$('.o_dynamic_dashboard').append(QWeb.render('DynamicDashboardTile', {widget: block}));
+            }
+            else {
+                self.$('.o_dynamic_chart').append(QWeb.render('DynamicDashboardChart', {widget: block}));
+                var element = $('[data-id=' + block['id'] + ']')
+                if (!('x_axis' in block)){
+                    return false
+                }
+                var ctx =self.$('.chart_graphs').last()
+                var type = block['graph_type']
+                var chart_type = 'self.get_values_' + `${type}(block)`
+                var data = eval(chart_type)
+                var chart = new Chart(ctx, {
+                    type: type,
+                    data: data[0],
+                    options: data[1]
+                });
+            }
         });
     },
 
@@ -163,26 +193,30 @@ var DynamicDashboard = AbstractAction.extend({
 
     render_dashboards: function() {
         var self = this;
+        // Render main template with is_system context
+        this.$el.html(QWeb.render('dynamic_dashboard', {
+            is_system: self.is_system
+        }));
         _.each(this.block_ids, function(block) {
-                if (block['type'] == 'tile') {
-                    self.$('.o_dynamic_dashboard').append(QWeb.render('DynamicDashboardTile', {widget: block}));
+            if (block['type'] == 'tile') {
+                self.$('.o_dynamic_dashboard').append(QWeb.render('DynamicDashboardTile', {widget: block}));
+            }
+            else {
+                self.$('.o_dynamic_chart').append(QWeb.render('DynamicDashboardChart', {widget: block}));
+                var element = $('[data-id=' + block['id'] + ']')
+                if (!('x_axis' in block)){
+                    return false
                 }
-                else {
-                    self.$('.o_dynamic_chart').append(QWeb.render('DynamicDashboardChart', {widget: block}));
-                    var element = $('[data-id=' + block['id'] + ']')
-                    if (!('x_axis' in block)){
-                        return false
-                    }
-                    var ctx =self.$('.chart_graphs').last()
-                    var type = block['graph_type']
-                    var chart_type = 'self.get_values_' + `${type}(block)`
-                    var data = eval(chart_type)
-                  var chart = new Chart(ctx, {
+                var ctx =self.$('.chart_graphs').last()
+                var type = block['graph_type']
+                var chart_type = 'self.get_values_' + `${type}(block)`
+                var data = eval(chart_type)
+                var chart = new Chart(ctx, {
                     type: type,
                     data: data[0],
                     options: data[1]
-                  });
-                }
+                });
+            }
         });
     },
 

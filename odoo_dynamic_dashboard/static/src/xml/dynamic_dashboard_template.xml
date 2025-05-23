@@ -2,10 +2,10 @@
 <templates id="template" xml:space="preserve">
     <t t-name="dynamic_dashboard">
         <div class="container">
-            <button class="btn btn-primary add_block" data-type="tile" type="button">Add Block
-            </button>
-            <button class="btn btn-primary add_block" data-type="graph" type="button">Add Graph
-            </button>
+            <t t-if="is_system">
+                <button class="btn btn-primary add_block" data-type="tile" type="button">Add Block</button>
+                <button class="btn btn-primary add_block" data-type="graph" type="button">Add Graph</button>
+            </t>
             <div class=" o_dynamic_dashboard row">
             </div>
             <div style="padding-top: 100px" class="o_dynamic_chart row">

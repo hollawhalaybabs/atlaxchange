@@ -17,7 +17,7 @@ class Refund(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected')
     ], string="Status", default='draft', readonly=True)
-    approver_id = fields.Many2one('res.users', string="Approver", readonly=True)
+    approver_id = fields.Many2one('res.users', string="Approver", readonly=True, domain=[('share', '=', False)])
     approval_level = fields.Selection([
         ('hoo', 'HOO'),
         ('hot_t', 'HOT&T'),

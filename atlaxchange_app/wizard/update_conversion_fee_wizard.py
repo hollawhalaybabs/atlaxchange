@@ -10,7 +10,7 @@ class UpdateConversionFeeWizard(models.TransientModel):
     conversion_id = fields.Many2one('conversion.fee', string='Connersion Rate')
     rate_id = fields.Char(string='Rate ID', readonly=True)
     rate = fields.Float(string='Rate Amount', required=True)
-    approver_id = fields.Many2one('res.users', string="Approver", required=True)
+    approver_id = fields.Many2one('res.users', string="Approver", required=True, domain=[('share', '=', False)])
     submitted_at = fields.Datetime(string='Submitted At', default=fields.Datetime.now, readonly=True)
 
     @api.onchange('partner_id', 'conversion_id')

@@ -23,7 +23,7 @@ class CreateConversionFee(models.Model):
         ('done', 'Done'),
         ('rejected', 'Rejected')
     ], string='Status', default='draft', required=True)
-    approver_id = fields.Many2one('res.users', string="Approver", required=True)
+    approver_id = fields.Many2one('res.users', string="Approver", required=True, domain=[('share', '=', False)])
     submitted_at = fields.Datetime(string='Submitted At', default=fields.Datetime.now, readonly=True)
     rejection_reason = fields.Text(string='Rejection Reason', readonly=True)
 
@@ -107,7 +107,7 @@ class CreateConversionFee(models.Model):
         if not api_key or not api_secret:
             raise Exception(_("API key or secret is missing. Set them in System Parameters."))
 
-        url = f"https://api.atlaxchange.com/api/v1//rates/{self.business_id}"
+        url = f"https://api.atlaxchange.com/api/v1/currency-rates/{self.business_id}"
         headers = {
             "Content-Type": "application/json",
             "X-API-KEY": api_key,
@@ -129,7 +129,7 @@ class ConversionFee(models.Model):
     _order = 'id desc'
     _rec_name = 'name'
 
-    name = fields.Char(string='Name')
+    name = fields.Char(string='Name', readonly=True, store=True)
     rate_id = fields.Char(string='Rate ID', readonly=True, store=True)
     partner_id = fields.Many2one('res.partner', string='Partner', readonly=True, store=True)
     business_id = fields.Char(
@@ -234,7 +234,7 @@ class ConversionFee(models.Model):
         if not api_key or not api_secret:
             raise Exception(_("API key or secret is missing. Set them in System Parameters."))
 
-        url = "https://api.atlaxchange.com/api/v1/fees"
+        url = "https://api.atlaxchange.com/api/v1/currency-rates/{self.rate_id}"
         headers = {
             "Content-Type": "application/json",
             "X-API-KEY": api_key,

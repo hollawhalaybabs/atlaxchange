@@ -40,7 +40,7 @@
     <!-- Menu Item for Atlax Customers -->
     <menuitem id="menu_atlax_customers" 
               name="Clients" 
-              parent="atlaxchange_ledger.menu_atlaxchange_ledger_root" 
+              parent="atlaxchange_app.atlaxchange_menu" 
               action="action_atlax_customers" 
-              sequence="1"/>
+              sequence="2"/>
 </odoo>

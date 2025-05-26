@@ -64,9 +64,9 @@
     </record>
 
     <!-- Menu Items -->
-    <menuitem id="menu_atlaxchange_ledger_root" name="Atlax Transactions" sequence="10"/>
+    <!-- <menuitem id="menu_atlaxchange_ledger_root" name="Atlax Transactions" sequence="10"/> -->
     <menuitem id="menu_atlaxchange_ledger" name="Transaction History"
-              parent="menu_atlaxchange_ledger_root" action="action_atlaxchange_ledger"/>
+              parent="atlaxchange_app.atlaxchange_menu" action="action_atlaxchange_ledger" sequence="3"/>
 
     <!-- Payout History -->
     <record id="action_payout_history" model="ir.actions.act_window">

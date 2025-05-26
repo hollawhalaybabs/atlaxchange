@@ -1,8 +1,10 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_atlaxchange_etiti,Access for Etiti Management,model_atlaxchange_ledger,atlaxchange_app.group_etiti_officer,1,0,0,0
-access_atlaxchange_officer,Access for Officer,model_atlaxchange_ledger,atlaxchange_app.group_hoo,1,1,1,0
-access_atlaxchange_team_lead,Access for Team Lead,model_atlaxchange_ledger,atlaxchange_app.group_hot,1,0,0,0
-access_atlaxchange_manager,Access for Manager,model_atlaxchange_ledger,atlaxchange_app.group_coo,1,0,0,0
-access_atlaxchange_management,Access for Management,model_atlaxchange_ledger,atlaxchange_app.group_ceo,1,0,0,0
-access_atlaxchange_user,Access for User,model_atlaxchange_ledger,base.group_system,1,1,1,0
+
 access_fetch_ledger_audit,access_fetch_ledger_audit,model_fetch_ledger_audit,base.group_system,1,0,0,0
+access_atlaxchange_treasury,Access for Treasury,model_atlaxchange_ledger,atlaxchange_app.group_treasury_officer,1,1,1,0
+access_atlaxchange_operation,Access for Operation,model_atlaxchange_ledger,atlaxchange_app.group_operation_officer,1,1,1,0
+access_atlaxchange_etiti,Access for Etiti Management,model_atlaxchange_ledger,atlaxchange_app.group_etiti_officer,1,0,0,0
+access_atlaxchange_hoo,Access for HOO,model_atlaxchange_ledger,atlaxchange_app.group_hoo,1,1,1,0
+access_atlaxchange_hot,Access for HOT,model_atlaxchange_ledger,atlaxchange_app.group_hot,1,0,0,0
+access_atlaxchange_coo,Access for COO,model_atlaxchange_ledger,atlaxchange_app.group_coo,1,0,0,0
+access_atlaxchange_ceo,Access for CEO,model_atlaxchange_ledger,atlaxchange_app.group_ceo,1,0,0,0

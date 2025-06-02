@@ -114,3 +114,29 @@ class SupportedCurrency(models.Model):
                 raise ValidationError(_("Failed to post new currency. Status Code: %s, Response: %s") % (response.status_code, response.text))
         except requests.exceptions.RequestException as e:
             raise ValidationError(_("Failed to connect to the API: %s") % str(e))
+
+    def action_update_exchanges(self):
+        self.ensure_one()
+        api_url = f"https://api.atlaxchange.com/api/v1/currencies/{self.currency_code}"
+        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
+        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
+        if not api_key or not api_secret:
+            raise ValidationError(_("API key or secret is missing. Set them in System Parameters."))
+
+        headers = {
+            "Content-Type": "application/json",
+            "X-API-KEY": api_key,
+            "X-API-SECRET": api_secret
+        }
+        exchanges_codes = ', '.join(self.exchanges.mapped('currency_code'))
+        payload = {
+            "exchanges": exchanges_codes
+        }
+        try:
+            response = requests.patch(api_url, headers=headers, json=payload, timeout=10)
+            if response.status_code in (200, 201):
+                self.exchanges = [(6, 0, self.exchanges.ids)]
+            else:
+                raise ValidationError(_("Failed to update exchanges. Status Code: %s, Response: %s") % (response.status_code, response.text))
+        except requests.exceptions.RequestException as e:
+            raise ValidationError(_("Failed to connect to the API: %s") % str(e))

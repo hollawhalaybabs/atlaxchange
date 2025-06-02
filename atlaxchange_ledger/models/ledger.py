@@ -21,7 +21,7 @@ class AtlaxchangeLedger(models.Model):
     _name = 'atlaxchange.ledger'
     _description = 'Atlaxchange Client Ledger History'
     _order = 'id desc'
-    _rec_name = 'transaction_reference'
+    _rec_name = 'customer_name'
 
     datetime = fields.Datetime(string='Date')
     transaction_reference = fields.Char(string='Reference', index=True)
@@ -29,7 +29,7 @@ class AtlaxchangeLedger(models.Model):
     beneficiary = fields.Char(string='Beneficiary')
     customer_name = fields.Char(string='Customer Name', store=True)
     wallet = fields.Many2one('supported.currency', string='Wallet')
-    amount = fields.Float(string='Amount')
+    amount = fields.Float(string='Amount', store=True, digits=(16, 2))
     fee = fields.Float(string='Fee')
     type = fields.Selection([
         ('debit', 'Debit'),
@@ -43,41 +43,6 @@ class AtlaxchangeLedger(models.Model):
     ], string='Status', default='pending')
     partner_id = fields.Many2one('res.partner', string='Partner')
 
-    @api.model
-    def get_dashboard_data(self):
-        """Fetch data for the dashboard."""
-        try:
-            total_credit = sum(self.search([('type', '=', 'credit')]).mapped('amount')) or 0
-            total_debit = sum(self.search([('type', '=', 'debit')]).mapped('amount')) or 0
-            status_counts = {
-                status: self.search_count([('status', '=', status)]) or 0
-                for status in ['pending', 'success', 'failed', 'reversed']
-            }
-
-            # Aggregate customer data
-            query = """
-                SELECT customer_name, COUNT(*) as txn_count, SUM(amount) as total_amount
-                FROM atlaxchange_ledger
-                WHERE customer_name IS NOT NULL
-                GROUP BY customer_name
-            """
-            self.env.cr.execute(query)
-            customer_summary = self.env.cr.dictfetchall()
-
-            return {
-                'credit': total_credit,
-                'debit': total_debit,
-                'status_counts': status_counts,
-                'customers': customer_summary or [],
-            }
-        except Exception as e:
-            _logger.error(f"Error fetching dashboard data: {str(e)}")
-            return {
-                'credit': 0,
-                'debit': 0,
-                'status_counts': {'pending': 0, 'success': 0, 'failed': 0, 'reversed': 0},
-                'customers': [],
-            }
 
     def action_initiate_refund(self):
         """Initiate refund for the current ledger records with type='debit'."""
@@ -157,7 +122,7 @@ class AtlaxchangeLedger(models.Model):
                             'beneficiary': record['beneficiary_name'],
                             'customer_name': record.get('customer_name', 'N/A'),
                             'transaction_reference': reference,
-                            'amount': record['amount'] / 100,  # Divide amount by 100
+                            'amount': abs(record['amount'] / 100),  # Divide amount by 100
                             'status': record['status'],
                             'type': record['direction'],
                             'wallet': self.env['supported.currency'].search([('currency_code', '=', record['currency_code'])], limit=1).id,

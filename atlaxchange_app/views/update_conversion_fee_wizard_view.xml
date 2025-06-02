@@ -13,26 +13,16 @@
                         </group>
                         <group>
                             <field name="submitted_at"/>
-                            <field name="approver_id"/>
                             <field name="rate"/>
                         </group>
                     </group>
                 </sheet>
                 <footer>
-                    <button name="action_submit_for_approval" string="Submit for Approval" type="object" class="btn-primary"/>
+                    <button name="action_update_fee" string="Update Rate" type="object" class="btn-primary" 
+                            confirm="Are you sure you want to continue?"/>
                     <button string="Cancel" special="cancel" class="btn-secondary"/>
                 </footer>
             </form>
         </field>
     </record>
-    <act_window id="action_update_conversion_fee_wizard"
-                name="Update Conversion Fee"
-                res_model="update.conversion.fee.wizard"
-                view_mode="form"
-                target="new"/>
-    <menuitem id="menu_update_conversion_fee_wizard"
-              name="Update Conversion Fee"
-              parent="menu_atlaxchange_config"
-              action="action_update_conversion_fee_wizard"
-              sequence="21"/>
 </odoo>

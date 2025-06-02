@@ -7,7 +7,6 @@
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="rate"/>
-                <field name="state"/>
                 <field name="updated_at"/>
             </tree>
         </field>
@@ -19,26 +18,14 @@
         <field name="arch" type="xml">
             <form string="Conversion Rate" create="false" delete="false">
                 <header>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,awaiting_approval,done,rejected"/>
                     <button name="fetch_conversion_fees"
                             string="Fetch Rate"
                             type="object"
                             class="btn-warning"/>
                     <button name="action_open_update_fee_wizard"
-                            string="Update Fee"
+                            string="Update Rate"
                             type="object"
-                            class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'done')]}"/>
-                    <button name="action_approve_fee"
-                            string="Approve"
-                            type="object"
-                            class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'awaiting_approval')]}"/>
-                    <button name="action_reject_fee"
-                            string="Reject"
-                            type="object"
-                            class="btn-secondary"
-                            attrs="{'invisible': [('state', '!=', 'awaiting_approval')]}"/>
+                            class="btn-primary"/>
                 </header>
                 <sheet>
                     <group>

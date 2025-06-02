@@ -142,12 +142,6 @@ class ConversionFee(models.Model):
     target_currency = fields.Many2one('supported.currency', string='Target Currency', readonly=True, store=True)
     rate = fields.Float(string='Rate Amount', readonly=True, store=True)
     updated_at = fields.Datetime(string='Updated At', readonly=True)
-    state = fields.Selection([
-        ('draft', 'Draft'),
-        ('awaiting_approval', 'Awaiting Approval'),
-        ('done', 'Done'),
-        ('rejected', 'Rejected')
-    ], string='Status', default='draft', required=True)
 
     @api.depends('partner_id')
     def _get_partner_id(self):
@@ -156,20 +150,8 @@ class ConversionFee(models.Model):
                 rec.business_id = rec.partner_id.business_id or False
             else:
                 rec.business_id = False
-
-    def action_approve_fee(self):
-        """Approve the fee, call action_update_fee"""
-        self.action_update_fee()
-        self.state = 'done'
-        return True
-    
-    def action_reject_fee(self):
-        """Open the rejection."""
-        self.state = 'rejected'
-        return True
         
 
-    @api.model
     def fetch_conversion_fees(self):
         """Fetch conversion fees from external API and update/create records.
         Also, update res.partner's rate_id where business_id matches,
@@ -213,8 +195,7 @@ class ConversionFee(models.Model):
                 'target_currency': tgt_currency.id if tgt_currency else False,
                 'rate': rec.get('rate', 0),
                 'name': rec.get('rate_name', ''),
-                'partner_id': partner.id if partner else False,
-                'state': 'done',  # Set state to done for all fetched records
+                'partner_id': partner.id if partner else False
             }
             fee = self.search([('rate_id', '=', rec.get('rate_id'))], limit=1)
             if fee:
@@ -227,28 +208,6 @@ class ConversionFee(models.Model):
             if partner:
                 partner.write({'rate_id': rec.get('rate_id')})
 
-    def action_update_fee(self):
-        """Call external API to update the conversion fee."""
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-        if not api_key or not api_secret:
-            raise Exception(_("API key or secret is missing. Set them in System Parameters."))
-
-        url = "https://api.atlaxchange.com/api/v1/currency-rates/{self.rate_id}"
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
-        payload = {
-            "rate_id": self.rate_id,
-            "rate": self.rate
-        }
-        response = requests.patch(url, json=payload, headers=headers)
-        if response.status_code not in (200, 201):
-            raise UserError(_("Failed to update conversion fee: %s") % response.text)
-
-
     def action_open_update_fee_wizard(self):
         """Open the wizard to update conversion fee."""
         return {
@@ -257,8 +216,8 @@ class ConversionFee(models.Model):
             'view_mode': 'form',
             'target': 'new',
             'context': {
-                'default_partner_id': self.partner_id.id,
                 'default_conversion_id': self.id,
+                'default_partner_id': self.partner_id.id,
                 'default_rate_id': self.rate_id,
                 'default_rate': self.rate,
             }

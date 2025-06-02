@@ -199,8 +199,7 @@ class ConversionFee(models.Model):
             }
             fee = self.search([('rate_id', '=', rec.get('rate_id'))], limit=1)
             if fee:
-                pass
-                # fee.write(vals)
+                fee.write(vals)
             else:
                 fee = self.create(vals)
 

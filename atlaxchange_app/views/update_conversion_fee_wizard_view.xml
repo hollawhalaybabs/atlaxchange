@@ -9,11 +9,12 @@
                         <group>
                             <field name="conversion_id"/>
                             <field name="partner_id"/>
+                            <field name="rate_line_id"/>
                             <field name="rate_id"/>
                         </group>
                         <group>
-                            <field name="submitted_at"/>
                             <field name="rate"/>
+                            <field name="submitted_at"/>
                         </group>
                     </group>
                 </sheet>

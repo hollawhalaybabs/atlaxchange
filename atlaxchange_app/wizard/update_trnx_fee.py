@@ -1,30 +1,25 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 import requests
 
 class UpdateTransactionFeeWizard(models.TransientModel):
     _name = 'update.transaction.fee.wizard'
     _description = 'Update Transaction Fee Wizard'
+    _rec_name = 'fee_id'
 
     partner_id = fields.Many2one('res.partner', string='Partner')
-    fee_id = fields.Char(string='Fee ID', readonly=True, store=True)
-    fee = fields.Float(string='Conversion Rate', required=True)
+    fee_line_id = fields.Many2one('transaction.fee.line', string='Fee Line')
+    fee_id = fields.Char(string='Fee ID')
+    fee = fields.Float(string='Fee', required=True)
     currency_code = fields.Many2one('supported.currency', string='Currency')
 
-    @api.onchange('fee_id', 'partner_id')
-    def _onchange_fee_or_partner(self):
-        domain = []
-        if self.fee_id:
-            fee_rec = self.env['transaction.fee'].search([('fee_id', '=', self.fee_id)], limit=1)
-        elif self.partner_id:
-            fee_rec = self.env['transaction.fee'].search([('partner_id', '=', self.partner_id.id)], limit=1)
-        else:
-            fee_rec = False
-        if fee_rec:
-            self.fee_id = fee_rec.fee_id
-            self.partner_id = fee_rec.partner_id.id
-            self.fee = fee_rec.fee
-            self.currency_code = fee_rec.currency_code.id
+    @api.onchange('fee_line_id')
+    def _onchange_fee_line_id(self):
+        if self.fee_line_id:
+            self.fee_id = self.fee_line_id.fee_id
+            self.fee = self.fee_line_id.fee
+            self.currency_code = self.fee_line_id.currency_code.id
+            self.partner_id = self.fee_line_id.transaction_fee_id.partner_id.id
 
     def action_update_fee(self):
         self.ensure_one()
@@ -47,8 +42,8 @@ class UpdateTransactionFeeWizard(models.TransientModel):
         response = requests.patch(url, json=payload, headers=headers)
         if response.status_code not in (200, 201):
             raise UserError(_("Failed to update fee: %s") % response.text)
-        # Update the transaction.fee record locally
-        fee_rec = self.env['transaction.fee'].search([('fee_id', '=', self.fee_id)], limit=1)
-        if fee_rec:
-            fee_rec.write({'fee': self.fee})
+        # Update the transaction.fee.line record locally
+        fee_line = self.env['transaction.fee.line'].search([('fee_id', '=', self.fee_id)], limit=1)
+        if fee_line:
+            fee_line.write({'fee': self.fee})
         return {'type': 'ir.actions.act_window_close'}

@@ -1,7 +1,7 @@
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 import requests
 import logging
-from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -129,36 +129,28 @@ class ConversionFee(models.Model):
     _name = 'conversion.fee'
     _description = 'Currency Conversion Fee'
     _order = 'id desc'
-    _rec_name = 'name'
+    _rec_name = 'display_name'
 
-    name = fields.Char(string='Name', readonly=True, store=True)
-    rate_id = fields.Char(string='Rate ID', readonly=True, store=True)
     partner_id = fields.Many2one('res.partner', string='Partner', readonly=True, store=True)
-    business_id = fields.Char(
-        string='Business ID',
-        compute='_get_partner_id',
-        help="Unique identifier for the business",
-        store=True
-    )
-    source_currency = fields.Many2one('supported.currency', string='Source Currency', readonly=True, store=True)
-    target_currency = fields.Many2one('supported.currency', string='Target Currency', readonly=True, store=True)
-    rate = fields.Float(string='Rate Amount', readonly=True, store=True)
-    updated_at = fields.Datetime(string='Updated At', readonly=True)
+    business_id = fields.Char(string='Business ID', compute='_compute_business_id', store=True)
+    rate_line_ids = fields.One2many('conversion.fee.rate.line', 'conversion_fee_id', string='Rates')
+    display_name = fields.Char(string='Display Name', compute='_compute_display_name', store=True)
 
     @api.depends('partner_id')
-    def _get_partner_id(self):
+    def _compute_business_id(self):
+        for rec in self:
+            rec.business_id = rec.partner_id.business_id if rec.partner_id else False
+
+    @api.depends('partner_id')
+    def _compute_display_name(self):
         for rec in self:
             if rec.partner_id:
-                rec.business_id = rec.partner_id.business_id or False
+                rec.display_name = f"{rec.partner_id.display_name} Conversion Rate"
             else:
-                rec.business_id = False
-        
+                rec.display_name = "Default Conversion Rate"
 
     def fetch_conversion_fees(self):
-        """Fetch conversion fees from external API and update/create records.
-        Also, update res.partner's rate_id where business_id matches,
-        and map the partner to partner_id in conversion.fee.
-        """
+        """Fetch conversion fees from external API and update/create records."""
         url = "https://api.atlaxchange.com/api/v1/admin/currency-rates"
         api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
         api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
@@ -176,8 +168,7 @@ class ConversionFee(models.Model):
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             raise UserError(_("Failed to fetch conversion fees: %s") % response.text)
-            _logger.info("Fetched conversion fees successfully.")
-            
+
         data = response.json().get('data', [])
         for rec in data:
             # Split rate_name to get source and target currency codes
@@ -193,24 +184,34 @@ class ConversionFee(models.Model):
 
             vals = {
                 'rate_id': rec.get('rate_id'),
+                'rate_name': rec.get('rate_name'),  # <-- Add this line
                 'source_currency': src_currency.id if src_currency else False,
                 'target_currency': tgt_currency.id if tgt_currency else False,
                 'rate': rec.get('rate', 0),
-                'name': rec.get('rate_name', ''),
-                'partner_id': partner.id if partner else False
             }
-            fee = self.search([('rate_id', '=', rec.get('rate_id'))], limit=1)
-            if fee:
-                fee.write(vals)
+            fee = self.search([('partner_id', '=', partner.id if partner else False)], limit=1)
+            if not fee:
+                fee = self.create({'partner_id': partner.id if partner else False})
+            # Update or create rate line
+            line = self.env['conversion.fee.rate.line'].search([
+                ('conversion_fee_id', '=', fee.id),
+                ('rate_id', '=', rec.get('rate_id'))
+            ], limit=1)
+            if line:
+                line.write(vals)
             else:
-                fee = self.create(vals)
+                vals['conversion_fee_id'] = fee.id
+                self.env['conversion.fee.rate.line'].create(vals)
 
-            # Update res.partner's rate_id where business_id matches
+            # Optionally update res.partner's rate_id
             if partner:
                 partner.write({'rate_id': rec.get('rate_id')})
 
     def action_open_update_fee_wizard(self):
-        """Open the wizard to update conversion fee."""
+        """Open the wizard to update a specific conversion fee rate line."""
+        self.ensure_one()
+        # If only one rate line, preselect it; otherwise, let user choose
+        rate_line_id = self.rate_line_ids[:1].id if len(self.rate_line_ids) == 1 else False
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'update.conversion.fee.wizard',
@@ -219,10 +220,23 @@ class ConversionFee(models.Model):
             'context': {
                 'default_conversion_id': self.id,
                 'default_partner_id': self.partner_id.id,
-                'default_rate_id': self.rate_id,
-                'default_rate': self.rate,
+                'default_rate_line_id': rate_line_id,
             }
         }
+
+class ConversionFeeRateLine(models.Model):
+    _name = 'conversion.fee.rate.line'
+    _description = 'Conversion Fee Rate Line'
+    _order = 'id desc'
+    _rec_name = 'rate_name'
+
+    conversion_fee_id = fields.Many2one('conversion.fee', string='Conversion Fee', ondelete='cascade')
+    rate_id = fields.Char(string='Rate ID', readonly=True, store=True)
+    rate_name = fields.Char(string='Rate Name', readonly=True, store=True)  # <-- Added field
+    source_currency = fields.Many2one('supported.currency', string='Source Currency', readonly=True, store=True)
+    target_currency = fields.Many2one('supported.currency', string='Target Currency', readonly=True, store=True)
+    rate = fields.Float(string='Rate Amount', readonly=True, store=True)
+    updated_at = fields.Datetime(string='Updated At', readonly=True)
 
 
 

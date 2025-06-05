@@ -5,13 +5,18 @@
         <field name="arch" type="xml">
             <form string="Update Transaction Fee">
                 <group>
-                    <field name="partner_id"/>
-                    <field name="fee_id"/>
-                    <field name="fee"/>
-                    <field name="currency_code"/>
+                    <group>
+                        <field name="fee_line_id"/>
+                        <field name="partner_id" readonly="1"/>
+                        <field name="fee_id"/>
+                    </group>
+                    <group>
+                        <field name="currency_code" readonly="1"/>
+                        <field name="fee"/>
+                    </group>
                 </group>
                 <footer>
-                    <button name="action_update_fee" type="object" string="Update" class="btn-primary" 
+                    <button name="action_update_fee" type="object" string="Update" class="btn-primary"
                             confirm="Are you sure you want to continue?"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>

@@ -4,10 +4,8 @@
         <field name="model">conversion.fee</field>
         <field name="arch" type="xml">
             <tree create="false" delete="false">
-                <field name="name"/>
+                <field name="display_name"/>
                 <field name="partner_id"/>
-                <field name="rate"/>
-                <field name="updated_at"/>
             </tree>
         </field>
     </record>
@@ -29,13 +27,28 @@
                 </header>
                 <sheet>
                     <group>
-                        <field name="name"/>
-                        <field name="partner_id"/>
-                        <field name="source_currency"/>
-                        <field name="target_currency"/>
-                        <field name="rate"/>
-                        <field name="updated_at"/>
+                        <group>
+                            <field name="display_name"/>
+                            <field name="partner_id"/>
+                        </group>
+                        <group>
+                            <field name="business_id"/>
+                        </group>
                     </group>
+                    <notebook>
+                        <page string="Rates">
+                            <field name="rate_line_ids">
+                                <tree editable="false">
+                                    <field name="rate_id"/>
+                                    <field name="rate_name"/>
+                                    <field name="source_currency"/>
+                                    <field name="target_currency"/>
+                                    <field name="rate"/>
+                                    <field name="updated_at"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>

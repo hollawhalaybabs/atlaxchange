@@ -1,0 +1,21 @@
+<odoo>
+    <record id="view_update_transaction_fee_wizard_form" model="ir.ui.view">
+        <field name="name">update.transaction.fee.wizard.form</field>
+        <field name="model">update.transaction.fee.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Update Transaction Fee">
+                <group>
+                    <field name="partner_id"/>
+                    <field name="fee_id"/>
+                    <field name="fee"/>
+                    <field name="currency_code"/>
+                </group>
+                <footer>
+                    <button name="action_update_fee" type="object" string="Update" class="btn-primary" 
+                            confirm="Are you sure you want to continue?"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

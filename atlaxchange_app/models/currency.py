@@ -12,6 +12,7 @@ class SupportedCurrency(models.Model):
     _rec_name = 'currency_code'
 
     currency_code = fields.Char(string='Currency Code', size=4, required=True, help="Currency Code (ISO 4217)")
+    currency_id = fields.Char(string='ID')
     name = fields.Char(string='Currency Name', required=True, help="Full name of the currency")
     symbol = fields.Char(string='Symbol', help="Symbol of the currency (e.g., $)")
     exchanges = fields.Many2many(

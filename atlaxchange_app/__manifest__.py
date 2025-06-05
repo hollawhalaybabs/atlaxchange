@@ -16,6 +16,8 @@
         "views/conversion_fee_views.xml",
         "views/create_conversion_fee_view.xml",
         "views/update_conversion_fee_wizard_view.xml",
+        "views/transaction_fee_views.xml",
+        "views/update_trnx_fee_wizard_view.xml",
         "data/email_templates.xml",
         "data/automated_actions.xml",
         "data/scheduled_actions.xml",

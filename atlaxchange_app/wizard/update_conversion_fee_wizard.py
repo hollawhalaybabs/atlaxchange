@@ -31,7 +31,7 @@ class UpdateConversionFeeWizard(models.TransientModel):
             "X-API-SECRET": api_secret
         }
         payload = {
-            "rate": self.rate
+            "rate": float(self.rate),  
         }
         response = requests.patch(url, json=payload, headers=headers)
         if response.status_code not in (200, 201):

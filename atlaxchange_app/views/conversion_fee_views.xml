@@ -48,4 +48,30 @@
     </record>
 
     <menuitem id="menu_conversion_fee" name="Conversion Rate" parent="menu_atlaxchange_config" action="action_conversion_fee" sequence="1"/>
+
+    <!-- Default Rate (No Partner) -->
+    <record id="action_conversion_fee_default" model="ir.actions.act_window">
+        <field name="name">Default Rates</field>
+        <field name="res_model">conversion.fee</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('partner_id','=',False)]</field>
+    </record>
+    <menuitem id="menu_conversion_fee_default"
+              name="Default Rates"
+              parent="menu_conversion_fee"
+              action="action_conversion_fee_default"
+              sequence="5"/>
+
+    <!-- Customer Rate (Has Partner) -->
+    <record id="action_conversion_fee_customer" model="ir.actions.act_window">
+        <field name="name">Customer Rates</field>
+        <field name="res_model">conversion.fee</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('partner_id','!=',False)]</field>
+    </record>
+    <menuitem id="menu_conversion_fee_customer"
+              name="Customer Rates"
+              parent="menu_conversion_fee"
+              action="action_conversion_fee_customer"
+              sequence="10"/>
 </odoo>

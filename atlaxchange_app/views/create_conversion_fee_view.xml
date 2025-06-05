@@ -66,8 +66,8 @@
                 view_mode="form"
                 target="new"/>
     <menuitem id="menu_create_conversion_fee"
-              name="Create Conversion Fee"
+              name="Create Customer Rate"
               parent="menu_atlaxchange_config"
               action="action_create_conversion_fee"
-              sequence="20"/>
+              sequence="2"/>
 </odoo>

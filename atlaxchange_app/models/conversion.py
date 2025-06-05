@@ -99,15 +99,15 @@ class CreateConversionFee(models.Model):
 
     def action_create_fee(self):
         """Create a new conversion fee via external API."""
-        if not self.business_id:
-            raise Exception(_("Business ID is required."))
-
         api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
         api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
         if not api_key or not api_secret:
             raise Exception(_("API key or secret is missing. Set them in System Parameters."))
 
-        url = f"https://api.atlaxchange.com/api/v1/currency-rates/{self.business_id}"
+        if not self.business_id or not self.source_currency or not self.target_currency or not self.rate:
+            raise UserError(_("All fields are required to create a conversion fee."))
+
+        url = "https://api.atlaxchange.com/api/v1/currency-rates"
         headers = {
             "Content-Type": "application/json",
             "X-API-KEY": api_key,
@@ -115,11 +115,13 @@ class CreateConversionFee(models.Model):
         }
         payload = {
             "business_id": self.business_id,
-            "from_currency_id": self.source_currency.currency_code,
-            "rate": self.rate,
-            "to_currency_id": self.target_currency.currency_code
+            "from_currency_code": self.source_currency.currency_code,
+            "to_currency_code": self.target_currency.currency_code,
+            "rate": int(self.rate)
         }
-        response = requests.post(url, json=payload, headers=headers)
+        _logger.info(f"Payload sent to API: {payload}")
+        response = requests.post(url, headers=headers, json=payload)
+        _logger.info(f"API response: {response.status_code} {response.text}")
         if response.status_code not in (200, 201):
             raise UserError(_("Failed to create conversion fee: %s") % response.text)
         

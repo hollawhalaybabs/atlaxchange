@@ -238,7 +238,7 @@ class ConversionFeeRateLine(models.Model):
 
     conversion_fee_id = fields.Many2one('conversion.fee', string='Conversion Fee', ondelete='cascade')
     rate_id = fields.Char(string='Rate ID', readonly=True, store=True)
-    rate_name = fields.Char(string='Rate Name', readonly=True, store=True)  # <-- Added field
+    rate_name = fields.Char(string='Rate Name', store=True)  # <-- Added field
     source_currency = fields.Many2one('supported.currency', string='Source Currency', readonly=True, store=True)
     target_currency = fields.Many2one('supported.currency', string='Target Currency', readonly=True, store=True)
     rate = fields.Float(string='Rate Amount', readonly=True, store=True)

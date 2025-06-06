@@ -14,6 +14,7 @@
                         </group>
                         <group>
                             <field name="rate"/>
+                            <field name="rate_id"/>
                             <field name="submitted_at"/>
                         </group>
                     </group>

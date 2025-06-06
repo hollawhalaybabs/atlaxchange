@@ -55,7 +55,10 @@ class CreateConversionFee(models.Model):
         if template:
             template.sudo().send_mail(self.id, force_send=True, email_values=mail_values)
         else:
-            self.env['mail.mail'].sudo().create(mail_values).send()
+            try:
+                self.env['mail.mail'].sudo().create(mail_values).send()
+            except Exception as e:
+                _logger.error(f"Mail send failed: {e}")
         self.state = 'awaiting_approval'
         return True
 
@@ -83,7 +86,10 @@ class CreateConversionFee(models.Model):
                 'subject': subject,
                 'body_html': body_html,
             }
-            self.env['mail.mail'].sudo().create(mail_values).send()
+            try:
+                self.env['mail.mail'].sudo().create(mail_values).send()
+            except Exception as e:
+                _logger.error(f"Mail send failed: {e}")
         self.state = 'done'
         return result
 

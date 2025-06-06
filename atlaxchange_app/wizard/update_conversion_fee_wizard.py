@@ -11,6 +11,7 @@ class UpdateConversionFeeWizard(models.TransientModel):
     conversion_id = fields.Many2one('conversion.fee', string='Conversion Fee')
     rate_line_id = fields.Many2one('conversion.fee.rate.line', string='Rate Line')
     rate_id = fields.Char(string='Rate ID')
+    rate_name = fields.Char(string='Rate Name', store=True)
     rate = fields.Float(string='Rate Amount', required=True)
     submitted_at = fields.Datetime(string='Submitted At', default=fields.Datetime.now, readonly=True)
 
@@ -19,6 +20,7 @@ class UpdateConversionFeeWizard(models.TransientModel):
         if self.rate_line_id:
             self.rate_id = self.rate_line_id.rate_id
             self.rate = self.rate_line_id.rate
+            self.rate_name = self.rate_line_id.rate_name
             self.conversion_id = self.rate_line_id.conversion_fee_id
             self.partner_id = self.rate_line_id.conversion_fee_id.partner_id
 

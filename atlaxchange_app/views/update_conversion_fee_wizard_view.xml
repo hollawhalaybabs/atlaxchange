@@ -10,7 +10,7 @@
                             <field name="conversion_id"/>
                             <field name="partner_id"/>
                             <field name="rate_line_id"/>
-                            <field name="rate_id"/>
+                            <field name="rate_name"/>
                         </group>
                         <group>
                             <field name="rate"/>

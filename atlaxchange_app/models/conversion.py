@@ -228,7 +228,7 @@ class ConversionFeeRateLine(models.Model):
     _name = 'conversion.fee.rate.line'
     _description = 'Conversion Fee Rate Line'
     _order = 'id desc'
-    _rec_name = 'rate_name'
+    _rec_name = 'rate_id'
 
     conversion_fee_id = fields.Many2one('conversion.fee', string='Conversion Fee', ondelete='cascade')
     rate_id = fields.Char(string='Rate ID', readonly=True, store=True)

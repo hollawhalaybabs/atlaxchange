@@ -65,6 +65,10 @@ class CreateConversionFee(models.Model):
     def action_approve_fee(self):
         """Approve the fee, call action_create_fee, and notify the initiator."""
         self.ensure_one()
+        # Check if the current user is the approver
+        if self.approver_id != self.env.user:
+            raise UserError(_("Only the assigned approver can approve this fee."))
+
         result = self.action_create_fee()
         # Send approval email to the initiator (the user who created the record)
         initiator = self.create_uid.partner_id
@@ -94,7 +98,10 @@ class CreateConversionFee(models.Model):
         return result
 
     def action_reject_fee(self):
-        """Open the rejection wizard."""
+        """Open the rejection wizard. Only the assigned approver can reject."""
+        self.ensure_one()
+        if self.approver_id != self.env.user:
+            raise UserError(_("Only the assigned approver can reject this fee."))
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'conversion.fee.reject.wizard',

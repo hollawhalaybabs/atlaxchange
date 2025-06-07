@@ -45,7 +45,7 @@
                             <field name="target_currency"/>
                         </group>
                         <group>
-                            <field name="approver_id"/>
+                            <field name="approver_ids" widget="many2many_tags"/>
                             <field name="rate"/>
                             <field name="rejection_reason" attrs="{'invisible': [('state', '!=', 'rejected')]}"/>
                         </group>

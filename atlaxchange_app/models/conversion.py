@@ -23,7 +23,16 @@ class CreateConversionFee(models.Model):
         ('done', 'Done'),
         ('rejected', 'Rejected')
     ], string='Status', default='draft', required=True)
-    approver_id = fields.Many2one('res.users', string="Approver", required=True, domain=[('share', '=', False)])
+    # Change approver_id to approver_ids (many2many)
+    approver_ids = fields.Many2many(
+        'res.users',
+        'conversion_fee_approver_rel',
+        'conversion_fee_id',
+        'user_id',
+        string="Approvers",
+        required=True,
+        domain=[('share', '=', False)]
+    )
     submitted_at = fields.Datetime(string='Submitted At', default=fields.Datetime.now, readonly=True)
     rejection_reason = fields.Text(string='Rejection Reason', readonly=True)
 
@@ -33,44 +42,47 @@ class CreateConversionFee(models.Model):
             rec.business_id = rec.partner_id.business_id
 
     def action_submit_for_approval(self):
-        """Send an email to the approver and set state to awaiting_approval."""
-        if not self.approver_id or not self.approver_id.partner_id.email:
-            raise Exception(_("Approver must have a valid email address."))
+        """Send an email to all approvers and set state to awaiting_approval."""
+        if not self.approver_ids:
+            raise UserError(_("At least one approver must be set."))
+        for approver in self.approver_ids:
+            if not approver.partner_id.email:
+                raise UserError(_("Approver %s must have a valid email address.") % approver.name)
 
-        template = self.env.ref('mail.email_template_data_notification_email', raise_if_not_found=False)
-        mail_values = {
-            'email_to': self.approver_id.partner_id.email,
-            'subject': _("Conversion Fee Approval Required"),
-            'body_html': _(
-                "<p>Dear %s,</p>"
-                "<p>A conversion fee creation for partner <b>%s</b> is awaiting your approval.</p>"
-                "<p>Proposed Rate: <b>%s</b></p>"
-                "<p>Please review and approve in the system.</p>"
-            ) % (
-                self.approver_id.name,
-                self.partner_id.display_name,
-                self.rate,
-            ),
-        }
-        if template:
-            template.sudo().send_mail(self.id, force_send=True, email_values=mail_values)
-        else:
-            try:
-                self.env['mail.mail'].sudo().create(mail_values).send()
-            except Exception as e:
-                _logger.error(f"Mail send failed: {e}")
+        for approver in self.approver_ids:
+            template = self.env.ref('mail.email_template_data_notification_email', raise_if_not_found=False)
+            mail_values = {
+                'email_to': approver.partner_id.email,
+                'subject': _("Conversion Fee Approval Required"),
+                'body_html': _(
+                    "<p>Dear %s,</p>"
+                    "<p>A conversion fee creation for partner <b>%s</b> is awaiting your approval.</p>"
+                    "<p>Proposed Rate: <b>%s</b></p>"
+                    "<p>Please review and approve in the system.</p>"
+                ) % (
+                    approver.name,
+                    self.partner_id.display_name,
+                    self.rate,
+                ),
+            }
+            if template:
+                template.sudo().send_mail(self.id, force_send=True, email_values=mail_values)
+            else:
+                try:
+                    self.env['mail.mail'].sudo().create(mail_values).send()
+                except Exception as e:
+                    _logger.error(f"Mail send failed: {e}")
         self.state = 'awaiting_approval'
         return True
 
     def action_approve_fee(self):
         """Approve the fee, call action_create_fee, and notify the initiator."""
         self.ensure_one()
-        # Check if the current user is the approver
-        if self.approver_id != self.env.user:
-            raise UserError(_("Only the assigned approver can approve this fee."))
+        # Check if the current user is one of the approvers
+        if self.env.user not in self.approver_ids:
+            raise UserError(_("Only an assigned approver can approve this fee."))
 
         result = self.action_create_fee()
-        # Send approval email to the initiator (the user who created the record)
         initiator = self.create_uid.partner_id
         if initiator and initiator.email:
             subject = _("Conversion Rate Approved")
@@ -83,7 +95,7 @@ class CreateConversionFee(models.Model):
                 initiator.name,
                 self.partner_id.display_name,
                 self.rate,
-                self.approver_id.name,
+                self.env.user.name,
             )
             mail_values = {
                 'email_to': initiator.email,
@@ -98,10 +110,10 @@ class CreateConversionFee(models.Model):
         return result
 
     def action_reject_fee(self):
-        """Open the rejection wizard. Only the assigned approver can reject."""
+        """Open the rejection wizard. Only an assigned approver can reject."""
         self.ensure_one()
-        if self.approver_id != self.env.user:
-            raise UserError(_("Only the assigned approver can reject this fee."))
+        if self.env.user not in self.approver_ids:
+            raise UserError(_("Only an assigned approver can reject this fee."))
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'conversion.fee.reject.wizard',

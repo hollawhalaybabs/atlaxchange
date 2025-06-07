@@ -142,7 +142,7 @@ class CreateConversionFee(models.Model):
             "business_id": self.business_id,
             "from_currency_code": self.source_currency.currency_code,
             "to_currency_code": self.target_currency.currency_code,
-            "rate": int(self.rate)
+            "rate": self.rate
         }
         _logger.info(f"Payload sent to API: {payload}")
         response = requests.post(url, headers=headers, json=payload)

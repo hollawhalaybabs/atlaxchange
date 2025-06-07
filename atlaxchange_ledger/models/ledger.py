@@ -26,11 +26,15 @@ class AtlaxchangeLedger(models.Model):
     datetime = fields.Datetime(string='Date')
     transaction_reference = fields.Char(string='Reference', index=True)
     bank = fields.Char(string='Bank')
+    bank_code = fields.Char(string='Bank Code')
     beneficiary = fields.Char(string='Beneficiary')
     customer_name = fields.Char(string='Customer Name', store=True)
     wallet = fields.Many2one('supported.currency', string='Wallet')
     amount = fields.Float(string='Amount', store=True, digits=(16, 2))
+    total_amount = fields.Float(string='Total Amount', digits=(16, 2))
     fee = fields.Float(string='Fee')
+    conversion_rate = fields.Float(string='Conversion Rate')
+    destination_currency = fields.Many2one('supported.currency', string='Destination Currency')  # updated
     type = fields.Selection([
         ('debit', 'Debit'),
         ('credit', 'Credit')
@@ -95,8 +99,7 @@ class AtlaxchangeLedger(models.Model):
         }
 
         next_cursor = None
-        fetched_count = 0  # Track the number of transactions fetched
-        existing_references = set(self.search([]).mapped('transaction_reference'))  # Cache existing references
+        fetched_count = 0
 
         while True:
             params = {'after': next_cursor} if next_cursor else {}
@@ -113,30 +116,37 @@ class AtlaxchangeLedger(models.Model):
                 new_records = []
                 for record in transactions:
                     reference = record.get('reference')
-                    if reference not in existing_references:
-                        # Prepare new record for batch creation
-                        created_at = datetime.utcfromtimestamp(record['created_at'])
-                        new_records.append({
-                            'datetime': created_at,
-                            'bank': record['bank_name'],
-                            'beneficiary': record['beneficiary_name'],
-                            'customer_name': record.get('customer_name', 'N/A'),
-                            'transaction_reference': reference,
-                            'amount': abs(record['amount'] / 100),  # Divide amount by 100
-                            'status': record['status'],
-                            'type': record['direction'],
-                            'wallet': self.env['supported.currency'].search([('currency_code', '=', record['currency_code'])], limit=1).id,
-                            'fee': record['fee'] / 100,
-                        })
-                        existing_references.add(reference)  # Add to cache to avoid duplicate processing
+                    existing = self.search([('transaction_reference', '=', reference)], limit=1)
+                    created_at = datetime.utcfromtimestamp(record['created_at'])
+                    currency = self.env['supported.currency'].search([('currency_code', '=', record.get('currency_code'))], limit=1)
+                    dest_currency = self.env['supported.currency'].search([('currency_code', '=', record.get('destination_currency'))], limit=1)
+                    vals = {
+                        'datetime': created_at,
+                        'bank': record.get('bank_name'),
+                        'bank_code': record.get('bank_code'),
+                        'beneficiary': record.get('beneficiary_name'),
+                        'customer_name': record.get('customer_name', 'N/A'),
+                        'transaction_reference': reference,
+                        'amount': abs(record.get('amount', 0) / 100),
+                        'total_amount': abs(record.get('total_amount', 0) / 100),
+                        'fee': record.get('fee', 0) / 100,
+                        'conversion_rate': record.get('conversion_rate', 0),
+                        'destination_currency': dest_currency.id if dest_currency else False,
+                        'status': record.get('status'),
+                        'type': record.get('direction'),
+                        'wallet': currency.id if currency else False,
+                    }
+                    if existing:
+                        # Update only the status if record exists
+                        existing.write({'status': record.get('status')})
+                    else:
+                        new_records.append(vals)
                         fetched_count += 1
 
-                # Batch create new records
                 if new_records:
                     self.create(new_records)
                     _logger.info(f"Created {len(new_records)} new ledger records.")
 
-                # Update the cursor for pagination
                 next_cursor = data.get('data', {}).get('cursor', {}).get('after')
                 if not next_cursor:
                     break
@@ -147,7 +157,6 @@ class AtlaxchangeLedger(models.Model):
                 _logger.error(f"An unexpected error occurred: {str(e)}")
                 break
 
-        # Log the fetch operation in the audit model
         self.env['fetch.ledger.audit'].create({
             'fetched_count': fetched_count,
             'fetch_time': fields.Datetime.now(),

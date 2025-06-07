@@ -12,11 +12,31 @@
                 <field name="bank"/>
                 <field name="beneficiary"/>
                 <field name="wallet"/>
+                <field name="destination_currency"/>
                 <field name="amount"/>
                 <field name="fee"/>
+                <field name="conversion_rate"/>
+                <field name="total_amount"/>
                 <field name="status"/>
-                <field name="type"/>
             </tree>
+        </field>
+    </record>
+
+    <!-- Search View for Atlaxchange Ledger -->
+    <record id="view_atlaxchange_ledger_search" model="ir.ui.view">
+        <field name="name">atlaxchange.ledger.search</field>
+        <field name="model">atlaxchange.ledger</field>
+        <field name="arch" type="xml">
+            <search string="Ledger Search">
+                <field name="transaction_reference" string="Transaction Reference"/>
+                <filter name="status_pending" string="Pending" domain="[('status','=','pending')]" />
+                <filter name="status_success" string="Success" domain="[('status','=','success')]" />
+                <filter name="status_failed" string="Failed" domain="[('status','=','failed')]" />
+                <filter name="status_reversed" string="Reversed" domain="[('status','=','reversed')]" />
+                <field name="status"/>
+                <field name="wallet"/>
+                <field name="destination_currency"/>
+            </search>
         </field>
     </record>
 
@@ -34,9 +54,12 @@
                         <field name="bank" readonly="1"/>
                         <field name="beneficiary" readonly="1"/>
                         <field name="wallet" readonly="1"/>
+                        <field name="destination_currency" readonly="1"/>
                         <field name="amount" readonly="1"/>
                         <field name="fee" readonly="1"/>
-                        <field name="type" readonly="1"/>
+                        <field name="conversion_rate" readonly="1"/>
+                        <field name="total_amount" readonly="1"/>
+                        <!-- <field name="type" readonly="1"/> -->
                         <field name="status" readonly="1"/>
                     </group>
                 </sheet>
@@ -61,6 +84,7 @@
         <field name="name">Transaction History</field>
         <field name="res_model">atlaxchange.ledger</field>
         <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
     </record>
 
     <record id="action_atlaxchange_ledger_client" model="ir.actions.client">
@@ -69,19 +93,19 @@
     </record>
 
     <!-- Menu Items -->
-    <!-- <menuitem id="menu_atlaxchange_ledger_root" name="Atlax Transactions" sequence="10"/> -->
     <menuitem id="menu_atlaxchange_ledger" name="Transaction History"
               parent="atlaxchange_app.atlaxchange_menu" action="action_atlaxchange_ledger_client" sequence="3"/>
 
     <!-- Payout History -->
     <record id="action_payout_history" model="ir.actions.act_window">
-        <field name="name">Payout History</field>
+        <field name="name">Local Payout History</field>
         <field name="res_model">atlaxchange.ledger</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[("type", "=", "debit")]</field>
+        <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
     </record>
-    <menuitem id="menu_payout_history" name="Payout History"
-              parent="menu_atlaxchange_ledger" action="action_payout_history"/>
+    <menuitem id="menu_payout_history" name="Local Payout History"
+              parent="menu_atlaxchange_ledger" action="action_payout_history" sequence="2"/>
 
     <!-- Collection History -->
     <record id="action_collection_history" model="ir.actions.act_window">
@@ -89,7 +113,19 @@
         <field name="res_model">atlaxchange.ledger</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[("type", "=", "credit")]</field>
+        <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
     </record>
     <menuitem id="menu_collection_history" name="Collection History"
-              parent="menu_atlaxchange_ledger" action="action_collection_history"/>
+              parent="menu_atlaxchange_ledger" action="action_collection_history" sequence="1"/>
+
+    <!-- Remittance Transfer (type=debit and conversion_rate != 0) -->
+    <record id="action_remittance_transfer" model="ir.actions.act_window">
+        <field name="name">Remittance Transfer</field>
+        <field name="res_model">atlaxchange.ledger</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[("type", "=", "debit"), ("conversion_rate", "!=", 0)]</field>
+        <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
+    </record>
+    <menuitem id="menu_remittance_transfer" name="Remittance Payout Transfer"
+              parent="menu_atlaxchange_ledger" action="action_remittance_transfer" sequence="3"/>
 </odoo>

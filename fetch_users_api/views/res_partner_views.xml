@@ -9,6 +9,11 @@
                 <field name="business_id" readonly="1" groups="base.group_system"/>
                 <field name="external_user_id" readonly="1" groups="base.group_system"/>
             </field>
+            <!-- <xpath expr="//form/sheet" position="inside">
+                <button name="action_fetch_payment_settings" type="object" string="Fetch Payment Settings" class="btn-primary" 
+                        groups="base.group_system"/>
+            </xpath> -->
+       
             <notebook position="inside">
                 <page string="Wallet">
                     <field name="ledger_ids" nolabel="1">
@@ -16,6 +21,35 @@
                             <field name="currency_id"/>
                             <field name="balance"/>
                         </tree>
+                    </field>
+                </page>
+                <page string="Business Payment Settings">
+                    <field name="payment_settings_ids" nolabel="1">
+                        <tree create="false" delete="false">
+                            <field name="can_make_transfer"/>
+                            <field name="ip_address_ids" widget="many2many_tags"/>
+                            <field name="allowed_wallets" widget="many2many_tags"/>
+                            <field name="payout_currencies" widget="many2many_tags"/>
+                        </tree>
+                        <form>
+                            <header>
+                                <button name="action_update_payment_settings" type="object" string="Update Payment Settings" class="btn-primary"
+                                        confirm="Are you sure you want to cotinue?"/>
+                            </header>
+                            <sheet>
+                                <group>
+                                    <group>
+                                        <field name="business_id"/>
+                                        <field name="can_make_transfer"/>
+                                        <field name="ip_address_ids" widget="many2many_tags"/>
+                                    </group>
+                                    <group>
+                                        <field name="allowed_wallets" widget="many2many_tags"/>
+                                        <field name="payout_currencies" widget="many2many_tags"/>
+                                    </group>
+                                </group>
+                            </sheet>  
+                        </form>
                     </field>
                 </page>
             </notebook>
@@ -26,6 +60,8 @@
                         context="{'partner_id': active_id}">
                     <field string="Ledgers" name="partner_ledger_count" widget="statinfo"/>
                 </button>
+                <button name="action_fetch_payment_settings" type="object" string="Fetch Payment Settings" class="btn-primary" 
+                        groups="base.group_system"/>
             </xpath>
         </field>
     </record>

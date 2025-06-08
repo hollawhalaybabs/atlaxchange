@@ -1,0 +1,51 @@
+<odoo>
+    <record id="view_business_payment_settings_tree" model="ir.ui.view">
+        <field name="name">business.payment.settings.tree</field>
+        <field name="model">business.payment.settings</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="partner_id"/>
+                <field name="can_make_transfer"/>
+                <field name="ip_address_ids" widget="many2many_tags"/>
+                <field name="allowed_wallets" widget="many2many_tags"/>
+                <field name="payout_currencies" widget="many2many_tags"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_business_payment_settings_form" model="ir.ui.view">
+        <field name="name">business.payment.settings.form</field>
+        <field name="model">business.payment.settings</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_update_payment_settings" type="object" string="Update Payment Settings" class="btn-primary"
+                            confirm="Are you sure you want to cotinue?"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="business_id"/>
+                            <field name="ip_address_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="allowed_wallets" widget="many2many_tags"/>
+                            <field name="payout_currencies" widget="many2many_tags"/>
+                            <field name="can_make_transfer"/>
+                        </group>
+                    </group>
+                </sheet>  
+            </form>
+        </field>
+    </record>
+    <record id="action_business_payment_settings" model="ir.actions.act_window">
+        <field name="name">Business Payment Settings</field>
+        <field name="res_model">business.payment.settings</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_business_payment_settings"
+              name="Business Payment Settings"
+              parent="atlaxchange_app.menu_atlaxchange_config"
+              action="action_business_payment_settings"
+              sequence="30"/>
+</odoo>

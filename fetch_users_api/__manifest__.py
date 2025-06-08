@@ -8,16 +8,15 @@
     'category': 'Custom',
     'license': 'LGPL-3',
     'depends': [
-        "base","contacts","atlaxchange_app"
+        "base", "contacts", "atlaxchange_app"
     ],
     'data': [
-        # Add XML/CSV files here, e.g., 'views/view_file.xml',
         'data/cron_job.xml',
-        'data/system_parameters.xml',   
-        # 'security/fetch_users_security.xml',
+        'data/system_parameters.xml',
         'security/ir.model.access.csv',
         'views/fetch_users_audit_view.xml',
-        'views/res_partner_views.xml'
+        'views/res_partner_views.xml',
+        'views/business_payment_settings_views.xml',
     ],
     'installable': True,
     'application': False,

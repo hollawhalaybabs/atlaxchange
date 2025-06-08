@@ -1,1 +1,1 @@
-from . import fetch_users, res_partner, account_ledger
+from . import fetch_users, res_partner, account_ledger, business_payment_settings

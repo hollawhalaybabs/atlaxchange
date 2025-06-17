@@ -14,7 +14,7 @@ class BusinessPaymentSettings(models.Model):
     allowed_wallets = fields.Many2many('supported.currency', 'business_payment_settings_allowed_wallet_rel', 'settings_id', 'currency_id', string='Allowed Wallets')
     payout_currencies = fields.Many2many('supported.currency', 'business_payment_settings_payout_currency_rel', 'settings_id', 'currency_id', string='Payout Currencies')
 
-    @api.depends('partner_id')
+    @api.onchange('partner_id')
     def _onchange_partner_id(self):
         if self.partner_id and self.partner_id.business_id:
             self.business_id = self.partner_id.business_id

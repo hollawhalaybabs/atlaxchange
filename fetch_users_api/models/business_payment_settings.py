@@ -6,7 +6,7 @@ class BusinessPaymentSettings(models.Model):
     _name = 'business.payment.settings'
     _description = 'Business Payment Settings'
 
-    partner_id = fields.Many2one('res.partner', string='Partner', required=True, ondelete='cascade')
+    partner_id = fields.Many2one('res.partner', string='Partner', required=True, ondelete='cascade', domain=[('is_atlax_customer', '=', True)])
     business_id = fields.Char(string='Business ID', required=True)
     ip_address_ids = fields.Many2many('business.ip.address', string='IP Addresses')
     can_make_transfer = fields.Boolean(string='Can Make Transfer', default=False)

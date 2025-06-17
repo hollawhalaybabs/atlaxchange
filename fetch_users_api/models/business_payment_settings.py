@@ -5,6 +5,7 @@ import requests
 class BusinessPaymentSettings(models.Model):
     _name = 'business.payment.settings'
     _description = 'Business Payment Settings'
+    _rec_name = 'partner_id'
 
     partner_id = fields.Many2one('res.partner', string='Partner', required=True, ondelete='cascade', domain=[('is_atlax_customer', '=', True)])
     business_id = fields.Char(string='Business ID', required=True)

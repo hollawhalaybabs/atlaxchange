@@ -40,11 +40,12 @@ class AtlaxchangeLedger(models.Model):
         ('credit', 'Credit')
     ], string='Type')
     status = fields.Selection([
+        ('processing', 'Processing'),
         ('pending', 'Pending'),
         ('success', 'Success'),
         ('failed', 'Failed'),
         ('reversed', 'Reversed')
-    ], string='Status', default='pending')
+    ], string='Status', default='processing')
     partner_id = fields.Many2one('res.partner', string='Partner')
 
 
@@ -120,6 +121,10 @@ class AtlaxchangeLedger(models.Model):
                     created_at = datetime.utcfromtimestamp(record['created_at'])
                     currency = self.env['supported.currency'].search([('currency_code', '=', record.get('currency_code'))], limit=1)
                     dest_currency = self.env['supported.currency'].search([('currency_code', '=', record.get('destination_currency'))], limit=1)
+                    # Ensure status is mapped and defaults to 'processing' if not present or not recognized
+                    status = record.get('status', 'processing')
+                    if status not in dict(self._fields['status'].selection):
+                        status = 'processing'
                     vals = {
                         'datetime': created_at,
                         'bank': record.get('bank_name'),
@@ -132,13 +137,13 @@ class AtlaxchangeLedger(models.Model):
                         'fee': record.get('fee', 0) / 100,
                         'conversion_rate': record.get('conversion_rate', 0),
                         'destination_currency': dest_currency.id if dest_currency else False,
-                        'status': record.get('status'),
+                        'status': status,
                         'type': record.get('direction'),
                         'wallet': currency.id if currency else False,
                     }
                     if existing:
                         # Update only the status if record exists
-                        existing.write({'status': record.get('status')})
+                        existing.write({'status': status})
                     else:
                         new_records.append(vals)
                         fetched_count += 1

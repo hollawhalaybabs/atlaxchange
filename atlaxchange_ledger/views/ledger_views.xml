@@ -46,6 +46,9 @@
         <field name="model">atlaxchange.ledger</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <field name="status" widget="statusbar"/>
+                </header>
                 <sheet>
                     <group>
                         <field name="datetime" readonly="1"/>
@@ -60,7 +63,6 @@
                         <field name="conversion_rate" readonly="1"/>
                         <field name="total_amount" readonly="1"/>
                         <!-- <field name="type" readonly="1"/> -->
-                        <field name="status" readonly="1"/>
                     </group>
                 </sheet>
             </form>

@@ -9,10 +9,6 @@
                 <field name="business_id" readonly="1" groups="base.group_system"/>
                 <field name="external_user_id" readonly="1" groups="base.group_system"/>
             </field>
-            <!-- <xpath expr="//form/sheet" position="inside">
-                <button name="action_fetch_payment_settings" type="object" string="Fetch Payment Settings" class="btn-primary" 
-                        groups="base.group_system"/>
-            </xpath> -->
        
             <notebook position="inside">
                 <page string="Wallet">
@@ -33,7 +29,7 @@
                         </tree>
                         <form>
                             <header>
-                                <button name="action_update_payment_settings" type="object" string="Update Payment Settings" class="btn-primary"
+                                <button name="action_update_payment_settings" type="object" string="Update Payment Settings" class="btn-primary" groups="base.group_system"
                                         confirm="Are you sure you want to cotinue?"/>
                             </header>
                             <sheet>
@@ -62,6 +58,12 @@
                 </button>
                 <button name="action_fetch_payment_settings" type="object" string="Fetch Payment Settings" class="btn-primary" 
                         groups="base.group_system"/>
+            </xpath>
+            <xpath expr="//form/sheet" position="before">
+                <header>
+                    <button name="action_refresh_balance" type="object" string="Refresh Balance" class="btn-primary" groups="base.group_user"/>
+                    <button name="action_kyc_verification" type="object" string="KYC Verification" class="btn-primary" groups="base.group_system"/>
+                </header>
             </xpath>
         </field>
     </record>

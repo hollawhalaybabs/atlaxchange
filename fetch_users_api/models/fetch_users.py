@@ -1,6 +1,5 @@
 from odoo import models, fields, api
 import requests
-import inspect
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -15,7 +14,6 @@ class FetchUsersAudit(models.Model):
     fetched_count = fields.Integer(string='Fetched Users Count', readonly=True)
     user_id = fields.Many2one('res.users', string='Fetched By', default=lambda self: self.env.user)
 
-# fetch_users
 class FetchUsers(models.Model):
     _name = 'fetch.users'
     _description = 'Fetch Users from API and Create Customers'
@@ -40,58 +38,41 @@ class FetchUsers(models.Model):
         try:
             response = requests.get(url, headers=headers, timeout=10)
             if response.status_code != 200:
-                if response.status_code == 401:
-                    _logger.error("Unauthorized access. Please check your API key and secret.")
-                else:
-                    _logger.error(f"Failed to fetch users from API. Status Code: {response.status_code}, Response: {response.text}")
+                _logger.error(f"Failed to fetch users from API. Status Code: {response.status_code}, Response: {response.text}")
                 return
 
             users = response.json().get("data", [])
-            _logger.info(f"Fetched {len(users)} users from the API.")
+            _logger.info(f"Fetched raw user data: {users}")
             fetched_count = 0
-
-            # Currency mapping
-            # currency_mapping = {
-            #     "Nigerian Naira": "NGN",
-            #     "Kenyan Shilling": "KES",
-            #     "Ghana Cedi": "GHS"
-            # }
 
             for user in users:
                 try:
-                    # Determine if the user is a business or an individual
                     is_company = bool(user.get('business_name'))
-
-                    # Create or update partner
-                    partner = self.env['res.partner'].search([('email', '=', user['email'])], limit=1)
                     partner_vals = {
-                        'name': f"{user['first_name']} {user['last_name']}",
-                        'email': user['email'],
+                        'name': f"{user.get('first_name', '')} {user.get('last_name', '')}".strip(),
+                        'email': user.get('email', ''),
                         'phone': user.get('business_phone', ''),
                         'street': user.get('business_address', ''),
                         'country_id': self.env['res.country'].search([('name', '=', user.get('business_country', ''))], limit=1).id,
-                        'is_company': False,
+                        'is_company': is_company,
                         'company_name': user.get('business_name', '') if is_company else '',
                         'business_id': user.get('business_id', ''),
                         'is_email_verified': user.get('is_email_verified', False),
                         'external_user_id': user.get('user_id', ''),
                         'is_atlax_customer': True,
                     }
-
+                    partner = self.env['res.partner'].search([('email', '=', user.get('email', ''))], limit=1)
                     if not partner:
                         partner = self.env['res.partner'].create(partner_vals)
                     else:
                         partner.write(partner_vals)
 
-
-                
-                        
-                    # Create or update user
-                    user_obj = self.env['res.users'].search([('login', '=', user['email'])], limit=1)
+                    # Create or update user (res.users)
+                    user_obj = self.env['res.users'].search([('login', '=', user.get('email', ''))], limit=1)
                     if not user_obj:
                         self.env['res.users'].create({
-                            'name': f"{user['first_name']} {user['last_name']}",
-                            'login': user['email'],
+                            'name': partner.name,
+                            'login': partner.email,
                             'partner_id': partner.id,
                             'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
                         })
@@ -100,37 +81,39 @@ class FetchUsers(models.Model):
                     # Process ledgers
                     ledgers = user.get('ledgers', [])
                     if not isinstance(ledgers, list):
-                        ledgers = []  # Ensure ledgers is always a list
+                        ledgers = []
 
                     for ledger in ledgers:
                         currency_name = ledger.get('currency_name')
-                        # currency_code = currency_mapping.get(currency_name, currency_name)  # Map to currency code
+                        balance = ledger.get('balance', 0) / 100
+                        wallet_id = ledger.get('id')
 
-                        # Check if the currency exists
-                        currency = self.env['supported.currency'].search([('name', '=', currency_name)], limit=1)
+                        # Try to find supported.currency by currency_name or code
+                        currency = self.env['supported.currency'].search([
+                            '|',
+                            ('name', '=', currency_name),
+                            ('currency_code', '=', currency_name)
+                        ], limit=1)
                         if not currency:
                             _logger.warning(f"Currency not found for ledger: {ledger}. Skipping ledger.")
                             continue
 
                         # Reactivate the currency if it exists but is inactive
-                        if not currency.status:
+                        if hasattr(currency, 'status') and not currency.status:
                             currency.status = True
                             _logger.info(f"Reactivated inactive currency: {currency.name}")
 
-                        # Divide the balance by 100
-                        balance = ledger.get('balance', 0) / 100
-                        wallet_id = ledger.get('id')
-
-                        # Create or update ledger
+                        # Create or update account.ledger for this partner and currency
                         existing_ledger = self.env['account.ledger'].search([
                             ('partner_id', '=', partner.id),
                             ('currency_id', '=', currency.id)
                         ], limit=1)
 
                         if existing_ledger:
-                            existing_ledger.balance = balance
-                            existing_ledger.wallet_id = wallet_id
-                            # _logger.info(f"Updated ledger for partner {partner.id} with currency {currency.name} to balance {balance}")
+                            existing_ledger.write({
+                                'balance': balance,
+                                'wallet_id': wallet_id,
+                            })
                         else:
                             self.env['account.ledger'].create({
                                 'partner_id': partner.id,
@@ -138,7 +121,6 @@ class FetchUsers(models.Model):
                                 'wallet_id': wallet_id,
                                 'balance': balance,
                             })
-                            # _logger.info(f"Created ledger for partner {partner.id} with currency {currency.name} and balance {balance}")
 
                 except Exception as e:
                     self.env.cr.rollback()
@@ -151,7 +133,6 @@ class FetchUsers(models.Model):
                 'fetch_time': fields.Datetime.now(),
                 'user_id': self.env.user.id,
             })
-            # _logger.info(f"Successfully fetched and created {fetched_count} users.")
 
         except requests.exceptions.RequestException as e:
             _logger.error(f"Failed to connect to the API: {str(e)}")

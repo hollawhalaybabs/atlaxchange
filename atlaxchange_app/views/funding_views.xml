@@ -32,7 +32,7 @@
                 <field name="amount_credit"/>
                 <field name="state"/>
                 <field name="approval_level"/>
-                <field name="approver_id"/>
+                <field name="approver_ids" widget="many2many_tags"/>
             </tree>
         </field>
     </record>

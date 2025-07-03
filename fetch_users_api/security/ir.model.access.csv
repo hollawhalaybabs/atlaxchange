@@ -1,6 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_fetch_users,Fetch_Users,model_fetch_users,base.group_system,1,1,1,0
-access_fetch_users_audit,access_fetch_users_audit,model_fetch_users_audit,base.group_system,1,0,0,0
+access_fetch_users_audit,access_fetch_users_audit,model_fetch_users_audit,base.group_system,1,1,1,0
 
 access_account_ledger,access_account_ledger,model_account_ledger,base.group_system,1,1,1,1
 access_account_ledger_etiti,Access_account_ledger_etiti ,model_account_ledger,atlaxchange_app.group_etiti_officer,1,0,0,0

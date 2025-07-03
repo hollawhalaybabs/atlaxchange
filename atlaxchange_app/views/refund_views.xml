@@ -25,7 +25,7 @@
                 <field name="amount"/>
                 <field name="state"/>
                 <field name="approval_level"/>
-                <field name="approver_id"/>
+                <field name="approver_ids" widget="many2many_tags"/>
             </tree>
         </field>
     </record>
@@ -53,7 +53,7 @@
                         </group>
                         <group string="Approval Details">
                             <field name="approval_level" readonly="1"/>
-                            <field name="approver_id" readonly="1"/>
+                            <field name="approver_ids" widget="many2many_tags"/>
                         </group>
                     </group>
                     <notebook>

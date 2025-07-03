@@ -1,6 +1,9 @@
 from odoo import models, fields, api, _
 import requests
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
@@ -123,3 +126,92 @@ class ResPartner(models.Model):
     def button_fetch_payment_settings(self):
         """Button to fetch payment settings, can be used in the form view."""
         return self.action_fetch_payment_settings()
+
+    def action_refresh_balance(self):
+        """Refresh this partner's ledger balances from the API and fetch supported currencies."""
+        self.ensure_one()
+        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
+        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
+        if not api_key or not api_secret:
+            raise UserError(_("API key or secret is missing. Set them in System Parameters."))
+
+        url = "https://api.atlaxchange.com/api/v1/users"
+        headers = {
+            "Content-Type": "application/json",
+            "X-API-KEY": api_key,
+            "X-API-SECRET": api_secret
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            raise UserError(_("Failed to fetch users: %s") % response.text)
+
+        users = response.json().get("data", [])
+        matched_user = None
+        for user in users:
+            if user.get("business_id") == self.business_id:
+                matched_user = user
+                break
+
+        if not matched_user:
+            raise UserError(_("No user found with this Business ID."))
+
+        ledgers = matched_user.get("ledgers", [])
+        for ledger in ledgers:
+            wallet_id = ledger.get("id")
+            currency_name = ledger.get("currency_name")
+            balance = ledger.get("balance", 0) / 100
+
+            currency = self.env['supported.currency'].search([
+                '|',
+                ('name', '=', currency_name),
+                ('currency_code', '=', currency_name)
+            ], limit=1)
+            if not currency:
+                _logger.warning(f"Currency not found for ledger: {ledger}. Skipping ledger.")
+                continue
+
+            existing_ledger = self.env['account.ledger'].search([
+                ('partner_id', '=', self.id),
+                ('wallet_id', '=', wallet_id),
+                ('currency_id', '=', currency.id)
+            ], limit=1)
+
+            if existing_ledger:
+                existing_ledger.write({
+                    'balance': balance,
+                })
+            else:
+                self.env['account.ledger'].create({
+                    'partner_id': self.id,
+                    'currency_id': currency.id,
+                    'wallet_id': wallet_id,
+                    'balance': balance,
+                })
+
+        # Also refresh supported currencies
+        self.env['supported.currency'].fetch_supported_currencies()
+        return True
+
+    def action_kyc_verification(self):
+        """Patch KYC verification for this partner's business_id."""
+        self.ensure_one()
+        if not self.business_id:
+            raise UserError(_("Business ID is required for KYC verification."))
+
+        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
+        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
+        if not api_key or not api_secret:
+            raise UserError(_("API key or secret is missing. Set them in System Parameters."))
+
+        url = f"https://api.atlaxchange.com/api/v1/admin/{self.business_id}"
+        headers = {
+            "Content-Type": "application/json",
+            "X-API-KEY": api_key,
+            "X-API-SECRET": api_secret
+        }
+        # You may need to adjust the payload as per your API requirements
+        payload = {"kyc_verified": True}
+        response = requests.patch(url, json=payload, headers=headers)
+        if response.status_code not in (200, 201):
+            raise UserError(_("Failed to update KYC verification: %s") % response.text)
+        return True

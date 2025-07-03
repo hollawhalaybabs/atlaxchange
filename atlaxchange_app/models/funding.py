@@ -27,10 +27,16 @@ class Funding(models.Model):
         ('rejected', 'Rejected'),
         ('funded', 'Funded'),
     ], string="Status", default='draft', readonly=True)
-    approver_id = fields.Many2one('res.users', string="Approver", readonly=True, domain=[('share', '=', False)])
+    approver_ids = fields.Many2many(
+        'res.users',
+        'funding_approver_rel',
+        'funding_id',
+        'user_id',
+        string="Approvers",
+        domain=[('share', '=', False)]
+    )
     approval_level = fields.Selection([
         ('hoo', 'HOO'),
-        ('hot_t', 'HOT&T'),
         ('coo', 'COO'),
         ('ceo', 'CEO')
     ], string="Approval Level", readonly=True)
@@ -60,34 +66,35 @@ class Funding(models.Model):
                 template.send_mail(record.id, force_send=True)
 
     def _set_approval_level(self):
-        """Set the approval level based on the amount to credit and notify the approver."""
+        """Set the approval level based on the amount to credit and notify the approvers."""
         for record in self:
-            if record.amount_credit < 5000000:
+            if record.amount_credit < 5000:
                 record.approval_level = 'hoo'
-            elif 5000000 <= record.amount_credit <= 50000000:
-                record.approval_level = 'hot_t'
-            elif record.amount_credit > 50000000:
+            elif record.amount_credit <= 50000:
                 record.approval_level = 'coo'
+            elif record.amount_credit > 50000:
+                record.approval_level = 'ceo'
 
-            # Send email notification to the approver based on the approval level
+            # Find users in the approver group
+            approver_group = {
+                'hoo': 'atlaxchange_app.group_hoo',
+                'coo': 'atlaxchange_app.group_coo',
+                'ceo': 'atlaxchange_app.group_ceo',
+            }.get(record.approval_level)
+            approvers = self.env['res.users'].search([('groups_id', 'in', self.env.ref(approver_group).id)])
+            record.approver_ids = [(6, 0, approvers.ids)]
+
+            # Send email notification to all approvers
             template = self.env.ref('atlaxchange_app.email_template_funding_request')
-            if template and record.approval_level:
-                approver_group = {
-                    'hoo': 'atlaxchange_app.group_hoo',
-                    'hot_t': 'atlaxchange_app.group_hot',
-                    'coo': 'atlaxchange_app.group_coo',
-                    'ceo': 'atlaxchange_app.group_ceo',
-                }.get(record.approval_level)
-
-                # Find users in the approver group
-                approvers = self.env['res.users'].search([('groups_id', 'in', self.env.ref(approver_group).id)])
+            if template and approvers:
                 for approver in approvers:
                     template.with_context(approver_email=approver.email).send_mail(record.id, force_send=True)
 
     def action_approve(self):
         """Approve the funding request and send an email notification."""
         self.state = 'approved'
-        self.approver_id = self.env.user
+        if self.env.user not in self.approver_ids:
+            self.approver_ids = [(4, self.env.user.id)]
 
         # Send approval email
         template = self.env.ref('atlaxchange_app.email_template_funding_approved')
@@ -104,19 +111,10 @@ class Funding(models.Model):
             for record in self:
                 template.send_mail(record.id, force_send=True)
 
-    @api.depends('approval_level')
+    @api.depends('approval_level', 'approver_ids')
     def _compute_is_approver(self):
         for record in self:
-            if record.approval_level == 'hoo':
-                record.is_approver = self.env.user.has_group('atlaxchange_app.group_hoo')
-            elif record.approval_level == 'hot_t':
-                record.is_approver = self.env.user.has_group('atlaxchange_app.group_hot')
-            elif record.approval_level == 'coo':
-                record.is_approver = self.env.user.has_group('atlaxchange_app.group_coo')
-            elif record.approval_level == 'ceo':
-                record.is_approver = self.env.user.has_group('atlaxchange_app.group_ceo')
-            else:
-                record.is_approver = False
+            record.is_approver = self.env.user in record.approver_ids
 
     def action_fund_wallet(self):
         """Fund the customer's wallet after approval and send an API POST request."""

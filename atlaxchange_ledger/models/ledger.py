@@ -31,9 +31,9 @@ class AtlaxchangeLedger(models.Model):
     customer_name = fields.Char(string='Customer Name', store=True)
     wallet = fields.Many2one('supported.currency', string='Wallet')
     amount = fields.Float(string='Amount', store=True, digits=(16, 2))
-    total_amount = fields.Float(string='Total Amount', digits=(16, 2))
+    total_amount = fields.Float(string='Dest. Amount', digits=(16, 2))
     fee = fields.Float(string='Fee')
-    conversion_rate = fields.Float(string='Conversion Rate')
+    conversion_rate = fields.Float(string='Rate')
     destination_currency = fields.Many2one('supported.currency', string='Destination Currency')  # updated
     type = fields.Selection([
         ('debit', 'Debit'),
@@ -45,7 +45,7 @@ class AtlaxchangeLedger(models.Model):
         ('success', 'Success'),
         ('failed', 'Failed'),
         ('reversed', 'Reversed')
-    ], string='Status', default='processing')
+    ], string='Status', default='pending')
     partner_id = fields.Many2one('res.partner', string='Partner')
 
 
@@ -121,10 +121,10 @@ class AtlaxchangeLedger(models.Model):
                     created_at = datetime.utcfromtimestamp(record['created_at'])
                     currency = self.env['supported.currency'].search([('currency_code', '=', record.get('currency_code'))], limit=1)
                     dest_currency = self.env['supported.currency'].search([('currency_code', '=', record.get('destination_currency'))], limit=1)
-                    # Ensure status is mapped and defaults to 'processing' if not present or not recognized
-                    status = record.get('status', 'processing')
+                    # Ensure status is mapped and defaults to 'pending' if not present or not recognized
+                    status = record.get('status', 'pending')
                     if status not in dict(self._fields['status'].selection):
-                        status = 'processing'
+                        status = 'pending'
                     vals = {
                         'datetime': created_at,
                         'bank': record.get('bank_name'),

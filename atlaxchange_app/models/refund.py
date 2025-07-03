@@ -1,4 +1,5 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 class Refund(models.Model):
     _name = 'atlaxchange.refund'
@@ -17,10 +18,17 @@ class Refund(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected')
     ], string="Status", default='draft', readonly=True)
-    approver_id = fields.Many2one('res.users', string="Approver", readonly=True, domain=[('share', '=', False)])
+    approver_ids = fields.Many2many(
+        'res.users',
+        'refund_approver_rel',
+        'refund_id',
+        'user_id',
+        string="Approvers",
+        readonly=True,
+        domain=[('share', '=', False)]
+    )
     approval_level = fields.Selection([
         ('hoo', 'HOO'),
-        ('hot_t', 'HOT&T'),
         ('coo', 'COO'),
         ('ceo', 'CEO')
     ], string="Approval Level", readonly=True)
@@ -40,35 +48,53 @@ class Refund(models.Model):
     def action_submit_for_approval(self):
         self.state = 'approval'
         self._set_approval_level()
+        # Set approvers based on approval_level
+        group_xmlid = {
+            'hoo': 'atlaxchange_app.group_hoo',
+            'coo': 'atlaxchange_app.group_coo',
+            'ceo': 'atlaxchange_app.group_ceo',
+        }.get(self.approval_level)
+        if group_xmlid:
+            group = self.env.ref(group_xmlid)
+            users = self.env['res.users'].search([('groups_id', 'in', group.id)])
+            self.approver_ids = [(6, 0, users.ids)]
 
     def _set_approval_level(self):
-        if self.amount < 5000000:
+        if self.amount < 2000:
             self.approval_level = 'hoo'
-        elif 5000000 <= self.amount <= 50000000:
-            self.approval_level = 'hot_t'
-        elif self.amount > 50000000:
+        elif self.amount <= 50000:
             self.approval_level = 'coo'
+        elif self.amount > 50000:
+            self.approval_level = 'ceo'
 
     def action_approve(self):
+        # Only allow if current user is in approver_ids
+        if self.env.user not in self.approver_ids:
+            raise UserError("Only an assigned approver can approve this refund.")
         self.state = 'approved'
-        self.approver_id = self.env.user
+        # Optionally, add the user to approver_ids if not already present
+        if self.env.user.id not in self.approver_ids.ids:
+            self.approver_ids = [(4, self.env.user.id)]
         for line in self.refund_line_ids:
             line.ledger_id.status = 'reversed'
 
     def action_reject(self):
+        # Only allow if current user is in approver_ids
+        if self.env.user not in self.approver_ids:
+            raise UserError("Only an assigned approver can reject this refund.")
         self.state = 'rejected'
 
     @api.depends('approval_level')
     def _compute_is_approver(self):
         for record in self:
-            if record.approval_level == 'hoo':
-                record.is_approver = self.env.user.has_group('atlaxchange_app.group_hoo')
-            elif record.approval_level == 'hot_t':
-                record.is_approver = self.env.user.has_group('atlaxchange_app.group_hot')
-            elif record.approval_level == 'coo':
-                record.is_approver = self.env.user.has_group('atlaxchange_app.group_coo')
-            elif record.approval_level == 'ceo':
-                record.is_approver = self.env.user.has_group('atlaxchange_app.group_ceo')
+            group_xmlid = {
+                'hoo': 'atlaxchange_app.group_hoo',
+                'coo': 'atlaxchange_app.group_coo',
+                'ceo': 'atlaxchange_app.group_ceo',
+            }.get(record.approval_level)
+            if group_xmlid:
+                group = self.env.ref(group_xmlid)
+                record.is_approver = self.env.user in self.env['res.users'].search([('groups_id', 'in', group.id)])
             else:
                 record.is_approver = False
 

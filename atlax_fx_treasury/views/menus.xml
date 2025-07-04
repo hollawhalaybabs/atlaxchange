@@ -1,0 +1,8 @@
+<odoo>
+  <menuitem id="menu_trade_treasury_root" name="Trade &amp; Treasury" sequence="8"
+            groups="atlax_fx_treasury.group_fx_officer" parent="atlaxchange_app.atlaxchange_menu"/>
+
+  <menuitem id="menu_fx_rates" name="FX Rate Computations" parent="menu_trade_treasury_root"
+            action="action_fx_rate_window" sequence="10"
+            groups="atlax_fx_treasury.group_fx_officer,base.group_system"/>
+</odoo>

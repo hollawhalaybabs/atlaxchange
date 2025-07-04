@@ -40,8 +40,8 @@ class AtlaxchangeLedger(models.Model):
         ('credit', 'Credit')
     ], string='Type')
     status = fields.Selection([
-        ('processing', 'Processing'),
         ('pending', 'Pending'),
+        ('processing', 'Processing'),
         ('success', 'Success'),
         ('failed', 'Failed'),
         ('reversed', 'Reversed')
@@ -90,7 +90,7 @@ class AtlaxchangeLedger(models.Model):
         api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
 
         if not api_key or not api_secret:
-            _logger.error("API key or secret is missing. Set them in System Parameters.")
+            # _logger.error("API key or secret is missing. Set them in System Parameters.")
             return
 
         headers = {
@@ -107,12 +107,12 @@ class AtlaxchangeLedger(models.Model):
             try:
                 response = requests.get(url, headers=headers, params=params, timeout=10)
                 if response.status_code != 200:
-                    _logger.error(f"Failed to fetch data from API. Status Code: {response.status_code}, Response: {response.text}")
+                    # _logger.error(f"Failed to fetch data from API. Status Code: {response.status_code}, Response: {response.text}")
                     break
 
                 data = response.json()
                 transactions = data.get('data', {}).get('transactions', [])
-                _logger.info(f"Fetched {len(transactions)} transactions.")
+                # _logger.info(f"Fetched {len(transactions)} transactions.")
 
                 new_records = []
                 for record in transactions:

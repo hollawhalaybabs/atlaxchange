@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="seq_fx_rate" model="ir.sequence">
+    <field name="name">Atlax FX Rate</field>
+    <field name="code">atlax.fx.rate</field>
+    <field name="prefix">FXR/%(year)s/</field>
+    <field name="padding">4</field>
+  </record>
+</odoo>
+
+    

@@ -52,7 +52,7 @@
     </record>
 
     <!-- Menu Item for Res Currency -->
-    <menuitem id="menu_atlaxchange_config" name="Configuration" parent="atlaxchange_menu" sequence="20"/>
+    <menuitem id="menu_atlaxchange_config" name="Configuration" parent="atlaxchange_menu" sequence="200"/>
     <menuitem id="menu_supported_currency" name="Supported Currencies" parent="menu_atlaxchange_config" sequence="1" action="action_supported_currency" groups="atlaxchange_app.group_treasury_officer"/>
 
 </odoo>

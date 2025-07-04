@@ -1,0 +1,13 @@
+<odoo>
+  <!-- Groups -->
+  <record id="group_fx_officer" model="res.groups">
+    <field name="name">FX &amp; Liquidity Officer</field>
+    <field name="category_id" ref="atlaxchange_app.module_category_atlax"/>
+  </record>
+
+  <record id="group_fx_manager" model="res.groups">
+    <field name="name">FX &amp; Liquidity Manager</field>
+    <field name="category_id" ref="atlaxchange_app.module_category_atlax"/>
+    <field name="implied_ids" eval="[(4, ref('group_fx_officer'))]"/>
+  </record>
+</odoo>

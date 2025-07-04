@@ -15,7 +15,7 @@
     </record>
 
     <!-- Menu Item for Funding -->
-    <menuitem id="menu_funding" name="Funding" parent="atlaxchange_menu" action="action_funding" sequence="10"/>
+    <menuitem id="menu_funding" name="Funding" parent="atlaxchange_menu" action="action_funding" sequence="4"/>
 
     <!-- Tree View for Funding -->
     <record id="view_funding_tree" model="ir.ui.view">
@@ -58,9 +58,14 @@
                     <button name="action_fund_wallet" type="object" string="Fund Wallet" class="btn-success" attrs="{'invisible': [('state', '!=', 'approved')]}"/>
                 </header>
                 <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1" placeholder="REF"/> 
+                        </h1> 
+                    </div>
                     <group>
                         <group string="Funding Details">
-                            <field name="name" readonly="1"/>
                             <field name="funding_type" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="customer_name" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="source_currency" attrs="{'readonly': [('state', '!=', 'draft')]}"/>

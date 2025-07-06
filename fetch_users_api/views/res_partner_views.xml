@@ -14,18 +14,18 @@
                 <page string="Wallet">
                     <field name="ledger_ids" nolabel="1">
                         <tree editable="bottom">
-                            <field name="currency_id"/>
-                            <field name="balance"/>
+                            <field name="currency_id" readonly="1"/>
+                            <field name="balance" readonly="1"/>
                         </tree>
                     </field>
                 </page>
                 <page string="Business Payment Settings">
                     <field name="payment_settings_ids" nolabel="1">
                         <tree create="false" delete="false">
-                            <field name="can_make_transfer"/>
-                            <field name="ip_address_ids" widget="many2many_tags"/>
-                            <field name="allowed_wallets" widget="many2many_tags"/>
-                            <field name="payout_currencies" widget="many2many_tags"/>
+                            <field name="can_make_transfer" readonly="1"/>
+                            <field name="ip_address_ids" widget="many2many_tags" readonly="1"/>
+                            <field name="allowed_wallets" widget="many2many_tags" readonly="1"/>
+                            <field name="payout_currencies" widget="many2many_tags" readonly="1"/>
                         </tree>
                         <form>
                             <header>

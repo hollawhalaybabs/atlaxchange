@@ -76,7 +76,7 @@
                         </group>
                         <group string="Approval Details">
                             <field name="approval_level" readonly="1"/>
-                            <field name="approver_ids" widget="many2many_tags"/>
+                            <field name="approver_ids" widget="many2many_tags" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="is_approver" invisible="1"/>
                         </group>
                     </group>

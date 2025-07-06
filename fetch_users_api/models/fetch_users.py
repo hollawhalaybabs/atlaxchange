@@ -54,7 +54,7 @@ class FetchUsers(models.Model):
                         'phone': user.get('business_phone', ''),
                         'street': user.get('business_address', ''),
                         'country_id': self.env['res.country'].search([('name', '=', user.get('business_country', ''))], limit=1).id,
-                        'is_company': is_company,
+                        'is_company': False,
                         'company_name': user.get('business_name', '') if is_company else '',
                         'business_id': user.get('business_id', ''),
                         'is_email_verified': user.get('is_email_verified', False),
@@ -66,17 +66,6 @@ class FetchUsers(models.Model):
                         partner = self.env['res.partner'].create(partner_vals)
                     else:
                         partner.write(partner_vals)
-
-                    # Create or update user (res.users)
-                    user_obj = self.env['res.users'].search([('login', '=', user.get('email', ''))], limit=1)
-                    if not user_obj:
-                        self.env['res.users'].create({
-                            'name': partner.name,
-                            'login': partner.email,
-                            'partner_id': partner.id,
-                            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
-                        })
-                        fetched_count += 1
 
                     # Process ledgers
                     ledgers = user.get('ledgers', [])

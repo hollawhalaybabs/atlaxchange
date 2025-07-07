@@ -28,14 +28,19 @@
         <field name="model">atlaxchange.ledger</field>
         <field name="arch" type="xml">
             <search string="Ledger Search">
-                <field name="transaction_reference" string="Transaction Reference"/>
-                <filter name="status_pending" string="Pending" domain="[('status','=','pending')]" />
-                <filter name="status_success" string="Success" domain="[('status','=','success')]" />
-                <filter name="status_failed" string="Failed" domain="[('status','=','failed')]" />
-                <filter name="status_reversed" string="Reversed" domain="[('status','=','reversed')]" />
-                <field name="status"/>
+                <field name="transaction_reference"/>
+                <field name="partner_id"/>
                 <field name="wallet"/>
                 <field name="destination_currency"/>
+                <field name="status"/>
+                <field name="type"/>
+                <filter name="today" string="Today" domain="[('datetime','&gt;=',(context_today()))]"/>
+                <group expand="1" string="Group By">
+                    <filter name="group_by_status" string="Status" context="{'group_by':'status'}"/>
+                    <filter name="group_by_type" string="Type" context="{'group_by':'type'}"/>
+                    <filter name="group_by_partner" string="Customer" context="{'group_by':'partner_id'}"/>
+                    <filter name="group_by_wallet" string="Wallet" context="{'group_by':'wallet'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -81,33 +86,89 @@
         <field name="binding_view_types">list</field>
     </record>
 
+    <!-- Action for Export Ledger CSV -->
+    <record id="action_export_ledger_csv" model="ir.actions.server">
+        <field name="name">Export Ledger CSV</field>
+        <field name="model_id" ref="model_atlaxchange_ledger"/>
+        <field name="binding_model_id" ref="model_atlaxchange_ledger"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.export_transaction_report()
+        </field>
+        <field name="binding_view_types">list</field>
+    </record>
+
+    <!-- Pivot View: Transaction Volume, Fee, Count by Customer -->
+    <record id="view_atlaxchange_ledger_pivot" model="ir.ui.view">
+        <field name="name">atlaxchange.ledger.pivot</field>
+        <field name="model">atlaxchange.ledger</field>
+        <field name="arch" type="xml">
+            <pivot string="Ledger Analysis">
+                <field name="partner_id" type="row"/>
+                <field name="wallet" type="col"/>
+                <field name="amount" type="measure"/>
+                <field name="fee" type="measure"/>
+                <field name="total_amount" type="measure" string="Dest. Amount"/>
+                <!-- <field name="conversion_rate" type="count" string="Rate"/> -->
+                <field name="id" type="count" string="Transaction Count"/>
+                <field name="status" type="row"/>
+                <field name="type" type="row"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View: Volume and Fee by Customer -->
+    <record id="view_atlaxchange_ledger_graph" model="ir.ui.view">
+        <field name="name">atlaxchange.ledger.graph</field>
+        <field name="model">atlaxchange.ledger</field>
+        <field name="arch" type="xml">
+            <graph string="Ledger Graph" type="bar">
+                <field name="partner_id" type="row"/>
+                <field name="amount" type="measure"/>
+                <field name="fee" type="measure"/>
+                <field name="status" type="col"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Graph View: Volume and Fee Over Time -->
+    <record id="view_atlaxchange_ledger_graph_time" model="ir.ui.view">
+        <field name="name">atlaxchange.ledger.graph.time</field>
+        <field name="model">atlaxchange.ledger</field>
+        <field name="arch" type="xml">
+            <graph string="Volume Over Time" type="line">
+                <field name="datetime" type="row" interval="day"/>
+                <field name="amount" type="measure"/>
+                <field name="fee" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
     <!-- Action for Atlaxchange Ledger -->
     <record id="action_atlaxchange_ledger" model="ir.actions.act_window">
         <field name="name">Transaction History</field>
         <field name="res_model">atlaxchange.ledger</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
         <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
+        <field name="view_ids" eval="[(5, 0, 0), 
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_atlaxchange_ledger_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_atlaxchange_ledger_form')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_atlaxchange_ledger_pivot')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_atlaxchange_ledger_graph')}),
+        ]"/>
     </record>
 
-    <record id="action_atlaxchange_ledger_client" model="ir.actions.client">
-        <field name="name">Ledger Transactions</field>
-        <field name="tag">atlaxchange_ledger_client_action</field>
+    <!-- Separate action for the second graph view -->
+    <record id="action_atlaxchange_ledger_graph_time" model="ir.actions.act_window">
+        <field name="name">Ledger Volume Over Time</field>
+        <field name="res_model">atlaxchange.ledger</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="view_atlaxchange_ledger_graph_time"/>
     </record>
 
     <!-- Menu Items -->
-    <menuitem id="menu_atlaxchange_ledger" name="Transaction History"
-              parent="atlaxchange_app.atlaxchange_menu" action="action_atlaxchange_ledger_client" sequence="3"/>
-
-    <!-- Payout History -->
-    <record id="action_payout_history" model="ir.actions.act_window">
-        <field name="name">Local Payout History</field>
-        <field name="res_model">atlaxchange.ledger</field>
-        <field name="view_mode">tree,form</field>
-        <field name="domain">[("type", "=", "debit")]</field>
-        <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
-    </record>
-    <menuitem id="menu_payout_history" name="Local Payout History"
-              parent="menu_atlaxchange_ledger" action="action_payout_history" sequence="2"/>
+    <menuitem id="menu_atlaxchange_ledger" name="Transaction History" parent="atlaxchange_app.atlaxchange_menu" sequence="3"/>
+    <menuitem id="menu_atlaxchange_ledger_all" name="All Transaction" parent="menu_atlaxchange_ledger" action="action_atlaxchange_ledger" sequence="1"/>
 
     <!-- Collection History -->
     <record id="action_collection_history" model="ir.actions.act_window">
@@ -118,7 +179,18 @@
         <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
     </record>
     <menuitem id="menu_collection_history" name="Collection History"
-              parent="menu_atlaxchange_ledger" action="action_collection_history" sequence="1"/>
+              parent="menu_atlaxchange_ledger" action="action_collection_history" sequence="2"/>
+
+    <!-- Payout History -->
+    <record id="action_payout_history" model="ir.actions.act_window">
+        <field name="name">Local Payout History</field>
+        <field name="res_model">atlaxchange.ledger</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[("type", "=", "debit")]</field>
+        <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
+    </record>
+    <menuitem id="menu_payout_history" name="Local Payout History"
+              parent="menu_atlaxchange_ledger" action="action_payout_history" sequence="3"/>
 
     <!-- Remittance Transfer (type=debit and conversion_rate != 0) -->
     <record id="action_remittance_transfer" model="ir.actions.act_window">
@@ -129,5 +201,6 @@
         <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
     </record>
     <menuitem id="menu_remittance_transfer" name="Remittance Payout Transfer"
-              parent="menu_atlaxchange_ledger" action="action_remittance_transfer" sequence="3"/>
+              parent="menu_atlaxchange_ledger" action="action_remittance_transfer" sequence="4"/>
+
 </odoo>

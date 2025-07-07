@@ -5,6 +5,9 @@ from datetime import datetime
 from requests.exceptions import ConnectTimeout, ReadTimeout
 import logging
 from odoo.exceptions import UserError
+import csv
+from io import StringIO
+from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
@@ -169,6 +172,40 @@ class AtlaxchangeLedger(models.Model):
         })
 
         _logger.info(f"Successfully fetched {fetched_count} transactions from the API.")
+
+    def export_transaction_report(self):
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['Customer', 'Currency', 'Amount', 'Fee', 'Status', 'Date'])
+        for rec in self.search([]):
+            writer.writerow([
+                rec.partner_id.display_name,
+                rec.wallet.name if rec.wallet else '',
+                rec.amount,
+                rec.fee,
+                rec.status,
+                rec.datetime,
+            ])
+        output.seek(0)
+        return request.make_response(
+            output.getvalue(),
+            headers=[
+                ('Content-Type', 'text/csv'),
+                ('Content-Disposition', 'attachment; filename="ledger_report.csv"')
+            ]
+        )
+    
+    @api.model
+    def cron_send_daily_summary(self):
+        today = fields.Date.today()
+        ledgers = self.search([('datetime', '>=', today)])
+        total_volume = sum(ledgers.mapped('amount'))
+        total_fee = sum(ledgers.mapped('fee'))
+        body = f"Today's volume: {total_volume}\nToday's profit: {total_fee}"
+        # Send to group or manager
+        users = self.env.ref('base.group_system').users
+        for user in users:
+            user.partner_id.message_post(body=body, subject="Daily Ledger Summary")
 
 
 

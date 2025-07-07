@@ -18,6 +18,9 @@
         "web.assets_backend": [
             "atlaxchange_ledger/static/src/js/ledger_client_action.js",
             "atlaxchange_ledger/static/src/xml/ledger_client_action.xml",
+            'atlaxchange_ledger/static/src/components/ledger_dashboard.xml',
+            'atlaxchange_ledger/static/src/components/LedgerDashboard.js',
+            'atlaxchange_ledger/static/src/ledger_dashboard.js',
         ],
     },
     "installable": True,

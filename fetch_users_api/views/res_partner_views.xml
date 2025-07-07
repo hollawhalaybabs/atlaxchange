@@ -13,7 +13,7 @@
             <notebook position="inside">
                 <page string="Wallet">
                     <field name="ledger_ids" nolabel="1">
-                        <tree editable="bottom">
+                        <tree editable="bottom" create="false" delete="false">
                             <field name="currency_id" readonly="1"/>
                             <field name="balance" readonly="1"/>
                         </tree>

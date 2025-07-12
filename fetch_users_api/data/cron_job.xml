@@ -6,7 +6,7 @@
         <field name="state">code</field>
         <field name="code">model.fetch_and_create_users()</field>
         <field name="interval_type">minutes</field>
-        <field name="interval_number">30</field>
+        <field name="interval_number">90</field>
         <field name="numbercall">-1</field>
         <field name="doall">False</field>
     </record>

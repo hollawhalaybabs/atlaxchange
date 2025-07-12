@@ -1,0 +1,37 @@
+<odoo>
+    <record id="view_account_statement_wizard_form" model="ir.ui.view">
+        <field name="name">account.statement.wizard.form</field>
+        <field name="model">account.statement.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Account Statement">
+                <group>
+                    <field name="partner_id"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="report_format"/>
+                </group>
+                <footer>
+                    <button string="Generate" type="object" name="action_generate_statement" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window id="action_account_statement_wizard"
+        name="Account Statement"
+        res_model="account.statement.wizard"
+        view_mode="form"
+        target="new"/>
+    <menuitem id="menu_atlaxchange_report" 
+            name="Reports" 
+            parent="atlaxchange_app.atlaxchange_menu" 
+            sequence="100" 
+            groups="base.group_system,atlaxchange_app.group_operation_officer,atlaxchange_app.group_treasury_officer,atlaxchange_app.group_hoo,atlaxchange_app.group_hot,atlax_fx_treasury.group_fx_manager,atlaxchange_app.group_coo,atlaxchange_app.group_ceo"/>
+
+    <menuitem id="menu_account_statement_wizard"
+        name="Generate Statement"
+        parent="menu_atlaxchange_report"
+        groups="base.group_system,atlaxchange_app.group_operation_officer,atlaxchange_app.group_treasury_officer,atlaxchange_app.group_hoo,atlaxchange_app.group_hot,atlaxchange_app.group_coo,atlaxchange_app.group_ceo,atlax_fx_treasury.group_fx_manager"
+        action="action_account_statement_wizard"/>
+</odoo>

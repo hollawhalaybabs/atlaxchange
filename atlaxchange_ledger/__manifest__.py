@@ -13,6 +13,8 @@
         "data/cron_job.xml",
         "views/ledger_views.xml",
         "views/ledger_audit_views.xml",
+        "views/account_statement_wizard_view.xml",
+        "reports/account_statement_template.xml",
     ],
     "assets": {
         "web.assets_backend": [
@@ -21,6 +23,7 @@
             'atlaxchange_ledger/static/src/components/ledger_dashboard.xml',
             'atlaxchange_ledger/static/src/components/LedgerDashboard.js',
             'atlaxchange_ledger/static/src/ledger_dashboard.js',
+            'atlaxchange_ledger/static/src/js/ledger_refresh_button.js',
         ],
     },
     "installable": True,

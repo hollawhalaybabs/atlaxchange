@@ -6,7 +6,7 @@
         <field name="state">code</field>
         <field name="code">model.fetch_ledger_history()</field>
         <field name="interval_type">minutes</field>
-        <field name="interval_number">5</field>
+        <field name="interval_number">60</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
     </record>

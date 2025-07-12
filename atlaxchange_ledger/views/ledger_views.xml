@@ -5,7 +5,7 @@
         <field name="name">atlaxchange.ledger.tree</field>
         <field name="model">atlaxchange.ledger</field>
         <field name="arch" type="xml">
-            <tree create="false" delete="false">
+            <tree create="false" delete="false" js_class="ledger_list_with_refresh">
                 <field name="datetime"/>
                 <field name="transaction_reference"/>
                 <field name="customer_name"/>
@@ -168,7 +168,7 @@
 
     <!-- Menu Items -->
     <menuitem id="menu_atlaxchange_ledger" name="Transaction History" parent="atlaxchange_app.atlaxchange_menu" sequence="3"/>
-    <menuitem id="menu_atlaxchange_ledger_all" name="All Transaction" parent="menu_atlaxchange_ledger" action="action_atlaxchange_ledger" sequence="1"/>
+    <menuitem id="menu_atlaxchange_ledger_all" name="All Transaction" parent="menu_atlaxchange_ledger" action="action_atlaxchange_ledger" sequence="1" groups="atlaxchange_app.group_operation_officer"/>
 
     <!-- Collection History -->
     <record id="action_collection_history" model="ir.actions.act_window">

@@ -1,10 +1,14 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
 access_fetch_ledger_audit,access_fetch_ledger_audit,model_fetch_ledger_audit,base.group_system,1,0,0,0
+access_atlaxchange_etiti,Access for Etiti Management,model_atlaxchange_ledger,atlaxchange_app.group_etiti_officer,1,0,0,0
+
 access_atlaxchange_treasury,Access for Treasury,model_atlaxchange_ledger,atlaxchange_app.group_treasury_officer,1,1,1,0
 access_atlaxchange_operation,Access for Operation,model_atlaxchange_ledger,atlaxchange_app.group_operation_officer,1,1,1,0
-access_atlaxchange_etiti,Access for Etiti Management,model_atlaxchange_ledger,atlaxchange_app.group_etiti_officer,1,0,0,0
 access_atlaxchange_hoo,Access for HOO,model_atlaxchange_ledger,atlaxchange_app.group_hoo,1,1,1,0
 access_atlaxchange_hot,Access for HOT,model_atlaxchange_ledger,atlaxchange_app.group_hot,1,0,0,0
 access_atlaxchange_coo,Access for COO,model_atlaxchange_ledger,atlaxchange_app.group_coo,1,0,0,0
 access_atlaxchange_ceo,Access for CEO,model_atlaxchange_ledger,atlaxchange_app.group_ceo,1,0,0,0
+
+access_account_statement_wizard,Account Statement Wizard,model_account_statement_wizard,base.group_user,1,0,0,0
+access_account_statement_wizard1,Account Statement Wizard1,model_account_statement_wizard,base.group_system,1,1,1,0

@@ -149,11 +149,11 @@ class AtlaxchangeLedger(models.Model):
                         existing.write({'status': status})
                     else:
                         new_records.append(vals)
-                        fetched_count += 1
+                        fetched_count += 10
 
                 if new_records:
                     self.create(new_records)
-                    _logger.info(f"Created {len(new_records)} new ledger records.")
+                    # _logger.info(f"Created {len(new_records)} new ledger records.")
 
                 next_cursor = data.get('data', {}).get('cursor', {}).get('after')
                 if not next_cursor:
@@ -165,13 +165,7 @@ class AtlaxchangeLedger(models.Model):
                 _logger.error(f"An unexpected error occurred: {str(e)}")
                 break
 
-        self.env['fetch.ledger.audit'].create({
-            'fetched_count': fetched_count,
-            'fetch_time': fields.Datetime.now(),
-            'user_id': self.env.user.id,
-        })
-
-        _logger.info(f"Successfully fetched {fetched_count} transactions from the API.")
+        # _logger.info(f"Successfully fetched {fetched_count} transactions from the API.")
 
     def export_transaction_report(self):
         output = StringIO()
@@ -206,6 +200,3 @@ class AtlaxchangeLedger(models.Model):
         users = self.env.ref('base.group_system').users
         for user in users:
             user.partner_id.message_post(body=body, subject="Daily Ledger Summary")
-
-
-

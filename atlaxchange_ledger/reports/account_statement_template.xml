@@ -1,4 +1,17 @@
 <odoo>
+    <record id="paperformat_account_statement_a4" model="report.paperformat">
+        <field name="name">Account Statement A4</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">20</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field>
+    </record>
     <report
         id="action_report_account_statement_pdf"
         model="account.statement.wizard"
@@ -7,156 +20,151 @@
         name="atlaxchange_ledger.report_account_statement_pdf"
         file="atlaxchange_ledger.report_account_statement_pdf"
         print_report_name="'Statement of Account - %s' % (object.partner_id.display_name)"
+        paperformat="paperformat_account_statement_a4"
     />
     <template id="report_account_statement_pdf">
-        <t t-call="web.html_container">
-            <t t-call="web.external_layout">
-                <div class="page">
-                    <table style="width:100%; margin-bottom: 20px;">
+        <t t-call="web.external_layout_boxed">
+            <main>
+                <h2 style="color:#222; margin-bottom: 10px;">Statement of Account</h2>
+                <table style="width:100%; margin-bottom: 20px;">
+                    <tr>
+                        <td style="width:30%;"><strong>Customer:</strong></td>
+                        <td><t t-esc="statement_data['partner'].display_name"/></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Period:</strong></td>
+                        <td>
+                            <t t-esc="statement_data['date_from']"/> to <t t-esc="statement_data['date_to']"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Customer Balance:</strong></td>
+                        <td>
+                            <t t-esc="statement_data['wallet_symbol']"/>
+                            <t t-esc="('%.2f' % (statement_data['total_collection'] - (statement_data['sum_payout_success'] + statement_data['sum_fee_success'])))"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total Collections:</strong></td>
+                        <td>
+                            <t t-esc="statement_data['wallet_symbol']"/>
+                            <t t-esc="('%.2f' % statement_data['total_collection'])"/>
+                            &#160;&#160;|&#160;&#160;
+                            <t t-esc="statement_data['count_collection']"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total Payouts:</strong></td>
+                        <td>
+                            <t t-esc="statement_data['wallet_symbol']"/>
+                            <t t-esc="('%.2f' % statement_data['total_payout'])"/>
+                            &#160;&#160;|&#160;&#160;
+                            <t t-esc="statement_data['count_payout']"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Successful Payouts:</strong></td>
+                        <td>
+                            <t t-esc="statement_data['wallet_symbol']"/>
+                            <t t-esc="('%.2f' % statement_data['sum_payout_success'])"/>
+                            &#160;&#160;|&#160;&#160;
+                            <t t-esc="statement_data['count_payout_success']"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Failed/Reverse Payouts:</strong></td>
+                        <td>
+                            <t t-esc="statement_data['count_payout_failed']"/>
+                        </td>
+                    </tr>
+                </table>
+
+                <h4>Collection Transactions</h4>
+                <table class="table table-sm" style="width:100%;">
+                    <thead>
                         <tr>
-                            <td style="text-align:center;" colspan="2">
-                                <h2 style="margin-bottom: 10px;">Statement of Account</h2>
-                            </td>
+                            <th style="font-weight:bold;">Date</th>
+                            <th style="font-weight:bold;">Reference</th>
+                            <th style="font-weight:bold;">Wallet</th>
+                            <th style="font-weight:bold;">Amount</th>
+                            <th style="font-weight:bold;">Status</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="statement_data['collection_lines']" t-as="col">
+                            <tr>
+                                <td><t t-esc="col.datetime"/></td>
+                                <td><t t-esc="col.transaction_reference"/></td>
+                                <td><t t-esc="col.wallet.currency_code if col.wallet else ''"/></td>
+                                <td>
+                                    <t t-esc="col.wallet.symbol if col.wallet else ''"/>
+                                    <t t-esc="('%.2f' % col.amount)"/>
+                                </td>
+                                <td><t t-esc="col.status"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <h4>Payout Transactions</h4>
+                <table class="table table-sm" style="width:100%;">
+                    <thead>
                         <tr>
-                            <td style="width:30%;"><strong>Customer:</strong></td>
-                            <td><t t-esc="statement_data['partner'].display_name"/></td>
+                            <th style="font-weight:bold;">Date</th>
+                            <th style="font-weight:bold;">Reference</th>
+                            <th style="font-weight:bold;">Bank</th>
+                            <th style="font-weight:bold;">Beneficiary</th>
+                            <th style="font-weight:bold;">Wallet</th>
+                            <th style="font-weight:bold;">Amount</th>
+                            <th style="font-weight:bold;">Fee</th>
+                            <th style="font-weight:bold;">Rate</th>
+                            <th style="font-weight:bold;">Dest. Currency</th>
+                            <th style="font-weight:bold;">Dest. Amount</th>
+                            <th style="font-weight:bold;">Status</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="statement_data['payout_lines']" t-as="pay">
+                            <tr>
+                                <td><t t-esc="pay.datetime"/></td>
+                                <td><t t-esc="pay.transaction_reference"/></td>
+                                <td><t t-esc="pay.bank"/></td>
+                                <td><t t-esc="pay.beneficiary"/></td>
+                                <td><t t-esc="pay.wallet.currency_code if pay.wallet else ''"/></td>
+                                <td>
+                                    <t t-esc="pay.wallet.symbol if pay.wallet else ''"/>
+                                    <t t-esc="('%.2f' % pay.amount)"/>
+                                </td>
+                                <td>
+                                    <t t-esc="pay.wallet.symbol if pay.wallet else ''"/>
+                                    <t t-esc="('%.2f' % pay.fee)"/>
+                                </td>
+                                <td><t t-esc="('%.2f' % pay.conversion_rate)"/></td>
+                                <td><t t-esc="pay.destination_currency.currency_code if pay.destination_currency else ''"/></td>
+                                <td>
+                                    <t t-esc="pay.destination_currency.symbol if pay.destination_currency else ''"/>
+                                    <t t-esc="('%.2f' % pay.total_amount)"/>
+                                </td>
+                                <td><t t-esc="pay.status"/></td>
+                            </tr>
+                        </t>
+                        <!-- Sum row for successful payouts -->
                         <tr>
-                            <td><strong>Period:</strong></td>
-                            <td>
-                                <t t-esc="statement_data['date_from']"/> to <t t-esc="statement_data['date_to']"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Customer Balance:</strong></td>
-                            <td>
-                                <t t-esc="statement_data['currency_symbol']"/>
-                                <t t-esc="('%.2f' % (statement_data['total_collection'] - (statement_data['sum_payout_success'] + statement_data['sum_fee_success'])))"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total Collections:</strong></td>
-                            <td>
-                                <t t-esc="statement_data['currency_symbol']"/>
-                                <t t-esc="('%.2f' % statement_data['total_collection'])"/>
-                                &#160;&#160;|&#160;&#160;
-                                <t t-esc="statement_data['count_collection']"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total Payouts:</strong></td>
-                            <td>
-                                <t t-esc="statement_data['currency_symbol']"/>
-                                <t t-esc="('%.2f' % statement_data['total_payout'])"/>
-                                &#160;&#160;|&#160;&#160;
-                                <t t-esc="statement_data['count_payout']"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Successful Payouts:</strong></td>
-                            <td>
-                                <t t-esc="statement_data['currency_symbol']"/>
+                            <td colspan="5" style="font-weight:bold;">Total Successful Payouts</td>
+                            <td style="font-weight:bold;">
+                                <t t-esc="statement_data['wallet_symbol']"/>
                                 <t t-esc="('%.2f' % statement_data['sum_payout_success'])"/>
-                                &#160;&#160;|&#160;&#160;
-                                <t t-esc="statement_data['count_payout_success']"/>
                             </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Failed/Reverse Payouts:</strong></td>
-                            <td>
-                                <t t-esc="statement_data['count_payout_failed']"/>
+                            <td></td>
+                            <td style="font-weight:bold;">
+                                <t t-esc="statement_data['wallet_symbol']"/>
+                                <t t-esc="('%.2f' % statement_data['sum_fee_success'])"/>
                             </td>
+                            <td colspan="3"></td>
                         </tr>
-                    </table>
-
-                    <h4>Collection Transactions</h4>
-                    <table class="table table-sm" style="width:100%;">
-                        <thead>
-                            <tr>
-                                <th style="font-weight:bold;">Date</th>
-                                <th style="font-weight:bold;">Reference</th>
-                                <th style="font-weight:bold;">Wallet</th>
-                                <th style="font-weight:bold;">Amount</th>
-                                <th style="font-weight:bold;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="statement_data['collection_lines']" t-as="col">
-                                <tr>
-                                    <td><t t-esc="col.datetime"/></td>
-                                    <td><t t-esc="col.transaction_reference"/></td>
-                                    <td><t t-esc="col.wallet.currency_code if col.wallet else ''"/></td>
-                                    <td>
-                                        <t t-esc="statement_data['currency_symbol']"/>
-                                        <t t-esc="('%.2f' % col.amount)"/>
-                                    </td>
-                                    <td><t t-esc="col.status"/></td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
-
-                    <h4>Payout Transactions</h4>
-                    <table class="table table-sm" style="width:100%;">
-                        <thead>
-                            <tr>
-                                <th style="font-weight:bold;">Date</th>
-                                <th style="font-weight:bold;">Reference</th>
-                                <th style="font-weight:bold;">Bank</th>
-                                <th style="font-weight:bold;">Beneficiary</th>
-                                <th style="font-weight:bold;">Wallet</th>
-                                <th style="font-weight:bold;">Amount</th>
-                                <th style="font-weight:bold;">Fee</th>
-                                <th style="font-weight:bold;">Conversion Rate</th>
-                                <th style="font-weight:bold;">Destination Currency</th>
-                                <th style="font-weight:bold;">Dest. Amount</th>
-                                <th style="font-weight:bold;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="statement_data['payout_lines']" t-as="pay">
-                                <tr>
-                                    <td><t t-esc="pay.datetime"/></td>
-                                    <td><t t-esc="pay.transaction_reference"/></td>
-                                    <td><t t-esc="pay.bank"/></td>
-                                    <td><t t-esc="pay.beneficiary"/></td>
-                                    <td><t t-esc="pay.wallet.currency_code if pay.wallet else ''"/></td>
-                                    <td>
-                                        <t t-esc="statement_data['currency_symbol']"/>
-                                        <t t-esc="('%.2f' % pay.amount)"/>
-                                    </td>
-                                    <td>
-                                        <t t-esc="statement_data['currency_symbol']"/>
-                                        <t t-esc="('%.2f' % pay.fee)"/>
-                                    </td>
-                                    <td><t t-esc="('%.2f' % pay.conversion_rate)"/></td>
-                                    <td><t t-esc="pay.destination_currency.currency_code if pay.destination_currency else ''"/></td>
-                                    <td>
-                                        <t t-esc="statement_data['currency_symbol']"/>
-                                        <t t-esc="('%.2f' % pay.total_amount)"/>
-                                    </td>
-                                    <td><t t-esc="pay.status"/></td>
-                                </tr>
-                            </t>
-                            <!-- Sum row for successful payouts -->
-                            <tr>
-                                <td colspan="5" style="font-weight:bold;">Total Successful Payouts</td>
-                                <td style="font-weight:bold;">
-                                    <t t-esc="statement_data['currency_symbol']"/>
-                                    <t t-esc="('%.2f' % statement_data['sum_payout_success'])"/>
-                                </td>
-                                <td></td>
-                                <td style="font-weight:bold;">
-                                    <t t-esc="statement_data['currency_symbol']"/>
-                                    <t t-esc="('%.2f' % statement_data['sum_fee_success'])"/>
-                                </td>
-                                <td colspan="3"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </t>
+                    </tbody>
+                </table>
+            </main>
         </t>
     </template>
 </odoo>

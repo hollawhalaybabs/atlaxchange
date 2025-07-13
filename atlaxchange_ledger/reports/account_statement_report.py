@@ -37,16 +37,33 @@ class AccountStatementReport(models.AbstractModel):
         customer_balance = total_collection - sum_payout_success
 
         # Get currency symbol (assume all collections use the same wallet/currency)
-        currency_symbol = ''
-        if collection_lines and collection_lines[0].wallet and collection_lines[0].wallet.currency_code:
-            currency_symbol = collection_lines[0].wallet.currency_id.symbol or collection_lines[0].wallet.currency_code
-        elif payout_lines and payout_lines[0].wallet and payout_lines[0].wallet.currency_code:
-            currency_symbol = payout_lines[0].wallet.currency_id.symbol or payout_lines[0].wallet.currency_code
+        wallet_symbol = ''
+        if collection_lines and collection_lines[0].wallet:
+            currency_id = collection_lines[0].wallet.currency_id
+            if currency_id:
+                wallet_symbol = currency_id.symbol or collection_lines[0].wallet.currency_code
+            else:
+                wallet_symbol = collection_lines[0].wallet.currency_code
+        elif payout_lines and payout_lines[0].wallet:
+            currency_id = payout_lines[0].wallet.currency_id
+            if currency_id:
+                wallet_symbol = currency_id.symbol or payout_lines[0].wallet.currency_code
+            else:
+                wallet_symbol = payout_lines[0].wallet.currency_code
 
+        # Get wallet currency symbol (for collections/payouts)
+        wallet_symbol = ''
+        if collection_lines and collection_lines[0].wallet and collection_lines[0].wallet.currency_id:
+            wallet_symbol = collection_lines[0].wallet.currency_id.symbol
+        elif payout_lines and payout_lines[0].wallet and payout_lines[0].wallet.currency_id:
+            wallet_symbol = payout_lines[0].wallet.currency_id.symbol
+
+        company = self.env.company
         return {
             'doc_ids': docids,
             'doc_model': 'account.statement.wizard',
             'docs': wizard,
+            'company': company,
             'statement_data': {
                 'partner': partner,
                 'date_from': date_from,
@@ -62,6 +79,6 @@ class AccountStatementReport(models.AbstractModel):
                 'sum_fee_success': sum_fee_success,
                 'collection_lines': collection_lines,
                 'payout_lines': payout_lines,
-                'currency_symbol': currency_symbol,
+                'wallet_symbol': wallet_symbol,
             }
         }

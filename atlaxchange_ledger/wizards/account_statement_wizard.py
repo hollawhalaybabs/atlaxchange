@@ -61,19 +61,25 @@ class AccountStatementWizard(models.TransientModel):
         # Customer balance: total_collection - (sum_payout_success + sum_fee_success)
         customer_balance = total_collection - (sum_payout_success + sum_fee_success)
 
-        # Get currency symbol
-        currency_symbol = ''
-        if collection_lines and collection_lines[0].wallet and collection_lines[0].wallet.currency_id:
-            currency_symbol = collection_lines[0].wallet.currency_id.symbol or collection_lines[0].wallet.currency_code
-        elif payout_lines and payout_lines[0].wallet and payout_lines[0].wallet.currency_id:
-            currency_symbol = payout_lines[0].wallet.currency_id.symbol or payout_lines[0].wallet.currency_code
+        # Get wallet currency symbol
+        wallet_symbol = ''
+        if collection_lines:
+            wallet = getattr(collection_lines[0], 'wallet', None)
+            currency = getattr(wallet, 'currency_id', None)
+            if currency and hasattr(currency, 'symbol') and currency.symbol:
+                wallet_symbol = currency.symbol
+        elif payout_lines:
+            wallet = getattr(payout_lines[0], 'wallet', None)
+            currency = getattr(wallet, 'currency_id', None)
+            if currency and hasattr(currency, 'symbol') and currency.symbol:
+                wallet_symbol = currency.symbol
 
         output = BytesIO()
         workbook = xlsxwriter.Workbook(output)
         sheet = workbook.add_worksheet('Statement')
         bold = workbook.add_format({'bold': True})
         money = workbook.add_format({'num_format': '#,##0.00'})
-
+        
         row = 0
         sheet.write(row, 0, 'Statement of Account', bold)
         row += 2
@@ -84,18 +90,18 @@ class AccountStatementWizard(models.TransientModel):
         sheet.write(row, 1, f"{date_from} to {date_to}")
         row += 1
         sheet.write(row, 0, 'Customer Balance')
-        sheet.write(row, 1, f"{currency_symbol}{customer_balance:.2f}")
+        sheet.write(row, 1, f"{wallet_symbol}{customer_balance:.2f}")
         row += 1
         sheet.write(row, 0, 'Total Collections')
-        sheet.write(row, 1, f"{currency_symbol}{total_collection:.2f}")
+        sheet.write(row, 1, f"{wallet_symbol}{total_collection:.2f}")
         sheet.write(row, 2, count_collection)
         row += 1
         sheet.write(row, 0, 'Total Payouts')
-        sheet.write(row, 1, f"{currency_symbol}{total_payout:.2f}")
+        sheet.write(row, 1, f"{wallet_symbol}{total_payout:.2f}")
         sheet.write(row, 2, count_payout)
         row += 1
         sheet.write(row, 0, 'Successful Payouts')
-        sheet.write(row, 1, f"{currency_symbol}{sum_payout_success:.2f}")
+        sheet.write(row, 1, f"{wallet_symbol}{sum_payout_success:.2f}")
         sheet.write(row, 2, count_payout_success)
         row += 1
         sheet.write(row, 0, 'Failed/Reverse Payouts')
@@ -110,6 +116,7 @@ class AccountStatementWizard(models.TransientModel):
             sheet.write(row, col_num, header, bold)
         row += 1
         for col in collection_lines:
+            wallet_symbol = col.wallet.symbol if col.wallet else ''
             sheet.write(row, 0, str(col.datetime))
             sheet.write(row, 1, col.transaction_reference)
             sheet.write(row, 2, col.wallet.currency_code if col.wallet else '')
@@ -129,23 +136,27 @@ class AccountStatementWizard(models.TransientModel):
             sheet.write(row, col_num, header, bold)
         row += 1
         for pay in payout_lines:
+            # For wallet amount, use wallet currency symbol
+            wallet_symbol = pay.wallet.symbol if pay.wallet else ''
             sheet.write(row, 0, str(pay.datetime))
             sheet.write(row, 1, pay.transaction_reference)
             sheet.write(row, 2, pay.bank)
             sheet.write(row, 3, pay.beneficiary)
             sheet.write(row, 4, pay.wallet.currency_code if pay.wallet else '')
-            sheet.write(row, 5, f"{currency_symbol}{pay.amount:.2f}")
-            sheet.write(row, 6, f"{currency_symbol}{pay.fee:.2f}")
+            sheet.write(row, 5, f"{wallet_symbol}{pay.amount:.2f}")
+            sheet.write(row, 6, f"{wallet_symbol}{pay.fee:.2f}")
             sheet.write(row, 7, f"{pay.conversion_rate:.2f}")
             sheet.write(row, 8, pay.destination_currency.currency_code if pay.destination_currency else '')
-            sheet.write(row, 9, f"{currency_symbol}{pay.total_amount:.2f}")
+            # For destination amount, use destination currency symbol
+            dest_symbol = pay.destination_currency.symbol if pay.destination_currency else ''
+            sheet.write(row, 9, f"{dest_symbol}{pay.total_amount:.2f}")
             sheet.write(row, 10, pay.status)
             row += 1
 
         # Total successful payout (amount and fee) as a bold sum row in the table
         sheet.write(row, 0, 'Total Successful Payouts', bold)
-        sheet.write(row, 5, f"{currency_symbol}{sum_payout_success:.2f}", bold)
-        sheet.write(row, 7, f"{currency_symbol}{sum_fee_success:.2f}", bold)
+        sheet.write(row, 5, f"{wallet_symbol}{sum_payout_success:.2f}", bold)
+        sheet.write(row, 7, f"{wallet_symbol}{sum_fee_success:.2f}", bold)
 
         workbook.close()
         output.seek(0)

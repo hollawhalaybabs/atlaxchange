@@ -203,7 +203,7 @@ class ResPartner(models.Model):
         if not api_key or not api_secret:
             raise UserError(_("API key or secret is missing. Set them in System Parameters."))
 
-        url = f"https://api.atlaxchange.com/api/v1/admin/{self.business_id}"
+        url = f"https://api.atlaxchange.com/api/v1/admin/business-kyc/{self.business_id}"
         headers = {
             "Content-Type": "application/json",
             "X-API-KEY": api_key,

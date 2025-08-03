@@ -11,15 +11,6 @@ from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
-class FetchLedgerAudit(models.Model):
-    _name = 'fetch.ledger.audit'
-    _description = 'Fetch Ledger Audit Log'
-    _order = 'fetch_time desc'
-
-    fetch_time = fields.Datetime(string='Fetch Time', default=fields.Datetime.now, readonly=True)
-    fetched_count = fields.Integer(string='Fetched Transactions Count', readonly=True)
-    user_id = fields.Many2one('res.users', string='Fetched By', default=lambda self: self.env.user, readonly=True)
-
 class AtlaxchangeLedger(models.Model):
     _name = 'atlaxchange.ledger'
     _description = 'Atlaxchange Client Ledger History'
@@ -50,40 +41,43 @@ class AtlaxchangeLedger(models.Model):
         ('reversed', 'Reversed')
     ], string='Status', default='pending')
     partner_id = fields.Many2one('res.partner', string='Partner')
+    beneficiary_acct = fields.Char(string='Beneficiary Account')
+    session_id = fields.Char(string='Session ID')
+    error_message = fields.Text(string='Error Message')
 
 
-    def action_initiate_refund(self):
-        """Initiate refund for the current ledger records with type='debit'."""
+    def action_initiate_reprocess(self):
+        """Initiate reprocess for the current ledger records with type='debit'."""
         # Filter records to ensure they are of type 'debit' and have valid statuses
-        valid_ledgers = self.filtered(lambda r: r.type == 'debit' and r.status in ['pending', 'failed'])
+        valid_ledgers = self.filtered(lambda r: r.type == 'debit' and r.status in ['processing'])
         invalid_ledgers = self - valid_ledgers
 
         # Handle invalid records
         if invalid_ledgers:
             invalid_references = ', '.join(invalid_ledgers.mapped('transaction_reference'))
             raise UserError(
-                f"Refund can only be initiated for transactions of type 'debit' with 'pending' or 'failed' status. "
+                f"Reprocessing can only be initiated for transactions of type 'debit' with 'processing' status. "
             )
-
-        # Prepare refund records
-        refund_records = [
+        # Prepare reprocess records
+        reprocess_records = [
             (0, 0, {
-                'ledger_id': record.id,
+                'reference': record.transaction_reference,
+                'customer_name': record.customer_name,
+                'wallet': record.wallet.id,
                 'amount': record.amount,
-                'reference': f"Refund for transaction {record.transaction_reference}",
+                'destination_currency': record.destination_currency.id,
+                'total_amount': record.total_amount,
             })
             for record in valid_ledgers
         ]
-
-        # Create a refund batch if there are valid records
-        if refund_records:
-            self.env['atlaxchange.refund'].create({
-                'name': 'Refund Batch',
-                'refund_line_ids': refund_records,
+        # Create a reprocess batch if there are valid records
+        if reprocess_records:
+            self.env['atlaxchange.reprocess'].create({
+                'reprocess_line_ids': reprocess_records,
             })
-            _logger.info(f"Refund initiated for {len(refund_records)} transactions.")
+            _logger.info(f"reprocess initiated for {len(reprocess_records)} transactions.")
         else:
-            raise UserError("No valid transactions found for refund.")
+            raise UserError("No valid transactions found for reprocess.")
 
     @api.model
     def fetch_ledger_history(self):
@@ -103,19 +97,16 @@ class AtlaxchangeLedger(models.Model):
         }
 
         next_cursor = None
-        fetched_count = 0
 
         while True:
-            params = {'after': next_cursor} if next_cursor else {}
+            params = {'after': next_cursor, 'limit': 500} if next_cursor else {'limit': 500}
             try:
                 response = requests.get(url, headers=headers, params=params, timeout=10)
                 if response.status_code != 200:
-                    # _logger.error(f"Failed to fetch data from API. Status Code: {response.status_code}, Response: {response.text}")
                     break
 
                 data = response.json()
                 transactions = data.get('data', {}).get('transactions', [])
-                # _logger.info(f"Fetched {len(transactions)} transactions.")
 
                 new_records = []
                 for record in transactions:
@@ -124,7 +115,6 @@ class AtlaxchangeLedger(models.Model):
                     created_at = datetime.utcfromtimestamp(record['created_at'])
                     currency = self.env['supported.currency'].search([('currency_code', '=', record.get('currency_code'))], limit=1)
                     dest_currency = self.env['supported.currency'].search([('currency_code', '=', record.get('destination_currency'))], limit=1)
-                    # Ensure status is mapped and defaults to 'pending' if not present or not recognized
                     status = record.get('status', 'pending')
                     if status not in dict(self._fields['status'].selection):
                         status = 'pending'
@@ -143,17 +133,22 @@ class AtlaxchangeLedger(models.Model):
                         'status': status,
                         'type': record.get('direction'),
                         'wallet': currency.id if currency else False,
+                        'beneficiary_acct': record.get('beneficiary_acct', ''),
+                        'session_id': record.get('session_id', ''),
+                        'error_message': record.get('error_message', ''),
                     }
                     if existing:
-                        # Update only the status if record exists
-                        existing.write({'status': status})
+                        existing.write({
+                            'status': status,
+                            'beneficiary_acct': record.get('beneficiary_acct', ''),
+                            'session_id': record.get('session_id', ''),
+                            'error_message': record.get('error_message', ''),
+                        })
                     else:
                         new_records.append(vals)
-                        fetched_count += 10
 
                 if new_records:
                     self.create(new_records)
-                    # _logger.info(f"Created {len(new_records)} new ledger records.")
 
                 next_cursor = data.get('data', {}).get('cursor', {}).get('after')
                 if not next_cursor:
@@ -165,7 +160,6 @@ class AtlaxchangeLedger(models.Model):
                 _logger.error(f"An unexpected error occurred: {str(e)}")
                 break
 
-        # _logger.info(f"Successfully fetched {fetched_count} transactions from the API.")
 
     def export_transaction_report(self):
         output = StringIO()

@@ -6,7 +6,7 @@
             <field name="name">Funding Request Approval</field>
             <field name="model_id" ref="model_atlaxchange_funding"/>
             <field name="subject">Funding Request Approval Needed</field>
-            <field name="email_to">${ctx.get('approver_email') or object.approver_id.email}</field>
+            <field name="email_to">${', '.join([user.email for user in object.approver_ids if user.email])}</field>
             <field name="body_html"><![CDATA[
                 <p>Dear Approver,</p>
                 <p>A funding request for ${object.amount_credit} requires your approval.</p>
@@ -32,18 +32,20 @@
             ]]></field>
         </record>
 
-        <!-- Email Template: Refund Request Approval -->
-        <record id="email_template_refund_request" model="mail.template">
-            <field name="name">Refund Request Approval</field>
-            <field name="model_id" ref="model_atlaxchange_refund"/>
-            <field name="subject">Refund Request Approval Needed</field>
-            <field name="email_to">${object.approver_id.email}</field>
-            <field name="body_html"><![CDATA[
-                <p>Dear ${object.approver_id.name},</p>
-                <p>A new Reversal request for ${object.amount} requires your approval.</p>
-                ]]>
+        <!-- Email Template: reprocess Request Approval -->
+        <record id="email_template_reprocess_request" model="mail.template">
+            <field name="name">Reprocess Request Approval</field>
+            <field name="model_id" ref="model_atlaxchange_reprocess"/>
+            <field name="subject">Reprocess Request Approval Needed</field>
+            <field name="email_to">
+                ${', '.join([user.email for user in object.approver_ids if user.email])}
             </field>
+            <field name="body_html"><![CDATA[
+                <p>Dear Approver(s),</p>
+                <p>Reprocess request for ${object.amount} requires your approval.</p>
+            ]]></field>
         </record>
+        
         <!-- Email Template: Verify Account -->
         <record id="email_template_verify_account" model="mail.template">
             <field name="name">Verify Account Reminder</field>

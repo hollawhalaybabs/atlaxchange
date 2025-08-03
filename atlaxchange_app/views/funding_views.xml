@@ -48,14 +48,16 @@
                     <field name="state" widget="statusbar" statusbar_visible="draft,approval,approved,rejected,funded"/>
                     
                     <!-- Action Buttons -->
-                    <button name="action_submit_for_approval" type="object" string="Submit for Approval" class="btn-primary" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
-                    <button name="action_approve" type="object" string="Approve" class="btn-success" attrs="{'invisible': ['|',('state', '!=', 'approval'),('is_approver', '=', False)]}"/>
-                    
+                    <button name="action_submit_for_approval" type="object" string="Submit for Approval" confirm="Are you sure you want to continue?"
+                            class="btn-primary" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="action_approve" type="object" string="Approve" confirm="Are you sure you want to continue?"
+                            class="btn-success" attrs="{'invisible': ['|',('state', '!=', 'approval'),('is_approver', '=', False)]}"/>
                     <!-- Reject Button -->
-                    <button name="action_reject" type="object" string="Reject" class="btn-danger"
+                    <button name="action_reject" type="object" string="Reject" class="btn-danger" confirm="Are you sure you want to continue?"
                         attrs="{'invisible': ['|',('state', '!=', 'approval'), ('is_approver', '=', False)]}"/>
-                    
-                    <button name="action_fund_wallet" type="object" string="Fund Wallet" class="btn-success" attrs="{'invisible': [('state', '!=', 'approved')]}"/>
+                    <!-- Fund Wallet Button -->
+                    <button name="action_fund_wallet" type="object" string="Fund Wallet" confirm="Are you sure you want to continue?"
+                            class="btn-success" attrs="{'invisible': [('state', '!=', 'approved')]}"/>
                 </header>
                 <sheet>
                     <div class="oe_title">

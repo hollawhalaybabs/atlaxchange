@@ -6,10 +6,11 @@
         <field name="prefix">FUND-</field>
         <field name="padding">5</field>
     </record>
-    <record id="seq_refund" model="ir.sequence">
-        <field name="name">Refund Sequence</field>
-        <field name="code">atlaxchange.refund</field>
-        <field name="prefix">REFUND-</field>
+    <record id="seq_reprocess" model="ir.sequence">
+        <field name="name">reprocess Sequence</field>
+        <field name="code">atlaxchange.reprocess</field>
+        <field name="prefix">REPROCESS-</field>
         <field name="padding">5</field>
     </record>
+    
 </odoo>

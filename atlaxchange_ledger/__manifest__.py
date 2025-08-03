@@ -12,7 +12,6 @@
         "security/ir.model.access.csv",
         "data/cron_job.xml",
         "views/ledger_views.xml",
-        "views/ledger_audit_views.xml",
         "views/account_statement_wizard_view.xml",
         "reports/account_statement_template.xml",
     ],

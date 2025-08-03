@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Action for reprocess -->
+    <record id="action_reprocess" model="ir.actions.act_window">
+        <field name="name">Reprocess Transactions</field>
+        <field name="res_model">atlaxchange.reprocess</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first reprocess request
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item for reprocess -->
+    <menuitem id="menu_reprocess" name="Reprocess" parent="atlaxchange_menu" action="action_reprocess" sequence="10"/>
+
+    <!-- Tree View for reprocess -->
+    <record id="view_reprocess_tree" model="ir.ui.view">
+        <field name="name">reprocess.tree</field>
+        <field name="model">atlaxchange.reprocess</field>
+        <field name="arch" type="xml">
+            <tree string="Reprocess Transactions" create="false" delete="false">
+                <field name="name"/>
+                <field name="approval_level"/>
+                <field name="approver_ids" widget="many2many_tags"/>
+                <field name="amount"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for reprocess -->
+    <record id="view_reprocess_form" model="ir.ui.view">
+        <field name="name">reprocess.form</field>
+        <field name="model">atlaxchange.reprocess</field>
+        <field name="arch" type="xml">
+            <form string="Reprocess">
+                <header>
+                    <!-- State Field as a Statusbar -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,approval,approved,rejected"/>
+                    <!-- Action Buttons in the Header -->
+                    <button name="action_submit_for_approval" type="object" string="Submit for Approval" confirm="Are you sure you want to continue?" 
+                            class="btn-primary" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="action_approve" type="object" string="Approve" confirm="Are you sure you want to continue?"
+                            class="btn-success" attrs="{'invisible': [('state', '!=', 'approval')]}"/>
+                    <button name="action_reject" type="object" string="Reject" confirm="Are you sure you want to continue?"
+                            class="btn-danger" attrs="{'invisible': [('state', '!=', 'approval')]}"/>
+                    <button name="action_reprocess" type="object" string="Reprocess" confirm="Are you sure you want to continue?"
+                            class="btn-primary" attrs="{'invisible': [('state', '!=', 'approved')]}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="reprocess Details">
+                            <field name="name" readonly="1"/>
+                            <field name="reason" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="amount" readonly="1"/>
+                        </group>
+                        <group string="Approval Details">
+                            <field name="approval_level" readonly="1"/>
+                            <field name="approver_ids" widget="many2many_tags" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Reprocess Lines">
+                            <field name="reprocess_line_ids">
+                                <tree editable="bottom" create="false" delete="false">
+                                    <field name="reference" readonly="1"/>
+                                    <field name="customer_name" readonly="1"/>
+                                    <field name="wallet" readonly="1"/>
+                                    <field name="amount" readonly="1"/>
+                                    <field name="destination_currency" readonly="1"/>
+                                    <field name="total_amount" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

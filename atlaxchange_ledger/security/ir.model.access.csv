@@ -1,6 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
-access_fetch_ledger_audit,access_fetch_ledger_audit,model_fetch_ledger_audit,base.group_system,1,0,0,0
 access_atlaxchange_etiti,Access for Etiti Management,model_atlaxchange_ledger,atlaxchange_app.group_etiti_officer,1,0,0,0
 
 access_atlaxchange_treasury,Access for Treasury,model_atlaxchange_ledger,atlaxchange_app.group_treasury_officer,1,1,1,0
@@ -10,5 +9,19 @@ access_atlaxchange_hot,Access for HOT,model_atlaxchange_ledger,atlaxchange_app.g
 access_atlaxchange_coo,Access for COO,model_atlaxchange_ledger,atlaxchange_app.group_coo,1,0,0,0
 access_atlaxchange_ceo,Access for CEO,model_atlaxchange_ledger,atlaxchange_app.group_ceo,1,0,0,0
 
-access_account_statement_wizard,Account Statement Wizard,model_account_statement_wizard,base.group_user,1,0,0,0
+access_account_statement_wizard,Account Statement Wizard,model_account_statement_wizard,base.group_user,1,1,1,0
 access_account_statement_wizard1,Account Statement Wizard1,model_account_statement_wizard,base.group_system,1,1,1,0
+access_account_statement_wizard_treasury,Account Statement Wizard Treasury,model_account_statement_wizard,atlaxchange_app.group_treasury_officer,1,1,1,0
+access_account_statement_wizard_operation,Account Statement Wizard Operation,model_account_statement_wizard,atlaxchange_app.group_operation_officer,1,1,1,0
+access_account_statement_wizard_hoo,Account Statement Wizard HOO,model_account_statement_wizard,atlaxchange_app.group_hoo,1,1,1,0
+access_account_statement_wizard_hot,Account Statement Wizard HOT,model_account_statement_wizard,atlaxchange_app.group_hot,1,1,1,0
+access_account_statement_wizard_coo,Account Statement Wizard COO,model_account_statement_wizard,atlaxchange_app.group_coo,1,1,1,0
+access_account_statement_wizard_ceo,Account Statement Wizard CEO,model_account_statement_wizard,atlaxchange_app.group_ceo,1,1,1,0
+
+access_ledger_status_wizard_admin,Ledger Status Wizard Admin,model_atlaxchange_ledger_status_wizard,base.group_system,1,1,1,1
+access_ledger_status_wizard_treasury,Ledger Status Wizard Treasury,model_atlaxchange_ledger_status_wizard,atlaxchange_app.group_treasury_officer,1,1,1,0
+access_ledger_status_wizard_operation,Ledger Status Wizard Operation,model_atlaxchange_ledger_status_wizard,atlaxchange_app.group_operation_officer,1,1,1,0
+access_ledger_status_wizard_hoo,Ledger Status Wizard HOO,model_atlaxchange_ledger_status_wizard,atlaxchange_app.group_hoo,1,1,1,0
+access_ledger_status_wizard_hot,Ledger Status Wizard HOT,model_atlaxchange_ledger_status_wizard,atlaxchange_app.group_hot,1,1,1,0
+access_ledger_status_wizard_coo,Ledger Status Wizard COO,model_atlaxchange_ledger_status_wizard,atlaxchange_app.group_coo,1,1,1,0
+access_ledger_status_wizard_ceo,Ledger Status Wizard CEO,model_atlaxchange_ledger_status_wizard,atlaxchange_app.group_ceo,1,1,1,0

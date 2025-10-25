@@ -13,6 +13,7 @@
         "data/cron_job.xml",
         "views/ledger_views.xml",
         "views/account_statement_wizard_view.xml",
+        "views/ledger_status_wizard_views.xml",
         "reports/account_statement_template.xml",
     ],
     "assets": {

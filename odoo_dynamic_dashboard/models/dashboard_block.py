@@ -133,15 +133,26 @@ class DashboardBlock(models.Model):
                                                                rec.measured_field)
                     self._cr.execute(query)
                     records = self._cr.dictfetchall()
-                    magnitude = 0
-                    total = records[0].get('value')
-                    while abs(total) >= 1000:
-                        magnitude += 1
-                        total /= 1000.0
-                    # add more suffixes if you need them
-                    val = '%.2f%s' % (
-                        total, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
-                    records[0]['value'] = val
+                    # Get raw numeric value (default 0.0)
+                    raw_value = records[0].get('value') or 0.0
+                    try:
+                        numeric_value = float(raw_value)
+                    except (TypeError, ValueError):
+                        numeric_value = 0.0
+
+                    if rec.operation == 'sum':
+                        # Format as currency-like with thousands separators and two decimals
+                        records[0]['value'] = "{:,.2f}".format(numeric_value)
+                    else:
+                        # Compact representation for other operations (e.g., count, avg)
+                        magnitude = 0
+                        total = numeric_value
+                        while abs(total) >= 1000000000:
+                            magnitude += 1
+                            total /= 1000.0
+                        # add more suffixes if you need them
+                        records[0]['value'] = '%.2f%s' % (
+                            total, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
                     vals.update(records[0])
             block_id.append(vals)
         return block_id

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="action_reversal" model="ir.actions.act_window">
+        <field name="name">Reversal Transactions</field>
+        <field name="res_model">atlaxchange.reversal</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_reversal" name="Reversal" parent="menu_reprocess" action="action_reversal" sequence="2"/>
+
+    <record id="view_reversal_tree" model="ir.ui.view">
+        <field name="name">reversal.tree</field>
+        <field name="model">atlaxchange.reversal</field>
+        <field name="arch" type="xml">
+            <tree string="Reversal Transactions" create="false" delete="false">
+                <field name="create_date" string="Created On" readonly="1"/>
+                <field name="name"/>
+                <field name="approver_ids" widget="many2many_tags"/>
+                <field name="amount"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_reversal_form" model="ir.ui.view">
+        <field name="name">reversal.form</field>
+        <field name="model">atlaxchange.reversal</field>
+        <field name="arch" type="xml">
+            <form string="Reversal">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,approval,approved,rejected"/>
+                    <button name="action_submit_for_approval" type="object" string="Submit for Approval"
+                            class="btn-primary" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-success"
+                            attrs="{'invisible': [('state', '!=', 'approval')]}"/>
+                    <button name="action_reject" type="object" string="Reject" class="btn-danger"
+                            attrs="{'invisible': [('state', '!=', 'approval')]}"/>
+                    <button name="action_reverse" type="object" string="Reverse" class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'approved')]}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Reversal Details">
+                            <field name="name" readonly="1"/>
+                            <field name="reason" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="amount" readonly="1"/>
+                        </group>
+                        <group string="Approval Details">
+                            <field name="create_date" string="Created On" readonly="1"/>
+                            <field name="approval_level" readonly="1"/>
+                            <field name="approver_ids" widget="many2many_tags" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Reversal Lines">
+                            <field name="reversal_line_ids">
+                                <tree editable="bottom" create="false" delete="false">
+                                    <field name="reference" readonly="1"/>
+                                    <field name="customer_name" readonly="1"/>
+                                    <field name="wallet" readonly="1"/>
+                                    <field name="amount" readonly="1"/>
+                                    <field name="destination_currency" readonly="1"/>
+                                    <field name="total_amount" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

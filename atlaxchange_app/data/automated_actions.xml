@@ -12,5 +12,10 @@
         <field name="prefix">REPROCESS-</field>
         <field name="padding">5</field>
     </record>
-    
+    <record id="seq_reversal" model="ir.sequence">
+        <field name="name">Reversal Sequence</field>
+        <field name="code">atlaxchange.reversal</field>
+        <field name="prefix">REVERSAL-</field>
+        <field name="padding">5</field>
+    </record>
 </odoo>

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 import requests
 from datetime import datetime
 from requests.exceptions import ConnectTimeout, ReadTimeout
@@ -8,14 +8,17 @@ from odoo.exceptions import UserError
 import csv
 from io import StringIO
 from odoo.http import request
+import threading
+from odoo import SUPERUSER_ID, api as odoo_api, registry as registry_get
 
 _logger = logging.getLogger(__name__)
 
 class AtlaxchangeLedger(models.Model):
     _name = 'atlaxchange.ledger'
     _description = 'Atlaxchange Client Ledger History'
-    _order = 'id desc'
-    _rec_name = 'customer_name'
+    _order = 'datetime desc'
+    _rec_name = 'transaction_reference'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     datetime = fields.Datetime(string='Date')
     transaction_reference = fields.Char(string='Reference', index=True)
@@ -78,6 +81,55 @@ class AtlaxchangeLedger(models.Model):
             _logger.info(f"reprocess initiated for {len(reprocess_records)} transactions.")
         else:
             raise UserError("No valid transactions found for reprocess.")
+        
+    def action_initiate_reversal(self):
+        """Create a atlaxchange.reversal record from selected ledger lines.
+
+        Only ledger records with status == 'failed' are allowed to be reversed.
+        """
+        if not self:
+            raise UserError("No ledger records selected for reversal.")
+
+        # Only allow records that are in 'failed' status
+        failed_ledgers = self.filtered(lambda r: r.status == 'failed')
+        invalid_ledgers = self - failed_ledgers
+        if invalid_ledgers:
+            refs = ', '.join(filter(None, invalid_ledgers.mapped('transaction_reference')))
+            raise UserError(
+                "Reversal can only be initiated for transactions with status 'failed'. "
+                "Invalid selection: %s" % (refs or 'No reference')
+            )
+
+        reversal_lines = []
+        for rec in failed_ledgers:
+            ref = getattr(rec, 'transaction_reference', False) or getattr(rec, 'reference', False)
+            if not ref:
+                continue
+            reversal_lines.append((0, 0, {
+                'reference': ref,
+                'customer_name': rec.customer_name or '',
+                'wallet': rec.wallet.id if getattr(rec, 'wallet', False) else False,
+                'amount': float(getattr(rec, 'amount', 0.0) or 0.0),
+                'destination_currency': getattr(rec, 'destination_currency', False) and getattr(rec.destination_currency, 'id') or False,
+                'total_amount': float(getattr(rec, 'total_amount', 0.0) or 0.0),
+            }))
+
+        if not reversal_lines:
+            raise UserError("No valid transactions found for reversal.")
+
+        reversal = self.env['atlaxchange.reversal'].create({
+            'reversal_line_ids': reversal_lines,
+            'reason': 'Transaction failed',  # <-- Provide a default reason
+        })
+
+        return {
+            'name': 'Reversal',
+            'type': 'ir.actions.act_window',
+            'res_model': 'atlaxchange.reversal',
+            'res_id': reversal.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
 
     @api.model
     def fetch_ledger_history(self):
@@ -99,7 +151,7 @@ class AtlaxchangeLedger(models.Model):
         next_cursor = None
 
         while True:
-            params = {'after': next_cursor, 'limit': 500} if next_cursor else {'limit': 500}
+            params = {'after': next_cursor} if next_cursor else {}
             try:
                 response = requests.get(url, headers=headers, params=params, timeout=10)
                 if response.status_code != 200:
@@ -194,3 +246,37 @@ class AtlaxchangeLedger(models.Model):
         users = self.env.ref('base.group_system').users
         for user in users:
             user.partner_id.message_post(body=body, subject="Daily Ledger Summary")
+
+    @api.model
+    def fetch_ledger_history_enqueue(self):
+        """Start fetch_ledger_history in a background thread and return immediately.
+
+        This version schedules the background job and returns {'scheduled': True}
+        so the client can reload automatically instead of showing a UserError.
+        """
+        db_name = self.env.cr.dbname
+
+        def _worker(dbname):
+            try:
+                _logger.info("Background fetch_ledger_history: worker starting for db=%s", dbname)
+                with registry_get(dbname).cursor() as cr:
+                    env = odoo_api.Environment(cr, SUPERUSER_ID, {})
+                    env['atlaxchange.ledger'].fetch_ledger_history()
+                    try:
+                        cr.commit()
+                    except Exception:
+                        _logger.exception("Failed to explicit commit in background worker for db=%s", dbname)
+                _logger.info("Background fetch_ledger_history: worker finished for db=%s", dbname)
+            except Exception as e:
+                _logger.exception("Background fetch_ledger_history failed for db=%s: %s", dbname, e)
+
+        try:
+            thread = threading.Thread(target=_worker, args=(db_name,))
+            thread.daemon = False
+            thread.start()
+        except Exception as e:
+            # Surface the scheduling error to the caller
+            raise UserError(_("Failed to schedule ledger fetch: %s") % str(e))
+
+        # Return a small payload so the client can reload automatically
+        return {'scheduled': True}

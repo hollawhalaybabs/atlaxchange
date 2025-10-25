@@ -13,7 +13,8 @@
     </record>
 
     <!-- Menu Item for reprocess -->
-    <menuitem id="menu_reprocess" name="Reprocess" parent="atlaxchange_menu" action="action_reprocess" sequence="10"/>
+    <menuitem id="menu_reprocess" name="Reprocess &amp; Reversal" parent="atlaxchange_menu" sequence="10"/>
+    <menuitem id="menu_reprocess_action" name="Reprocess" parent="menu_reprocess" action="action_reprocess" sequence="1"/>
 
     <!-- Tree View for reprocess -->
     <record id="view_reprocess_tree" model="ir.ui.view">
@@ -21,8 +22,8 @@
         <field name="model">atlaxchange.reprocess</field>
         <field name="arch" type="xml">
             <tree string="Reprocess Transactions" create="false" delete="false">
+                <field name="create_date" string="Created On" readonly="1"/>
                 <field name="name"/>
-                <field name="approval_level"/>
                 <field name="approver_ids" widget="many2many_tags"/>
                 <field name="amount"/>
                 <field name="state"/>
@@ -51,12 +52,13 @@
                 </header>
                 <sheet>
                     <group>
-                        <group string="reprocess Details">
+                        <group string="Reprocess Details">
                             <field name="name" readonly="1"/>
                             <field name="reason" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="amount" readonly="1"/>
                         </group>
                         <group string="Approval Details">
+                            <field name="create_date" string="Created On" readonly="1"/>
                             <field name="approval_level" readonly="1"/>
                             <field name="approver_ids" widget="many2many_tags" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                         </group>

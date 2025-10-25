@@ -23,16 +23,15 @@
         <field name="model">atlaxchange.funding</field>
         <field name="arch" type="xml">
             <tree string="Funding">
+                <field name="create_date" string="Created On" readonly="1"/>
                 <field name="name"/>
                 <field name="funding_type"/>
                 <field name="customer_name"/>
                 <field name="source_currency"/>
                 <field name="wallet_currency"/>
-                <field name="amount"/>
                 <field name="amount_credit"/>
-                <field name="state"/>
                 <field name="approval_level"/>
-                <field name="approver_ids" widget="many2many_tags"/>
+                <field name="state"/>
             </tree>
         </field>
     </record>
@@ -77,6 +76,7 @@
                             <field name="amount_credit" readonly="1"/>
                         </group>
                         <group string="Approval Details">
+                            <field name="create_date" string="Created On" readonly="1"/>
                             <field name="approval_level" readonly="1"/>
                             <field name="approver_ids" widget="many2many_tags" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="is_approver" invisible="1"/>

@@ -7,12 +7,15 @@ class AccountStatementReport(models.AbstractModel):
     def _get_report_values(self, docids, data=None):
         wizard = self.env['account.statement.wizard'].browse(docids)
         partner = self.env['res.partner'].browse(data['partner_id'])
+        wallet = self.env['supported.currency'].browse(data['wallet_id'])
         date_from = data['date_from']
         date_to = data['date_to']
+
         ledgers = self.env['atlaxchange.ledger'].search([
             ('customer_name', '=', partner.company_name),
             ('datetime', '>=', date_from),
-            ('datetime', '<=', date_to)
+            ('datetime', '<=', date_to),
+            ('wallet', '=', wallet.id)
         ], order='datetime asc')
 
         # Collections (credit)
@@ -33,30 +36,15 @@ class AccountStatementReport(models.AbstractModel):
         sum_payout_success = sum(payout_success.mapped('amount'))
         sum_fee_success = sum(payout_success.mapped('fee'))
 
-        # Customer balance
-        customer_balance = total_collection - sum_payout_success
+        # Customer balance from account.ledger for the selected wallet
+        account_ledger = self.env['account.ledger'].search([
+            ('partner_id', '=', partner.id),
+            ('currency_id', '=', wallet.id)
+        ], limit=1)
+        customer_balance = account_ledger.balance if account_ledger else 0.0
 
-        # Get currency symbol (assume all collections use the same wallet/currency)
-        wallet_symbol = ''
-        if collection_lines and collection_lines[0].wallet:
-            currency_id = collection_lines[0].wallet.currency_id
-            if currency_id:
-                wallet_symbol = currency_id.symbol or collection_lines[0].wallet.currency_code
-            else:
-                wallet_symbol = collection_lines[0].wallet.currency_code
-        elif payout_lines and payout_lines[0].wallet:
-            currency_id = payout_lines[0].wallet.currency_id
-            if currency_id:
-                wallet_symbol = currency_id.symbol or payout_lines[0].wallet.currency_code
-            else:
-                wallet_symbol = payout_lines[0].wallet.currency_code
-
-        # Get wallet currency symbol (for collections/payouts)
-        wallet_symbol = ''
-        if collection_lines and collection_lines[0].wallet and collection_lines[0].wallet.currency_id:
-            wallet_symbol = collection_lines[0].wallet.currency_id.symbol
-        elif payout_lines and payout_lines[0].wallet and payout_lines[0].wallet.currency_id:
-            wallet_symbol = payout_lines[0].wallet.currency_id.symbol
+        # Wallet symbol
+        wallet_symbol = wallet.symbol or wallet.currency_code or ''
 
         company = self.env.company
         return {

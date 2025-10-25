@@ -89,6 +89,18 @@
         <field name="binding_view_types">list</field>
     </record>
 
+    <!-- Action for Initiate Reversal -->
+    <record model="ir.actions.server" id="action_initiate_reversal">
+        <field name="name">Initiate Reversal</field>
+        <field name="model_id" ref="model_atlaxchange_ledger"/>
+        <field name="binding_model_id" ref="model_atlaxchange_ledger"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.action_initiate_reversal()
+        </field>
+        <field name="binding_view_types">list</field>
+    </record>
+
     <!-- Action for Export Ledger CSV -->
     <record id="action_export_ledger_csv" model="ir.actions.server">
         <field name="name">Export Ledger CSV</field>

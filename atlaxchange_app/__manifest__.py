@@ -12,6 +12,7 @@
         "security/ir.model.access.csv",
         "views/funding_views.xml",
         "views/reprocess_views.xml",
+        "views/reversal_views.xml",
         "views/currency_views.xml",
         "views/conversion_fee_views.xml",
         "views/create_conversion_fee_view.xml",

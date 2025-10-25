@@ -1,0 +1,25 @@
+<odoo>
+    <record id="view_res_config_settings_inherit_user_session_timeout" model="ir.ui.view">
+        <field name="name">res.config.settings.inherit.user.session.timeout</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.view_res_config_settings"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='settings']" position="inside">
+                <div class="app_settings_block" string="Security" data-string="Security">
+                    <h2>Session Timeout</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="user_inactivity_timeout"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="user_inactivity_timeout"/>
+                                <div class="text-muted">Automatically log out users after this many seconds of inactivity (min 60).</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

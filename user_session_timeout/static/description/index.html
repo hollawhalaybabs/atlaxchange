@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inactivity Timeout Module for Odoo 17</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">Inactivity Timeout Module</h1>
+            <p class="text-xl text-gray-600 mt-2">Enhance Security for Odoo 16 with Automatic Session Timeout</p>
+        </header>
+
+        <section class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Overview</h2>
+            <p class="text-gray-700 leading-relaxed">
+                The <strong>Inactivity Timeout Module</strong> for Odoo 16 ensures enhanced security by automatically logging out users after a specified period of inactivity. This module monitors user interactions (e.g., mouse movements, keyboard input, scrolling) and logs out the user if no activity is detected, protecting sensitive data from unauthorized access.
+            </p>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Key Features</h2>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                <li><strong>Configurable Timeout:</strong> Set the inactivity timeout duration via Odoo system parameters (<code>user_inactivity_timeout</code> in seconds). Defaults to 10 minutes.</li>
+                <li><strong>Multi-Tab Synchronization:</strong> Uses local storage to synchronize activity across multiple browser tabs, ensuring consistent session management.</li>
+                <li><strong>Comprehensive Event Detection:</strong> Tracks a wide range of user interactions, including mouse, keyboard, touch, scroll, and more.</li>
+                <li><strong>Debounced Event Handling:</strong> Optimizes performance by debouncing rapid user interactions to reduce unnecessary timer resets.</li>
+                <li><strong>Tab Visibility Awareness:</strong> Pauses the timeout timer when the browser tab is hidden and resumes on focus, preventing premature logouts.</li>
+                <li><strong>Seamless Odoo Integration:</strong> Built as a service using Odoo 16’s JavaScript framework, ensuring compatibility and easy integration.</li>
+            </ul>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Compatibility</h2>
+            <p class="text-gray-700">
+                This module is designed for <strong>Odoo 16</strong> and leverages the latest Odoo JavaScript framework, including the service registry and ORM service. It is lightweight and does not require additional dependencies beyond standard Odoo components.
+            </p>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Installation</h2>
+            <ol class="list-decimal list-inside text-gray-700 space-y-2">
+                <li>Download the module from the Odoo App Store.</li>
+                <li>Install the module via Odoo’s Apps menu.</li>
+                <li>Optionally, configure the <code>user_inactivity_timeout</code> system parameter in Settings > Technical > System Parameters to set the desired timeout duration (in seconds).</li>
+                <li>The module automatically activates for all logged-in users.</li>
+            </ol>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Usage</h2>
+            <p class="text-gray-700 leading-relaxed">
+                Once installed, the module runs in the background, monitoring user activity. If no interaction is detected for the configured timeout period, the user is redirected to the logout page. The module supports:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 space-y-2 mt-2">
+                <li>Automatic session timeout based on inactivity.</li>
+                <li>Cross-tab activity synchronization to prevent logout in active tabs.</li>
+                <li>Efficient event handling to minimize performance impact.</li>
+            </ul>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Support</h2>
+            <p class="text-gray-700">
+                For support, feature requests, or bug reports, please contact us via email at <a href="mailto:ankitpatwa.dev@gmail.com" class="text-blue-600 hover:underline">ankitpatwa.dev@gmail.com</a> or through the Odoo App Store. We are committed to ensuring a secure and reliable experience for all users.
+            </p>
+        </section>
+
+        <footer class="text-center text-gray-600">
+            <p>© 2025 Your Company Name. All rights reserved.</p>
+            <p>Built for Odoo 16 with ❤️</p>
+        </footer>
+    </div>
+</body>
+</html>

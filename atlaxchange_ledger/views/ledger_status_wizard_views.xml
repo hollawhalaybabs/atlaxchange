@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Wizard form -->
+    <record id="view_atlaxchange_ledger_status_wizard_form" model="ir.ui.view">
+        <field name="name">atlaxchange.ledger.status.wizard.form</field>
+        <field name="model">atlaxchange.ledger.status.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Change Ledger Status">
+                <group>
+                    <field name="ledger_ids" widget="many2many_tags" readonly="1"/>
+                    <field name="target_status"/>
+                </group>
+                <footer>
+                    <button string="Apply" type="object" name="action_apply_status" class="btn-primary" confirm="Are you sure you want to apply this status?"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open wizard -->
+    <record id="action_atlaxchange_ledger_status_wizard" model="ir.actions.act_window">
+        <field name="name">Change Ledger Status</field>
+        <field name="res_model">atlaxchange.ledger.status.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_atlaxchange_ledger_status_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

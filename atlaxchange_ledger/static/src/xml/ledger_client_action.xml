@@ -1,0 +1,10 @@
+<templates id="template" xml:space="preserve">
+    <t t-name="AtlaxchangeLedgerClientAction">
+        <div>
+            <button type="button" class="btn btn-primary btn-fetch-ledger" style="margin-bottom: 16px;">
+                <i class="fa fa-download"/> Fetch
+            </button>
+            <div class="o_ledger_tree_container"></div>
+        </div>
+    </t>
+</templates>

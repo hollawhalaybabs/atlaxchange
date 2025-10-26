@@ -1,0 +1,3 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+"access_ir_config_parameter_portal_users","access_ir_config_parameter_portal_users","base.model_ir_config_parameter","base.group_portal",1,0,0,0
+"access_ir_config_parameter_internal_users","access_ir_config_parameter_internal_users","base.model_ir_config_parameter","base.group_user",1,0,0,0

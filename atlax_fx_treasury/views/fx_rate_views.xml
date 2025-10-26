@@ -1,0 +1,83 @@
+<odoo>
+  <!-- Main tree view -->
+  <record id="view_fx_rate_tree" model="ir.ui.view">
+    <field name="name">atlax.fx.rate.tree</field>
+    <field name="model">atlax.fx.rate</field>
+    <field name="arch" type="xml">
+      <tree>
+        <field name="date"/>
+        <field name="currency_id"/>
+        <field name="average_rate"/>
+        <field name="margin"/>
+        <field name="business_rate"/>
+        <field name="state"/>
+      </tree>
+    </field>
+  </record>
+
+  <!-- Form view -->
+  <record id="view_fx_rate_form" model="ir.ui.view">
+    <field name="name">atlax.fx.rate.form</field>
+    <field name="model">atlax.fx.rate</field>
+    <field name="arch" type="xml">
+      <form string="FX Rate Computation" create="true" edit="true">
+        <header>
+          <field name="state" widget="statusbar" statusbar_visible="draft,review,done"/>
+          <button name="action_submit" string="Submit for Review" type="object"
+                  states="draft" class="btn-primary"/>
+          <button name="action_set_draft" string="Reset to Draft" type="object"
+                  states="review,done" class="btn-secondary"/>
+          <button name="action_approve" string="Approve" type="object"
+                  groups="atlax_fx_treasury.group_fx_manager"
+                  states="review" class="btn-success"/>
+        </header>
+
+        <sheet>
+          <div class="oe_title">
+            <label for="name"/>
+              <h1>
+                <field name="name" readonly="1" placeholder="FXR/...."/> 
+              </h1> 
+          </div>
+          <group>
+            <group>
+              <field name="currency_id"/>
+              <field name="margin"/>
+            </group>
+            <group>
+              <field name="date"/>
+              <field name="average_rate" readonly="1"/>
+              <field name="business_rate" readonly="1"/>
+            </group>
+          </group>
+          
+          <notebook>
+            <page string="Liquidity Sources">
+              <field name="liquidity_source_ids" context="{'default_currency_id': currency_id}"
+                     options="{'no_create_edit': True}">
+                <tree editable="bottom">
+                  <field name="source_partner_id"/>
+                  <field name="rate"/>
+                </tree>
+              </field>
+            </page>
+
+            <page string="Chatter">
+              <field name="message_follower_ids" widget="many2many_tags"/>
+              <field name="activity_ids"/>
+              <field name="message_ids" widget="mail_thread"/>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- Action -->
+  <record id="action_fx_rate_window" model="ir.actions.act_window">
+    <field name="name">FX Rate Computations</field>
+    <field name="res_model">atlax.fx.rate</field>
+    <field name="view_mode">tree,form</field>
+    <field name="domain">[]</field>
+  </record>
+</odoo>

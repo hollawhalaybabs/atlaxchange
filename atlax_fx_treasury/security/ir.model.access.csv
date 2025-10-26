@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fx_rate_system,fx.rate.system,model_atlax_fx_rate,base.group_system,1,1,1,1
+access_fx_rate_officer,fx.rate.officer,model_atlax_fx_rate,atlax_fx_treasury.group_fx_officer,1,1,1,0
+access_fx_rate_manager,fx.rate.manager,model_atlax_fx_rate,atlax_fx_treasury.group_fx_manager,1,1,1,1
+access_liq_rate_officer,liq.rate.officer,model_atlax_liquidity_source_rate,atlax_fx_treasury.group_fx_officer,1,1,1,0
+access_liq_rate_manager,liq.rate.manager,model_atlax_liquidity_source_rate,atlax_fx_treasury.group_fx_manager,1,1,1,1

@@ -1,0 +1,63 @@
+<t t-name="atlaxchange_ledger.LedgerDashboard" owl="1">
+    <div class="o_ledger_dashboard">
+        <h2>Ledger Dashboard</h2>
+        <div class="o_filters">
+            <label>Status:
+                <select name="status" t-on-change="onFilterChange">
+                    <option value="">All</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="success">Success</option>
+                    <option value="failed">Failed</option>
+                    <option value="reversed">Reversed</option>
+                </select>
+            </label>
+            <label>Type:
+                <select name="type" t-on-change="onFilterChange">
+                    <option value="">All</option>
+                    <option value="debit">Debit</option>
+                    <option value="credit">Credit</option>
+                </select>
+            </label>
+            <label>Date From:
+                <input type="date" name="date_from" t-on-change="onFilterChange"/>
+            </label>
+            <label>Date To:
+                <input type="date" name="date_to" t-on-change="onFilterChange"/>
+            </label>
+            <button t-on-click="fetchData" t-if="!state.loading">Refresh</button>
+            <button t-on-click="exportCSV" t-if="!state.loading">Export CSV</button>
+        </div>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Currency</th>
+                    <th>Amount</th>
+                    <th>Fee</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                <t t-if="state.loading">
+                    <tr><td colspan="7">Loading...</td></tr>
+                </t>
+                <t t-else="">
+                    <t t-foreach="state.records" t-as="rec">
+                        <tr>
+                            <td><t t-esc="rec.customer"/></td>
+                            <td><t t-esc="rec.currency"/></td>
+                            <td><t t-esc="rec.amount"/></td>
+                            <td><t t-esc="rec.fee"/></td>
+                            <td><t t-esc="rec.status"/></td>
+                            <td><t t-esc="rec.date"/></td>
+                            <td><t t-esc="rec.type"/></td>
+                        </tr>
+                    </t>
+                </t>
+            </tbody>
+        </table>
+    </div>
+</t>

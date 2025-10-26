@@ -1,0 +1,90 @@
+<odoo>
+    <record id="view_conversion_fee_tree" model="ir.ui.view">
+        <field name="name">conversion.fee.tree</field>
+        <field name="model">conversion.fee</field>
+        <field name="arch" type="xml">
+            <tree create="false" delete="false">
+                <field name="display_name"/>
+                <field name="partner_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_conversion_fee_form" model="ir.ui.view">
+        <field name="name">conversion.fee.form</field>
+        <field name="model">conversion.fee</field>
+        <field name="arch" type="xml">
+            <form string="Conversion Rate" create="false" delete="false">
+                <header>
+                    <button name="fetch_conversion_fees"
+                            string="Fetch Rate"
+                            type="object"
+                            class="btn-warning"/>
+                    <button name="action_open_update_fee_wizard"
+                            string="Update Rate"
+                            type="object"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="display_name"/>
+                            <field name="partner_id"/>
+                        </group>
+                        <group>
+                            <field name="business_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Rates">
+                            <field name="rate_line_ids">
+                                <tree editable="false" create="false" delete="false">
+                                    <field name="rate_id"/>
+                                    <field name="rate_name"/>
+                                    <field name="source_currency"/>
+                                    <field name="target_currency"/>
+                                    <field name="rate"/>
+                                    <field name="updated_at"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_conversion_fee" model="ir.actions.act_window">
+        <field name="name">Conversion Fees</field>
+        <field name="res_model">conversion.fee</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_conversion_fee" name="Conversion Rate" parent="menu_atlaxchange_config" action="action_conversion_fee" sequence="1"/>
+
+    <!-- Default Rate (No Partner) -->
+    <record id="action_conversion_fee_default" model="ir.actions.act_window">
+        <field name="name">Default Rates</field>
+        <field name="res_model">conversion.fee</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('partner_id','=',False)]</field>
+    </record>
+    <menuitem id="menu_conversion_fee_default"
+              name="Default Rates"
+              parent="menu_conversion_fee"
+              action="action_conversion_fee_default"
+              sequence="5"/>
+
+    <!-- Customer Rate (Has Partner) -->
+    <record id="action_conversion_fee_customer" model="ir.actions.act_window">
+        <field name="name">Customer Rates</field>
+        <field name="res_model">conversion.fee</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('partner_id','!=',False)]</field>
+    </record>
+    <menuitem id="menu_conversion_fee_customer"
+              name="Customer Rates"
+              parent="menu_conversion_fee"
+              action="action_conversion_fee_customer"
+              sequence="10"/>
+</odoo>

@@ -14,13 +14,13 @@ Key Features:
 - Pauses timer when tab is hidden.
 - Seamless Odoo 16 integration.
 
-Contact: ankitpatwa.dev@gmail.com
+Contact: info@novussolutions.com
     """,
     "version": "16.0",
     "category": "Extra Tools",
-    "author": "Ankit",
+    "author": "Novus Solutions",
     "license": "AGPL-3",
-    "depends": ["base", "web"],
+    "depends": ["base", "base_setup", "web"],
     "data": [
         "data/ir_config_parameter_data.xml",
         "views/res_config_settings_view.xml",

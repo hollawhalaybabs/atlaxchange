@@ -1,63 +1,223 @@
 <t t-name="atlaxchange_ledger.LedgerDashboard" owl="1">
-    <div class="o_ledger_dashboard">
-        <h2>Ledger Dashboard</h2>
-        <div class="o_filters">
-            <label>Status:
-                <select name="status" t-on-change="onFilterChange">
-                    <option value="">All</option>
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="success">Success</option>
-                    <option value="failed">Failed</option>
-                    <option value="reversed">Reversed</option>
-                </select>
-            </label>
-            <label>Type:
-                <select name="type" t-on-change="onFilterChange">
-                    <option value="">All</option>
-                    <option value="debit">Debit</option>
-                    <option value="credit">Credit</option>
-                </select>
-            </label>
-            <label>Date From:
-                <input type="date" name="date_from" t-on-change="onFilterChange"/>
-            </label>
-            <label>Date To:
-                <input type="date" name="date_to" t-on-change="onFilterChange"/>
-            </label>
-            <button t-on-click="fetchData" t-if="!state.loading">Refresh</button>
-            <button t-on-click="exportCSV" t-if="!state.loading">Export CSV</button>
+    <div class="o_ledger_dashboard container mt-3">
+        <h2 class="mb-3">Dashboard Overview</h2>
+
+        <!-- Filters -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <!-- Row 1: Customer / Reference / Date Range -->
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-3">
+                        <label class="form-label">Customer</label>
+                        <!-- If partner-backed options exist, bind to customer_id; otherwise bind to customer_name -->
+                        <select class="form-select"
+                                t-att-name="state.customerOptions.length ? 'customer_id' : 'customer_name'"
+                                t-att-value="state.customerOptions.length ? state.filters.customer_id : state.filters.customer_name"
+                                t-on-change="onFilterChange">
+                            <option value="">All</option>
+
+                            <!-- Partner options -->
+                            <t t-if="state.customerOptions.length">
+                                <option t-foreach="state.customerOptions" t-as="c" t-key="c.id" t-att-value="c.id">
+                                    <t t-esc="c.name"/>
+                                </option>
+                            </t>
+
+                            <!-- Fallback: distinct customer_name options -->
+                            <t t-else="">
+                                <option t-foreach="state.customerNameOptions" t-as="c" t-key="c.name" t-att-value="c.name">
+                                    <t t-esc="c.name"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Reference</label>
+                        <input class="form-control" type="text" placeholder="Search reference"
+                               name="reference" t-att-value="state.filters.reference" t-on-change="onFilterChange"/>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">From</label>
+                        <input class="form-control" type="date" name="date_from"
+                               t-att-value="state.filters.date_from" t-on-change="onFilterChange"/>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">To</label>
+                        <input class="form-control" type="date" name="date_to"
+                               t-att-value="state.filters.date_to" t-on-change="onFilterChange"/>
+                    </div>
+
+                    <div class="col-md-2 d-flex gap-2">
+                        <button class="btn btn-outline-primary w-100" t-on-click="refreshIngestion" t-att-disabled="state.loading">
+                            <i class="fa fa-refresh me-1"/>Refresh
+                        </button>
+                        <button class="btn btn-outline-secondary w-100" t-on-click="exportCSV" t-att-disabled="state.loading">
+                            <i class="fa fa-download me-1"/>CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 2: Status / Type / Wallet -->
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">Wallet</label>
+                        <select class="form-select" name="wallet" t-att-value="state.filters.wallet" t-on-change="onFilterChange">
+                            <option value="">All</option>
+                            <option t-foreach="state.walletOptions" t-as="w" t-key="w.code" t-att-value="w.code">
+                                <t t-esc="w.name"/>
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Type</label>
+                        <select class="form-select" name="type" t-att-value="state.filters.type" t-on-change="onFilterChange">
+                            <option value="">All</option>
+                            <option value="debit">Debit</option>
+                            <option value="credit">Credit</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="status" t-att-value="state.filters.status" t-on-change="onFilterChange">
+                            <option value="">All</option>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="success">Success</option>
+                            <option value="failed">Failed</option>
+                            <option value="reversed">Reversed</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
-        <table class="table table-sm table-striped">
-            <thead>
-                <tr>
-                    <th>Customer</th>
-                    <th>Currency</th>
-                    <th>Amount</th>
-                    <th>Fee</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Type</th>
-                </tr>
-            </thead>
-            <tbody>
-                <t t-if="state.loading">
-                    <tr><td colspan="7">Loading...</td></tr>
-                </t>
-                <t t-else="">
-                    <t t-foreach="state.records" t-as="rec">
-                        <tr>
-                            <td><t t-esc="rec.customer"/></td>
-                            <td><t t-esc="rec.currency"/></td>
-                            <td><t t-esc="rec.amount"/></td>
-                            <td><t t-esc="rec.fee"/></td>
-                            <td><t t-esc="rec.status"/></td>
-                            <td><t t-esc="rec.date"/></td>
-                            <td><t t-esc="rec.type"/></td>
-                        </tr>
-                    </t>
-                </t>
-            </tbody>
-        </table>
+
+        <!-- KPI tiles -->
+        <div class="row g-3 mb-3">
+            <!-- Transactions -->
+            <div class="col-md-3">
+                <div class="kpi-card card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="kpi-title"><i class="fa fa-exchange me-2 text-primary"></i>Transactions</div>
+                        <div class="kpi-value" t-esc="state.metrics.transactions.count.total"/>
+                        <div class="kpi-sub">
+                            <span class="badge bg-light text-dark me-2">Debit: <t t-esc="state.metrics.transactions.count.debit"/></span>
+                            <span class="badge bg-light text-dark">Credit: <t t-esc="state.metrics.transactions.count.credit"/></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Total Amount -->
+            <div class="col-md-3">
+                <div class="kpi-card card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="kpi-title"><i class="fa fa-money me-2 text-success"></i>Total Amount</div>
+                        <div class="kpi-value">
+                            <!-- Show '-' if no wallet selected -->
+                            <t t-esc="state.filters.wallet ? formatCurrency(state.metrics.transactions.amount.total) : '-'"/>
+                        </div>
+                        <div class="kpi-sub small">
+                            <span class="text-muted">Debit: </span>
+                            <t t-esc="state.filters.wallet ? formatCurrency(state.metrics.transactions.amount.debit) : '-'"/>
+                            <span class="ms-2 text-muted">Credit: </span>
+                            <t t-esc="state.filters.wallet ? formatCurrency(state.metrics.transactions.amount.credit) : '-'"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Customers -->
+            <div class="col-md-3">
+                <div class="kpi-card card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="kpi-title"><i class="fa fa-users me-2 text-info"></i>Total Customers</div>
+                        <div class="kpi-value" t-esc="state.metrics.customers"/>
+                        <div class="kpi-sub">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Fees -->
+            <div class="col-md-3">
+                <div class="kpi-card card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="kpi-title"><i class="fa fa-ticket me-2 text-warning"></i>Transaction Fees</div>
+                        <div class="kpi-value">
+                            <!-- Show '-' if no wallet selected -->
+                            <t t-esc="state.filters.wallet ? formatCurrency(state.metrics.fees.amount.total) : '-'"/>
+                        </div>
+                        <div class="kpi-sub small">
+                            <span class="text-muted">Debit: </span>
+                            <t t-esc="state.filters.wallet ? formatCurrency(state.metrics.fees.amount.debit) : '-'"/>
+                            <span class="ms-2 text-muted">Credit: </span>
+                            <t t-esc="state.filters.wallet ? formatCurrency(state.metrics.fees.amount.credit) : '-'"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data table -->
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <!-- Make this inner div scrollable -->
+                <div class="table-responsive table-scroll">
+                    <table class="table table-sm table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Reference</th>
+                                <th>Customer</th>
+                                <th>Bank</th>
+                                <th>Beneficiary</th>
+                                <th>Corridor</th>
+                                <th class="text-end">Amount</th>
+                                <th class="text-end">Fee</th>
+                                <th class="text-end">Rate</th>
+                                <th class="text-end">Dest. Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="state.loading">
+                                <tr><td colspan="11" class="text-center py-4">Loading...</td></tr>
+                            </t>
+                            <t t-else="">
+                                <t t-foreach="state.records" t-as="rec" t-foreach-index="i" t-key="rec.id || i">
+                                    <tr>
+                                        <td><t t-esc="rec.date"/></td>
+                                        <td><t t-esc="rec.reference"/></td>
+                                        <td><t t-esc="rec.customer"/></td>
+                                        <td><t t-esc="rec.bank"/></td>
+                                        <td><t t-esc="rec.beneficiary"/></td>
+                                        <td><t t-esc="rec.currency"/>/<t t-esc="rec.dest_currency"/></td>
+                                        <td class="text-end"><t t-esc="formatCurrency(rec.amount)"/></td>
+                                        <td class="text-end"><t t-esc="formatCurrency(rec.fee)"/></td>
+                                        <td class="text-end"><t t-esc="rec.conversion_rate"/></td>
+                                        <td class="text-end"><t t-esc="formatCurrencyByCode(rec.total_amount, rec.dest_currency)"/></td>
+                                        <td><t t-esc="rec.status"/></td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination controls -->
+                <div class="d-flex justify-content-between align-items-center p-2">
+                    <div class="text-muted small">
+                        Page <t t-esc="state.paging.page"/> of <t t-esc="state.paging.pages"/> •
+                        <t t-esc="state.paging.total"/> rows
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-secondary" t-on-click="prevPage" t-att-disabled="state.loading || state.paging.page &lt;= 1">
+                            ‹ Prev
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" t-on-click="nextPage" t-att-disabled="state.loading || state.paging.page &gt;= state.paging.pages">
+                            Next ›
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </t>

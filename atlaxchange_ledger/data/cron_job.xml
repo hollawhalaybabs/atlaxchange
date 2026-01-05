@@ -10,4 +10,30 @@
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
     </record>
+
+    <data noupdate="1">
+        <!-- Forward incremental every minute -->
+        <record id="ir_cron_atlax_ledger_forward" model="ir.cron">
+            <field name="name">Atlax Ledger: Forward Incremental</field>
+            <field name="model_id" ref="model_atlaxchange_ledger"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_fetch_forward()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- Backfill every 10 minutes -->
+        <record id="ir_cron_atlax_ledger_backfill" model="ir.cron">
+            <field name="name">Atlax Ledger: Backfill</field>
+            <field name="model_id" ref="model_atlaxchange_ledger"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_backfill_backward()</field>
+            <field name="interval_number">10</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+        </record>
+    </data>
 </odoo>

@@ -63,7 +63,7 @@ class IrHttp(models.AbstractModel):
 			_logger.debug("Inactivity check failed: %s", e)
 
 	@classmethod
-	def _dispatch(cls):
+	def _dispatch(cls, endpoint):
 		"""Wrap the core dispatcher to enforce server-side inactivity timeout.
 
 		- If session is inactive beyond the threshold, we log it out before
@@ -75,7 +75,7 @@ class IrHttp(models.AbstractModel):
 		cls._expire_if_inactive()
 
 		# Dispatch the request via standard Odoo flow
-		response = super()._dispatch()
+		response = super()._dispatch(endpoint)
 
 		# Post-dispatch: update last activity for authenticated users
 		try:

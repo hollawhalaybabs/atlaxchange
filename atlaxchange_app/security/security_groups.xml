@@ -21,19 +21,61 @@
         <field name="category_id" ref="module_category_atlax"/>
     </record>
 
+    <record id="group_finance_officer" model="res.groups">
+        <field name="name">Finance Officer</field>
+        <field name="category_id" ref="module_category_atlax"/>
+    </record>
+
+    <record id="group_finance_manager" model="res.groups">
+        <field name="name">Finance Manager</field>
+        <field name="category_id" ref="module_category_atlax"/>
+        <field name="implied_ids" eval="[(4, ref('atlaxchange_app.group_finance_officer'))]"/>
+    </record>
+
+    <record id="group_business_dev_officer" model="res.groups">
+        <field name="name">Business Dev Officer</field>
+        <field name="category_id" ref="module_category_atlax"/>
+    </record>
+
+    <record id="group_business_dev_manager" model="res.groups">
+        <field name="name">Business Dev Manager</field>
+        <field name="category_id" ref="module_category_atlax"/>
+        <field name="implied_ids" eval="[(4, ref('atlaxchange_app.group_business_dev_officer'))]"/>
+    </record>
+
+    <record id="group_compliance_officer" model="res.groups">
+        <field name="name">Compliance Officer</field>
+        <field name="category_id" ref="module_category_atlax"/>
+    </record>
+
+    <record id="group_compliance_manager" model="res.groups">
+        <field name="name">Compliance Manager</field>
+        <field name="category_id" ref="module_category_atlax"/>
+        <field name="implied_ids" eval="[(4, ref('atlaxchange_app.group_compliance_officer'))]"/>
+    </record>
+
     <record id="group_hoo" model="res.groups">
-        <field name="name">Head of Operations</field>
+        <field name="name">Operations Manager</field>
         <field name="category_id" ref="module_category_atlax"/>
     </record>
+
     <record id="group_hot" model="res.groups">
-        <field name="name">Head of Treasury &amp; Trade</field>
+        <field name="name">Treasury &amp; Trade Manager</field>
         <field name="category_id" ref="module_category_atlax"/>
     </record>
+
     <record id="group_coo" model="res.groups">
         <field name="name">Chief Operating Officer</field>
         <field name="category_id" ref="module_category_atlax"/>
-        <field name="implied_ids" eval="[(4, ref('atlaxchange_app.group_hot'))]"/>
+        <field name="implied_ids" eval="[
+            (4, ref('atlaxchange_app.group_hoo')),
+            (4, ref('atlaxchange_app.group_hot')),
+            (4, ref('atlaxchange_app.group_finance_manager')),
+            (4, ref('atlaxchange_app.group_business_dev_manager')),
+            (4, ref('atlaxchange_app.group_compliance_manager'))
+        ]"/>
     </record>
+
     <record id="group_ceo" model="res.groups">
         <field name="name">Chief Executive Officer</field>
         <field name="category_id" ref="module_category_atlax"/>

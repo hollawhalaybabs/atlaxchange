@@ -2,9 +2,9 @@
     <record id="view_res_config_settings_inherit_user_session_timeout" model="ir.ui.view">
         <field name="name">res.config.settings.inherit.user.session.timeout</field>
         <field name="model">res.config.settings</field>
-        <field name="inherit_id" ref="base.view_res_config_settings"/>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[@id='settings']" position="inside">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
                 <div class="app_settings_block" string="Security" data-string="Security">
                     <h2>Session Timeout</h2>
                     <div class="row mt16 o_settings_container">

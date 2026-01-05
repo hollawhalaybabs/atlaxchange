@@ -2,6 +2,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import requests
 import logging
+import json  # added
 
 _logger = logging.getLogger(__name__)
 
@@ -98,37 +99,138 @@ class reversal(models.Model):
             else:
                 record.is_approver = False
 
-    def action_reverse(self):
-        """Send batch reversal request to AdminReverseTransactions endpoint."""
-        references = [line.reference for line in self.reversal_line_ids if line.reference]
+    # Helper: validate references locally before hitting the API
+    def _prevalidate_references(self, references):
+        """Return (valid_refs, invalid_details).
+        invalid_details is a list of (reference, reason), where reason is 'missing' or the current local status.
+        Allowed statuses for reversal are constrained to 'failed' to avoid remote 'status not allowed' errors.
+        """
         if not references:
-            raise UserError("No references found to reverse.")
-        if not self.reason:
-            raise UserError("Reason is required to perform reversal.")
+            return [], []
 
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-        if not api_key or not api_secret:
-            raise UserError(_("API key or secret is missing. Please configure them in System Parameters."))
+        ledger_model = self.env['atlaxchange.ledger']
+        # FIX: search by the correct field on ledger model
+        ledgers = ledger_model.search([('transaction_reference', 'in', references)])
+        found_by_ref = {rec.transaction_reference: rec for rec in ledgers}
 
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
+        allowed_statuses = {'failed'}  # adjust if other statuses are allowed by the remote
+        valid_refs = []
+        invalid_details = []
 
-        api_url = "https://api.atlaxchange.com/api/v1/admin/ledger/transactions/reverse"
-        payload = {"references": references, "reason": self.reason}
+        for ref in references:
+            rec = found_by_ref.get(ref)
+            if not rec:
+                invalid_details.append((ref, 'missing'))  # not found locally
+                continue
+            if rec.status not in allowed_statuses:
+                invalid_details.append((ref, rec.status))
+                continue
+            valid_refs.append(ref)
+
+        return valid_refs, invalid_details
+
+    # Helper: parse error JSON from API if present
+    def _parse_error_payload(self, response):
+        """Attempt to parse response JSON and extract meaningful details."""
         try:
-            response = requests.patch(api_url, json=payload, headers=headers, timeout=30)
-            if response.status_code in (200, 201):
-                self.state = 'done'
-                self.message_post(body="Reversal request sent successfully.")
-            else:
-                raise UserError(f"Reversal failed: Status {response.status_code} - {response.text or response.content}")
-        except Exception as e:
-            _logger.error("Error sending reversal request: %s | References: %s", str(e), references)
-            raise UserError(f"Error sending reversal request: {str(e)}")
+            data = response.json()
+        except Exception:
+            try:
+                data = json.loads(response.text or '{}')
+            except Exception:
+                return {}
+
+        out = {}
+        if isinstance(data, dict):
+            out['message'] = data.get('message')
+            out['errors'] = data.get('errors')
+            out['data'] = data.get('data')
+            out['status'] = data.get('status')
+            out['timestamp'] = data.get('timestamp')
+        return out
+
+    def action_reverse(self):
+        """Send batch reversal request to AdminReverseTransactions endpoint with pre-validation and detailed errors."""
+        for record in self:
+            references = [line.reference for line in record.reversal_line_ids if line.reference]
+            if not references:
+                raise UserError(_("No references found to reverse."))
+            if not record.reason:
+                raise UserError(_("Reason is required to perform reversal."))
+
+            # Pre-validate locally to avoid remote 404 for status-not-allowed/missing refs
+            valid_refs, invalids = record._prevalidate_references(references)
+            if invalids:
+                # Build a friendly message listing invalid refs and why
+                lines = []
+                for ref, why in invalids:
+                    if why == 'missing':
+                        lines.append(f"- {ref}: not found locally in ledger")
+                    else:
+                        lines.append(f"- {ref}: local status '{why}' is not reversible")
+                detail = "\n".join(lines)
+                raise UserError(
+                    _("Some references cannot be reversed due to local validation:\n%s\n\nOnly 'failed' transactions are allowed for reversal.")
+                    % detail
+                )
+
+            if not valid_refs:
+                raise UserError(_("No valid references to reverse after validation."))
+
+            api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
+            api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
+            if not api_key or not api_secret:
+                raise UserError(_("API key or secret is missing. Please configure them in System Parameters."))
+
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-KEY": api_key,
+                "X-API-SECRET": api_secret
+            }
+
+            api_url = "https://api.atlaxchange.com/api/v1/admin/ledger/transactions/reverse"
+            payload = {"references": valid_refs, "reason": record.reason}
+
+            try:
+                response = requests.patch(api_url, json=payload, headers=headers, timeout=30)
+                if response.status_code in (200, 201):
+                    record.state = 'done'
+                    record.message_post(
+                        body=_("Reversal request sent successfully for %s references.") % len(valid_refs)
+                    )
+                else:
+                    # Try to parse the response for clearer details
+                    parsed = record._parse_error_payload(response)
+                    base_msg = f"Reversal failed: Status {response.status_code}"
+                    extra = []
+
+                    # Help surface the common 404 case with better context
+                    if response.status_code == 404:
+                        extra.append("Not Found from remote service.")
+                        # Show attempted references (trimmed) and their local statuses for quick diagnosis
+                        extra.append(f"Attempted references: {', '.join(valid_refs[:20])}" + ("..." if len(valid_refs) > 20 else ""))
+                        ledger_recs = self.env['atlaxchange.ledger'].search([('transaction_reference', 'in', valid_refs)])
+                        status_pairs = [f"{r.transaction_reference}={r.status or 'n/a'}" for r in ledger_recs][:20]
+                        if status_pairs:
+                            extra.append("Local statuses: " + ", ".join(status_pairs) + ("..." if len(ledger_recs) > 20 else ""))
+
+                    # Include message/errors/data fields if present
+                    if parsed.get('message'):
+                        extra.append(f"message: {parsed['message']}")
+                    if parsed.get('errors'):
+                        extra.append(f"errors: {parsed['errors']}")
+                    if parsed.get('data'):
+                        extra.append(f"data: {parsed['data']}")
+
+                    detail = " - ".join(extra) if extra else (response.text or response.content)
+                    _logger.warning("Reversal API error | %s | payload=%s | response=%s", base_msg, payload, detail)
+                    raise UserError(f"{base_msg} - {detail}")
+            except UserError:
+                # re-raise custom errors untouched
+                raise
+            except Exception as e:
+                _logger.error("Error sending reversal request: %s | References: %s", str(e), valid_refs)
+                raise UserError(_("Error sending reversal request: %s") % str(e))
 
 
 class reversalLine(models.Model):

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Client Action for OWL Ledger Dashboard -->
+    <record id="action_ledger_dashboard" model="ir.actions.client">
+        <field name="name">Dashboard Overview</field>
+        <!-- Must match the registry key in static/src/components/LedgerDashboard.js -->
+        <field name="tag">atlaxchange_ledger.ledger_dashboard_action</field>
+        <field name="target">current</field>
+        <!-- Optional: pass default filters from context -->
+        <!-- <field name="context">{}</field> -->
+    </record>
+
+    <!-- Menu to open the dashboard under Transaction History -->
+    <menuitem id="menu_ledger_dashboard"
+              name="Overview"
+              parent="atlaxchange_app.atlaxchange_menu"
+              action="action_ledger_dashboard"
+              sequence="-1"/>
+</odoo>

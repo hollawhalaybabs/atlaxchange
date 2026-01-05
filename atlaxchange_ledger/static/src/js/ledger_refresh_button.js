@@ -9,13 +9,10 @@ odoo.define('atlaxchange_ledger.ledger_refresh_button', function (require) {
         renderButtons() {
             this._super.apply(this, arguments);
             if (this.$buttons) {
-                // Change Status button (opens wizard for selected records)
                 const changeBtn = $('<button type="button" class="btn btn-danger o_ledger_change_status_btn">Change Status</button>');
-                // add right margin to create space between buttons
                 changeBtn.css('margin-right', '8px');
 
                 changeBtn.on('click', () => {
-                    // try to get selected ids (with a couple of fallbacks)
                     let selectedIds = [];
                     if (typeof this.getSelectedIds === 'function') {
                         selectedIds = this.getSelectedIds();
@@ -26,7 +23,6 @@ odoo.define('atlaxchange_ledger.ledger_refresh_button', function (require) {
                         selectedIds = localData.selectedIDs || [];
                     }
 
-                    // open wizard action, pass active_ids and active_model in context
                     this.do_action({
                         name: 'Change Ledger Status',
                         type: 'ir.actions.act_window',
@@ -41,27 +37,28 @@ odoo.define('atlaxchange_ledger.ledger_refresh_button', function (require) {
                     });
                 });
 
-                // Refresh button (existing)
+                // Quick sync
                 const refreshBtn = $('<button type="button" class="btn btn-primary o_ledger_refresh_btn">Refresh</button>');
                 refreshBtn.on('click', () => {
                     this._rpc({
                         model: 'atlaxchange.ledger',
                         method: 'fetch_ledger_history_enqueue',
                         args: [],
-                    }).then((result) => {
-                        // If backend confirms scheduling, reload the client automatically.
-                        if (result && result.scheduled) {
-                            // reload the web client
-                            this.do_action({type: 'ir.actions.client', tag: 'reload'});
-                        } else {
-                            // fallback notify
-                            this.trigger_up('do_notify', {
-                                title: "Ledger",
-                                message: "Ledger fetch scheduled. Data will appear when available.",
-                            });
-                        }
-                        
+                        kwargs: { sync: true, popup: false, target_count: 500, max_seconds: 8, direction: 'auto', page_size: 1000, page_size_param: 'limit' },
+                    }).then((stats) => {
+                        const processed = stats && stats.processed || 0;
+                        const created = stats && stats.created || 0;
+                        const updated = stats && stats.updated || 0;
+                        const pages = stats && stats.pages || 0;
+                        const partial = stats && stats.partial ? ` (partial: ${stats.reason || 'time budget'})` : '';
+                        this.trigger_up('do_notify', {
+                            title: "Ledger refreshed",
+                            message: `Processed: ${processed}, Created: ${created}, Updated: ${updated}, Pages: ${pages}${partial}`,
+                        });
+                        // allow user to see the toast before reload
+                        setTimeout(() => this.do_action({type: 'ir.actions.client', tag: 'reload'}), 1500);
                     }).catch(err => {
+                        // If server raised ValidationError/UserError, show that message
                         const message = (err && err.data && err.data.message) ? err.data.message : String(err || 'Unknown error');
                         this.trigger_up('do_notify', {
                             title: "Fetch failed",
@@ -71,7 +68,73 @@ odoo.define('atlaxchange_ledger.ledger_refresh_button', function (require) {
                     });
                 });
 
-                // place buttons beside each other (Change Status first, then Refresh)
+                // Full Sync in background (~5 minutes, commits per page)
+                const fullSyncBtn = $('<button type="button" class="btn btn-secondary o_ledger_fullsync_btn">Full Sync (BG)</button>');
+                fullSyncBtn.css('margin-left', '8px');
+                fullSyncBtn.on('click', () => {
+                    this._rpc({
+                        model: 'atlaxchange.ledger',
+                        method: 'fetch_ledger_history_enqueue',
+                        args: [],
+                        kwargs: {
+                            sync: false,
+                            target_count: 100000,    // effectively unlimited for 20k backlog
+                            max_seconds: 300,        // 5 minutes window
+                            direction: 'auto',
+                            commit_each_page: true,  // background-friendly
+                            page_size: 1000,
+                            page_size_param: 'limit',
+                        },
+                    }).then((result) => {
+                        this.trigger_up('do_notify', {
+                            title: "Full sync scheduled",
+                            message: "Background sync started. This may take a few minutes.",
+                        });
+                    }).catch(err => {
+                        const message = (err && err.data && err.data.message) ? err.data.message : String(err || 'Unknown error');
+                        this.trigger_up('do_notify', { title: "Full sync failed", message, sticky: true });
+                    });
+                });
+
+                // Optional larger manual sync
+                const refreshBtn1000 = $('<button type="button" class="btn btn-secondary o_ledger_refresh_btn_1000">Refresh 1000</button>');
+                refreshBtn1000.css('margin-left', '8px');
+                refreshBtn1000.on('click', () => {
+                    this._rpc({
+                        model: 'atlaxchange.ledger',
+                        method: 'fetch_ledger_history_enqueue',
+                        args: [],
+                        // kwargs override for a test run
+                        kwargs: {
+                          sync: true,
+                          popup: false,
+                          target_count: 1000,
+                          max_seconds: 12,
+                          direction: 'auto',
+                          page_size: 1000,
+                          page_size_param: 'limit',
+                          after_param: 'cursor',     // ← try this
+                          before_param: 'cursor'     // ← and this
+                        }
+                    }).then((stats) => {
+                        const processed = stats && stats.processed || 0;
+                        const created = stats && stats.created || 0;
+                        const updated = stats && stats.updated || 0;
+                        const pages = stats && stats.pages || 0;
+                        const partial = stats && stats.partial ? ` (partial: ${stats.reason || 'time budget'})` : '';
+                        this.trigger_up('do_notify', {
+                            title: "Ledger refreshed (1000)",
+                            message: `Processed: ${processed}, Created: ${created}, Updated: ${updated}, Pages: ${pages}${partial}`,
+                        });
+                        setTimeout(() => this.do_action({type: 'ir.actions.client', tag: 'reload'}), 1500);
+                    }).catch(err => {
+                        const message = (err && err.data && err.data.message) ? err.data.message : String(err || 'Unknown error');
+                        this.trigger_up('do_notify', { title: "Fetch failed", message, sticky: true });
+                    });
+                });
+
+                this.$buttons.prepend(fullSyncBtn);
+                this.$buttons.prepend(refreshBtn1000);
                 this.$buttons.prepend(refreshBtn);
                 this.$buttons.prepend(changeBtn);
             }

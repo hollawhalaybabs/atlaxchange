@@ -1,0 +1,28 @@
+.o_ledger_dashboard {
+  /* NEW: make the client action body itself scroll when needed */
+  /* Adjust the 88px if you have a taller control panel/header */
+  height: 100%;
+  max-height: calc(100vh - 88px);
+  overflow-y: auto;
+  overflow-x: hidden; /* keeps horizontal scroll to the table area only */
+
+  .kpi-card {
+    border: 0;
+    border-radius: 10px;
+    .card-body { padding: 16px; }
+    .kpi-title { font-size: 0.9rem; font-weight: 600; color: #6c757d; letter-spacing: .2px; margin-bottom: 4px; }
+    .kpi-value { font-size: 1.6rem; font-weight: 700; line-height: 1.2; margin-bottom: 6px; }
+    .kpi-sub { color: #6c757d; }
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+  }
+  .form-label { font-weight: 600; }
+
+  /* Make the table region vertically scrollable so pagination remains visible */
+  .table-scroll {
+    /* Use a conservative height budget so filters + KPI tiles fit above */
+    /* Tweak 360px if you see too much/too little space on your screen */
+    max-height: calc(100vh - 360px);
+    overflow-y: auto;
+    overflow-x: auto; /* keeps Bootstrap responsive behavior */
+  }
+}

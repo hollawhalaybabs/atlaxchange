@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Reminder Email -->
+    <record id="email_template_bd_reminder" model="mail.template">
+        <field name="name">BD Reminder</field>
+        <field name="model_id" ref="model_atlax_bd_opportunity"/>
+        <field name="subject">Reminder: Business Development Follow-up</field>
+        <field name="email_from">${(user.email or '')|safe}</field>
+        <field name="email_to">${object.email or ''}</field>
+        <field name="body_html" type="html">
+            <div>
+                <p>Hi,</p>
+                <p>This is a friendly reminder regarding our ongoing business development discussion with Atlax Exchange.</p>
+                <p>Please let us know if you have any questions or need further information.</p>
+                <p>Best regards,<br/>
+                ${user.name}</p>
+            </div>
+        </field>
+    </record>
+
+    <!-- Proposal Template for IMTO Clients -->
+    <record id="email_template_bd_proposal_customer" model="mail.template">
+        <field name="name">BD Proposal - IMTO Customer</field>
+        <field name="model_id" ref="model_atlax_bd_opportunity"/>
+        <field name="subject">Partnership Proposal with Atlax Exchange</field>
+        <field name="email_from">${(user.email or '')|safe}</field>
+        <field name="email_to">${object.email or ''}</field>
+        <field name="body_html" type="html">
+            <div>
+                <p>Hi,</p>
+                <p>Atlax Exchange has been registered with the Central Bank of Nigeria since 2024. Our core services include Payment Services, Treasury Management and Remittance Services. We are redefining digital finance, and our mission is to provide accessible and affordable financial services, all in one place. We are very eager to explore and expand our network, and we are interested in establishing a partnership with your esteemed company, especially for international remittances.</p>
+                <p>Atlax Exchange is gaining a good reputation in the market because of our competitive rates, reliable and fast services, and user-friendly platform where customers can easily send money internationally in just a few simple steps.</p>
+                <ul>
+                    <li>Atlax Exchange is offering payout services in Nigeria, Ghana and Kenya. We are also flexible to accept USD/EUR/GBP/USDT settlement.</li>
+                    <li>We have a strong and fast payout network in key markets including Nigeria (Instant Bank Deposit), Ghana (Mobile Wallet &amp; Instant Bank Deposit), and Kenya (Mobile Wallet &amp; Instant Bank Deposit).</li>
+                    <li>We offer very competitive exchange rates to help both Atlax and our partners grow in the market. We are flexible on rate negotiations to support higher transaction volumes.</li>
+                    <li>Our platform uses a secure API system developed in-house, and our tech team is always available to provide smooth integration and technical support.</li>
+                    <li>We have a 24/7 customer service department that ensures our partners and customers are supported at all times.</li>
+                    <li>Atlax is fully compliant with all regulatory standards, including KYC, AML, and international remittance guidelines, as per Central Bank of Nigeria licensing.</li>
+                    <li>We maintain complete transparency and traceability in all transactions, giving confidence to our partners and users.</li>
+                    <li>Our infrastructure is fully scalable, designed to handle large volumes with fast processing speed, ensuring long-term performance and reliability.</li>
+                </ul>
+                <p>We are also continuously working to expand our international corridors so that we can provide wider coverage, competitive prices, and trusted services in more regions. Our system is built for speed and reliability, and delivering money within seconds remains our top priority.</p>
+                <p>We would be happy to discuss potential collaboration with your company and believe this partnership could add great value on both sides.</p>
+                <p>Looking forward to hearing from you.</p>
+                <p>Best regards,<br/>
+                ${user.name}</p>
+            </div>
+        </field>
+    </record>
+
+    <!-- Proposal Template for Payout Clients (Vendor) -->
+    <record id="email_template_bd_proposal_vendor" model="mail.template">
+        <field name="name">BD Proposal - Vendor</field>
+        <field name="model_id" ref="model_atlax_bd_opportunity"/>
+        <field name="subject">Payout Partnership Proposal with Atlax Exchange</field>
+        <field name="email_from">${(user.email or '')|safe}</field>
+        <field name="email_to">${object.email or ''}</field>
+        <field name="body_html" type="html">
+            <div>
+                <p>Hi,</p>
+                <p>Atlax Exchange has been registered with the Central Bank of Nigeria since 2024. Our core services include Payment Services, Treasury Management and Remittance Services. We are redefining digital finance, and our mission is to provide accessible and affordable financial services, all in one place.</p>
+                <p>We are eager to explore and expand our network, and we are interested in establishing a partnership with your company for payout services. Atlax Exchange is gaining a good reputation in the market because of our competitive rates, reliable and fast services, and user-friendly platform where customers can easily send money internationally with ease.</p>
+                <p>Key highlights of Atlax Exchange:</p>
+                <ul>
+                    <li>Atlax is fully compliant with all regulatory standards, including KYC, AML, and international remittance guidelines, as per Central Bank of Nigeria licensing.</li>
+                    <li>We maintain complete transparency and traceability in all transactions, giving confidence to our partners and users.</li>
+                    <li>Our infrastructure is fully scalable, designed to handle large volumes with fast processing speed, ensuring long-term performance and reliability.</li>
+                </ul>
+                <p>We would be delighted to discuss this opportunity further and explore how we can initiate the onboarding process with your company. Please let us know a suitable time to connect and move this discussion forward.</p>
+                <p>Best regards,<br/>
+                ${user.name}</p>
+            </div>
+        </field>
+    </record>
+
+    <!-- NDA Template -->
+    <record id="email_template_bd_nda" model="mail.template">
+        <field name="name">BD NDA Request</field>
+        <field name="model_id" ref="model_atlax_bd_opportunity"/>
+        <field name="subject">Non-Disclosure Agreement (NDA) with Atlax Exchange</field>
+        <field name="email_from">${(user.email or '')|safe}</field>
+        <field name="email_to">${object.email or ''}</field>
+        <field name="body_html" type="html">
+            <div>
+                <p>Hi,</p>
+                <p>Thank you for your interest in partnering with Atlax Exchange. As the next step in our engagement, we would like to proceed with the execution of a Non-Disclosure Agreement (NDA) to ensure that all shared information remains strictly confidential.</p>
+                <p>Please find the NDA attached or let us know if you would prefer to use your company&apos;s standard template. Once signed, we can proceed to share detailed technical, commercial, and operational information to move the discussion forward.</p>
+                <p>Best regards,<br/>
+                ${user.name}</p>
+            </div>
+        </field>
+    </record>
+</odoo>

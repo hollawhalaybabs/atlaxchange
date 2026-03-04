@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="onboarding_layout" name="KYB Onboarding Layout">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title t-esc="title or 'KYB Onboarding'"/>
+        <link rel="stylesheet" href="/compliance_kyb_onboarding/static/src/css/onboarding.css"/>
+        <style>
+          /* minimal base styling (no website/bootstrap dependency) */
+          body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; padding: 0; }
+          .container { max-width: 960px; margin: 0 auto; padding: 24px; }
+          .row { display: flex; gap: 16px; flex-wrap: wrap; }
+          .col { flex: 1 1 280px; }
+          label { display:block; font-weight:600; margin: 8px 0 6px; }
+          input { width: 100%; padding: 10px; box-sizing: border-box; }
+          hr { margin: 24px 0; }
+          .btn { padding: 10px 14px; border: 0; background: #1b61ff; color: #fff; cursor: pointer; border-radius: 6px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <t t-out="0"/>
+        </div>
+      </body>
+    </html>
+  </template>
+
+  <template id="onboarding_invalid" name="Onboarding Invalid">
+    <t t-call="compliance_kyb_onboarding.onboarding_layout">
+      <t t-set="title" t-value="'Onboarding Link Not Found'"/>
+      <h2>Onboarding Link Not Found</h2>
+      <p>The onboarding link is invalid or has expired. Please contact Atlax Exchange for a new link.</p>
+    </t>
+  </template>
+
+  <template id="onboarding_thank_you" name="Onboarding Thank You">
+    <t t-call="compliance_kyb_onboarding.onboarding_layout">
+      <t t-set="title" t-value="'Submission Received'"/>
+      <h2>Submission Received</h2>
+      <p>Thank you. Your onboarding submission has been received. Our compliance team will review and contact you if anything is missing.</p>
+    </t>
+  </template>
+
+  <template id="onboarding_form" name="KYB Onboarding Form">
+    <t t-call="compliance_kyb_onboarding.onboarding_layout">
+      <t t-set="title" t-value="'KYB Onboarding'"/>
+
+      <h2>Partner KYB Onboarding</h2>
+      <p>Please complete the form and upload the required documents.</p>
+
+      <form t-att-action="'/onboarding/%s' % review.access_token" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+        <div class="row">
+          <div class="col">
+            <label>Company Name</label>
+            <input type="text" name="company_name" t-att-value="review.company_name or ''" required="required"/>
+          </div>
+          <div class="col">
+            <label>Primary Contact Name</label>
+            <input type="text" name="contact_name" t-att-value="review.contact_name or ''" required="required"/>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <label>Contact Role</label>
+            <input type="text" name="contact_role" t-att-value="review.contact_role or ''"/>
+          </div>
+          <div class="col">
+            <label>Email</label>
+            <input type="email" name="contact_email" t-att-value="review.contact_email or ''" required="required"/>
+          </div>
+          <div class="col">
+            <label>Phone</label>
+            <input type="text" name="contact_phone" t-att-value="review.contact_phone or ''"/>
+          </div>
+        </div>
+
+        <hr/>
+
+        <t t-set="section_labels"
+           t-value="dict(request.env['compliance.kyb.requirement.template'].fields_get(allfields=['section'])['section']['selection'])"/>
+
+        <t t-foreach="sections.items()" t-as="sec_item">
+          <t t-set="sec_key" t-value="sec_item[0]"/>
+          <t t-set="sec_lines" t-value="sec_item[1]"/>
+
+          <div class="kyb-section" style="margin: 24px 0 8px;">
+            <h3 style="margin: 0 0 10px;" t-esc="section_labels.get(sec_key, sec_key)"/>
+          </div>
+
+          <t t-foreach="sec_lines" t-as="line">
+            <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin: 10px 0;">
+              <div style="font-weight: 600; margin-bottom: 6px;">
+                <span t-esc="line.requirement_name"/>
+              </div>
+
+              <t t-if="line.attachment_ids">
+                <div style="color: #065f46; font-size: 13px; margin-bottom: 8px;">
+                  <span t-esc="len(line.attachment_ids)"/> file(s) already uploaded.
+                </div>
+              </t>
+
+              <label t-att-for="'file_line_%s' % line.id" style="font-size: 13px;">
+                Upload document(s)
+              </label>
+              <input type="file"
+                     t-att-id="'file_line_%s' % line.id"
+                     t-att-name="'file_line_%s' % line.id"
+                     multiple="multiple"/>
+            </div>
+          </t>
+        </t>
+
+        <button class="btn" type="submit">Submit</button>
+      </form>
+    </t>
+  </template>
+</odoo>

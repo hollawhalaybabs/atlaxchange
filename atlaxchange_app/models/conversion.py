@@ -124,20 +124,14 @@ class CreateConversionFee(models.Model):
 
     def action_create_fee(self):
         """Create a new conversion fee via external API."""
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-        if not api_key or not api_secret:
-            raise Exception(_("API key or secret is missing. Set them in System Parameters."))
-
+        client = self.env['atlax.api.client']
         if not self.business_id or not self.source_currency or not self.target_currency or not self.rate:
             raise UserError(_("All fields are required to create a conversion fee."))
 
-        url = "https://api.atlaxchange.com/api/v1/currency-rates"
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
+        url = client.url('/v1/currency-rates')
+        headers = client.build_headers()
+        if not headers.get('X-API-KEY') or not headers.get('X-API-SECRET'):
+            raise UserError(_("API key or secret is missing. Configure env or system parameters."))
         payload = {
             "business_id": self.business_id,
             "from_currency_code": self.source_currency.currency_code,
@@ -176,19 +170,12 @@ class ConversionFee(models.Model):
 
     def fetch_conversion_fees(self):
         """Fetch conversion fees from external API and update/create records."""
-        url = "https://api.atlaxchange.com/api/v1/admin/currency-rates"
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-
-        if not api_key or not api_secret:
-            _logger.error("API key or secret is missing. Set them in System Parameters.")
+        client = self.env['atlax.api.client']
+        url = client.url('/v1/admin/currency-rates')
+        headers = client.build_headers()
+        if not headers.get('X-API-KEY') or not headers.get('X-API-SECRET'):
+            _logger.error("API key or secret is missing. Configure env or system parameters.")
             return
-
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
 
         response = requests.get(url, headers=headers)
         if response.status_code != 200:

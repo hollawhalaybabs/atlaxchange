@@ -21,19 +21,13 @@ class FetchUsers(models.Model):
     @api.model
     def fetch_and_create_users(self):
         """Fetch users from the external API and create/update customers and ledgers."""
-        url = "https://api.atlaxchange.com/api/v1/users"
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-
-        if not api_key or not api_secret:
-            _logger.error("API key or secret is missing. Set them in System Parameters.")
+        client = self.env['atlax.api.client']
+        cfg = client.get_api_config()
+        url = client.url('/v1/users')
+        headers = client.build_headers()
+        if not headers.get('X-API-KEY') or not headers.get('X-API-SECRET'):
+            _logger.error("API key or secret is missing. Configure env or system parameters.")
             return
-
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
 
         try:
             response = requests.get(url, headers=headers, timeout=10)
@@ -63,9 +57,12 @@ class FetchUsers(models.Model):
                     }
                     partner = self.env['res.partner'].search([('email', '=', user.get('email', ''))], limit=1)
                     if not partner:
-                        partner = self.env['res.partner'].create(partner_vals)
+                        partner = self.env['res.partner'].create({**partner_vals, 'atlax_env_source': cfg.get('env')})
                     else:
-                        partner.write(partner_vals)
+                        vals = {**partner_vals}
+                        if not partner.atlax_env_source:
+                            vals['atlax_env_source'] = cfg.get('env')
+                        partner.write(vals)
 
                     # Process ledgers
                     ledgers = user.get('ledgers', [])

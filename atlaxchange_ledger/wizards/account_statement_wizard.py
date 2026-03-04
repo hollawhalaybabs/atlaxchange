@@ -93,11 +93,11 @@ class AccountStatementWizard(models.TransientModel):
             ('wallet', '=', wallet.id)
         ], order='datetime asc')
 
-        collection_lines = ledgers.filtered(lambda l: l.type == 'credit')
+        collection_lines = ledgers.filtered(lambda l: l.transfer_direction == 'credit')
         total_collection = sum(collection_lines.mapped('amount'))
         count_collection = len(collection_lines)
 
-        payout_lines = ledgers.filtered(lambda l: l.type == 'debit')
+        payout_lines = ledgers.filtered(lambda l: l.transfer_direction == 'debit')
         total_payout = sum(payout_lines.mapped('amount'))
         count_payout = len(payout_lines)
 

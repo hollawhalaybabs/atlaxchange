@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="tpl_001" model="compliance.kyb.requirement.template">
+      <field name="sequence">10</field>
+      <field name="section">corporate</field>
+      <field name="name">Certificate of Incorporation / Business Registration</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_002" model="compliance.kyb.requirement.template">
+      <field name="sequence">20</field>
+      <field name="section">corporate</field>
+      <field name="name">Latest CAC Status Report / Company Extract (issued within last 30–60 days)</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_003" model="compliance.kyb.requirement.template">
+      <field name="sequence">30</field>
+      <field name="section">corporate</field>
+      <field name="name">Memorandum &amp; Articles of Association (MEMART)</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_004" model="compliance.kyb.requirement.template">
+      <field name="sequence">40</field>
+      <field name="section">corporate</field>
+      <field name="name">Company Proof of Physical Address (≤3 months)</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_005" model="compliance.kyb.requirement.template">
+      <field name="sequence">50</field>
+      <field name="section">corporate</field>
+      <field name="name">Valid Business License(s) or Regulatory Authorization (if applicable)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_006" model="compliance.kyb.requirement.template">
+      <field name="sequence">60</field>
+      <field name="section">ownership</field>
+      <field name="name">Shareholders’ Register</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_007" model="compliance.kyb.requirement.template">
+      <field name="sequence">70</field>
+      <field name="section">ownership</field>
+      <field name="name">Directors’ Register</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_008" model="compliance.kyb.requirement.template">
+      <field name="sequence">80</field>
+      <field name="section">ownership</field>
+      <field name="name">Ownership Structure Chart (incl. beneficial owners ≥5% or regulatory threshold)</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_009" model="compliance.kyb.requirement.template">
+      <field name="sequence">90</field>
+      <field name="section">ownership</field>
+      <field name="name">Board Resolution (relationship + signatories + contract execution authorization)</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_010" model="compliance.kyb.requirement.template">
+      <field name="sequence">100</field>
+      <field name="section">kyc</field>
+      <field name="name">Director/Shareholder/UBO: Government-issued ID / Passport</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_011" model="compliance.kyb.requirement.template">
+      <field name="sequence">110</field>
+      <field name="section">kyc</field>
+      <field name="name">Director/Shareholder/UBO: Proof of Residential Address (≤3 months)</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_012" model="compliance.kyb.requirement.template">
+      <field name="sequence">120</field>
+      <field name="section">signatory</field>
+      <field name="name">Authorized Signatory/Contact: Government-issued ID / Passport</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_013" model="compliance.kyb.requirement.template">
+      <field name="sequence">130</field>
+      <field name="section">signatory</field>
+      <field name="name">Authorized Signatory/Contact: Proof of Residential Address</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_014" model="compliance.kyb.requirement.template">
+      <field name="sequence">140</field>
+      <field name="section">signatory</field>
+      <field name="name">Authorized Signatory/Contact: Contact details (email, phone, role)</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_015" model="compliance.kyb.requirement.template">
+      <field name="sequence">150</field>
+      <field name="section">compliance</field>
+      <field name="name">MLRO: Government-issued ID / Passport (if applicable)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_016" model="compliance.kyb.requirement.template">
+      <field name="sequence">160</field>
+      <field name="section">compliance</field>
+      <field name="name">MLRO: Proof of Residential Address (if applicable)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_017" model="compliance.kyb.requirement.template">
+      <field name="sequence">170</field>
+      <field name="section">compliance</field>
+      <field name="name">Current AML/CFT Policy &amp; Procedures (risk-based, CDD/EDD, sanctions, monitoring, STR)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_018" model="compliance.kyb.requirement.template">
+      <field name="sequence">180</field>
+      <field name="section">compliance</field>
+      <field name="name">Declaration: Compliance with applicable AML/CFT laws/regulations</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_019" model="compliance.kyb.requirement.template">
+      <field name="sequence">190</field>
+      <field name="section">tax</field>
+      <field name="name">Company Tax Identification Number (TIN)</field>
+      <field name="is_optional">0</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_020" model="compliance.kyb.requirement.template">
+      <field name="sequence">200</field>
+      <field name="section">tax</field>
+      <field name="name">Tax Clearance Certificate or recent tax receipt (if applicable)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_021" model="compliance.kyb.requirement.template">
+      <field name="sequence">210</field>
+      <field name="section">tax</field>
+      <field name="name">Declaration: Compliance with applicable tax laws in operating jurisdictions</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_022" model="compliance.kyb.requirement.template">
+      <field name="sequence">220</field>
+      <field name="section">financial</field>
+      <field name="name">Latest Financial Statements (audited where applicable; management accounts if not available) — required if operational > 18 months</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_023" model="compliance.kyb.requirement.template">
+      <field name="sequence">230</field>
+      <field name="section">legal</field>
+      <field name="name">Executed Mutual Non-Disclosure Agreement (NDA)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_024" model="compliance.kyb.requirement.template">
+      <field name="sequence">240</field>
+      <field name="section">legal</field>
+      <field name="name">Signed Master Trading / Partnership Agreement</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_025" model="compliance.kyb.requirement.template">
+      <field name="sequence">250</field>
+      <field name="section">legal</field>
+      <field name="name">Additional annexes/schedules relevant to services (if any)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_026" model="compliance.kyb.requirement.template">
+      <field name="sequence">260</field>
+      <field name="section">risk</field>
+      <field name="name">Source of funds / source of wealth declarations (if requested)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_027" model="compliance.kyb.requirement.template">
+      <field name="sequence">270</field>
+      <field name="section">risk</field>
+      <field name="name">Enhanced compliance certifications (if requested)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_028" model="compliance.kyb.requirement.template">
+      <field name="sequence">280</field>
+      <field name="section">risk</field>
+      <field name="name">Regulatory inspection reports or licenses (if requested)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_029" model="compliance.kyb.requirement.template">
+      <field name="sequence">290</field>
+      <field name="section">risk</field>
+      <field name="name">Independent AML audit reports (if requested)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="tpl_030" model="compliance.kyb.requirement.template">
+      <field name="sequence">300</field>
+      <field name="section">risk</field>
+      <field name="name">Business continuity and data protection policies (if requested)</field>
+      <field name="is_optional">1</field>
+      <field name="show_on_public_form">1</field>
+    </record>
+
+    <record id="kyb_req_signatories" model="compliance.kyb.requirement.template">
+      <field name="section">signatory</field>
+      <field name="name">Authorized Signatories &amp; Contacts</field>
+      <field name="description">List all signatories &amp; provide ID documents.</field>
+    </record>
+  </data>
+</odoo>

@@ -47,5 +47,6 @@
               name="Business Payment Settings"
               parent="atlaxchange_app.menu_atlaxchange_config"
               action="action_business_payment_settings"
-              sequence="30"/>
+              sequence="30"
+              groups="atlaxchange_app.group_it_systems_officer,atlaxchange_app.group_it_systems_admin"/>
 </odoo>

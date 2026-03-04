@@ -29,18 +29,11 @@ class UpdateConversionFeeWizard(models.TransientModel):
         self.ensure_one()
         if not self.rate_id:
             raise UserError(_("Rate ID is missing."))
-
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-        if not api_key or not api_secret:
-            raise UserError(_("API key or secret is missing. Set them in System Parameters."))
-
-        url = f"https://api.atlaxchange.com/api/v1/currency-rates/{self.rate_id}"
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
+        client = self.env['atlax.api.client']
+        url = client.url(f"/v1/currency-rates/{self.rate_id}")
+        headers = client.build_headers()
+        if not headers.get('X-API-KEY') or not headers.get('X-API-SECRET'):
+            raise UserError(_("API key or secret is missing. Configure env or system parameters."))
         payload = {
             "rate": self.rate, 
         }

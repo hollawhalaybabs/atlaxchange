@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <record id="mail_template_kyb_request_more_info" model="mail.template">
+      <field name="name">KYB: Request More Information</field>
+      <field name="model_id" ref="model_compliance_kyb_review"/>
+      <field name="subject">KYB Onboarding: Additional Information Required</field>
+
+      <field name="email_from">${(user.email_formatted or '')|safe}</field>
+      <field name="reply_to">${(user.email or '')|safe}</field>
+      <field name="email_cc">${(user.email or '')|safe}</field>
+      <field name="email_to">${object.contact_email or ''}</field>
+      <field name="partner_to"></field>
+
+      <field name="body_html" type="html">
+        <div>
+          <p>Hello ${object.contact_name or 'there'},</p>
+
+          <p>
+            Thank you for submitting your KYB onboarding information.
+          </p>
+
+          <p>
+            We reviewed your submission and require additional information/documents to complete verification.
+          </p>
+
+          <p><b>Missing items:</b></p>
+          <ul>
+            % for line in object.requirement_line_ids:
+              % if (not line.provided) and (not line.attachment_ids):
+                <li>${line.requirement_name}</li>
+              % endif
+            % endfor
+          </ul>
+
+          <p>
+            Please use the onboarding link below to upload the missing items:
+          </p>
+          <p>
+            <a href="${object.onboarding_url}">${object.onboarding_url}</a>
+          </p>
+
+          <p>
+            Best regards,<br/>
+            ${user.name}
+          </p>
+        </div>
+      </field>
+    </record>
+  </data>
+</odoo>

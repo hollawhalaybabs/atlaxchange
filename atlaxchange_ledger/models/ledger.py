@@ -36,7 +36,7 @@ class AtlaxchangeLedger(models.Model):
     fee = fields.Float(string='Fee')
     conversion_rate = fields.Float(string='Rate')
     destination_currency = fields.Many2one('supported.currency', string='Destination Currency')  # updated
-    type = fields.Selection([
+    transfer_direction = fields.Selection([
         ('debit', 'Debit'),
         ('credit', 'Credit')
     ], string='Type')
@@ -51,6 +51,10 @@ class AtlaxchangeLedger(models.Model):
     beneficiary_acct = fields.Char(string='Beneficiary Account')
     session_id = fields.Char(string='Session ID')
     error_message = fields.Text(string='Error Message')
+    env_source = fields.Selection([
+        ('production', 'Production'),
+        ('staging', 'Sandbox')
+    ], string='Env', readonly=True, help="Environment source from Atlax API when the transaction was fetched.")
 
 
     def action_initiate_reprocess(self):
@@ -64,7 +68,7 @@ class AtlaxchangeLedger(models.Model):
             raise UserError(_("No ledger records selected for reprocess."))
 
         # Filter: only debit + processing
-        valid_ledgers = self.filtered(lambda r: r.type == 'debit' and r.status in ('processing',))
+        valid_ledgers = self.filtered(lambda r: r.transfer_direction == 'debit' and r.status in ('processing',))
         invalid_ledgers = self - valid_ledgers
 
         if invalid_ledgers:
@@ -249,9 +253,9 @@ class AtlaxchangeLedger(models.Model):
         before_param=None,    # NEW: name of "before" query param (e.g., 'before', 'cursor', 'prev')
     ):
         ICP = self.env['ir.config_parameter'].sudo()
-        url = 'https://api.atlaxchange.com/api/v1/transactions/history'
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
+        client = self.env['atlax.api.client']
+        url = client.url('/v1/transactions/history')
+        cfg = client.get_api_config()
 
         # Defaults
         if target_count is None:
@@ -280,7 +284,7 @@ class AtlaxchangeLedger(models.Model):
             direction, target_count, max_seconds, max_pages, per_request_timeout, reset_cursor, bool(start_cursor), commit_each_page, ps_param, ps_value, after_qp, before_qp
         )
 
-        if not api_key or not api_secret:
+        if not cfg.get('api_key') or not cfg.get('api_secret'):
             now = fields.Datetime.now()
             stats = {
                 'processed': 0, 'created': 0, 'updated': 0, 'pages': 0,
@@ -291,11 +295,7 @@ class AtlaxchangeLedger(models.Model):
             ICP.set_param('atlaxchange_ledger.history_last_stats', json.dumps(stats))
             return stats
 
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret,
-        }
+        headers = client.build_headers()
 
         key_after = 'atlaxchange_ledger.history_last_cursor_after'
         key_before = 'atlaxchange_ledger.history_last_cursor_before'
@@ -448,11 +448,12 @@ class AtlaxchangeLedger(models.Model):
                     'conversion_rate': rec.get('conversion_rate', 0),
                     'destination_currency': cur_map.get(rec.get('destination_currency')) or False,
                     'status': status_val,
-                    'type': rec.get('direction'),
+                    'transfer_direction': rec.get('direction'),
                     'wallet': cur_map.get(rec.get('currency_code')) or False,
                     'beneficiary_acct': rec.get('beneficiary_acct', ''),
                     'session_id': rec.get('session_id', ''),
                     'error_message': rec.get('error_message', ''),
+                    'env_source': cfg.get('env'),
                 }
 
                 if ref in existing_map:
@@ -462,6 +463,7 @@ class AtlaxchangeLedger(models.Model):
                         'beneficiary_acct': vals['beneficiary_acct'],
                         'session_id': vals['session_id'],
                         'error_message': vals['error_message'],
+                        'transfer_direction': vals['transfer_direction'],
                     }
                     if any(getattr(rec_to_update, k) != v for k, v in upd.items()):
                         to_update.append((rec_to_update, upd))

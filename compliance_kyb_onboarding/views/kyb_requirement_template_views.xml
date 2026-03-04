@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+  <record id="view_kyb_requirement_template_tree" model="ir.ui.view">
+    <field name="name">compliance.kyb.requirement.template.tree</field>
+    <field name="model">compliance.kyb.requirement.template</field>
+    <field name="arch" type="xml">
+      <tree editable="bottom">
+        <field name="active"/>
+        <field name="sequence"/>
+        <field name="section"/>
+        <field name="name"/>
+        <field name="is_optional"/>
+        <field name="show_on_public_form"/>
+      </tree>
+    </field>
+  </record>
+
+  <record id="view_kyb_requirement_template_form" model="ir.ui.view">
+    <field name="name">compliance.kyb.requirement.template.form</field>
+    <field name="model">compliance.kyb.requirement.template</field>
+    <field name="arch" type="xml">
+      <form string="Requirement Template">
+        <sheet>
+          <group>
+            <field name="active"/>
+            <field name="sequence"/>
+            <field name="section"/>
+            <field name="name"/>
+            <field name="is_optional"/>
+            <field name="show_on_public_form"/>
+            <field name="internal_only"/>
+          </group>
+          <group>
+            <field name="description"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- Action used by menuitem in views/kyb_menu.xml -->
+  <record id="action_kyb_requirement_template" model="ir.actions.act_window">
+    <field name="name">Requirement Templates</field>
+    <field name="res_model">compliance.kyb.requirement.template</field>
+    <field name="view_mode">tree,form</field>
+    <field name="context">{}</field>
+  </record>
+  </data>
+</odoo>

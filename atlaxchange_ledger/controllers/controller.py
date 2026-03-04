@@ -24,14 +24,14 @@ class LedgerDashboardController(http.Controller):
         customer_name = filters.get('customer_name') or None
         date_from = filters.get('date_from') or None
         date_to = filters.get('date_to') or None
-        tx_type = filters.get('type') or None
+        tx_type = filters.get('transfer_direction') or None
 
         # Domain for list + metrics
         domain = []
         if status:
             domain.append(('status', '=', status))
         if tx_type:
-            domain.append(('type', '=', tx_type))
+            domain.append(('transfer_direction', '=', tx_type))
         if date_from:
             domain.append(('datetime', '>=', date_from))
         if date_to:
@@ -51,8 +51,8 @@ class LedgerDashboardController(http.Controller):
         Ledger = request.env['atlaxchange.ledger'].sudo()
 
         # Robust counts per type
-        debit_domain = domain + [('type', '=', 'debit')]
-        credit_domain = domain + [('type', '=', 'credit')]
+        debit_domain = domain + [('transfer_direction', '=', 'debit')]
+        credit_domain = domain + [('transfer_direction', '=', 'credit')]
         debit_count = Ledger.search_count(debit_domain)
         credit_count = Ledger.search_count(credit_domain)
         total_count = debit_count + credit_count
@@ -74,7 +74,7 @@ class LedgerDashboardController(http.Controller):
             if status:
                 where.append("l.status = %s"); params.append(status)
             if tx_type:
-                where.append("l.type = %s"); params.append(tx_type)
+                where.append("l.transfer_direction = %s"); params.append(tx_type)
             if date_from:
                 where.append("l.datetime >= %s"); params.append(date_from)
             if date_to:
@@ -90,10 +90,10 @@ class LedgerDashboardController(http.Controller):
 
             sql = f"""
                 SELECT
-                    COALESCE(SUM(CASE WHEN l.type='debit' THEN l.amount END),0) AS debit_amount,
-                    COALESCE(SUM(CASE WHEN l.type='credit' THEN l.amount END),0) AS credit_amount,
-                    COALESCE(SUM(CASE WHEN l.type='debit' THEN l.fee END),0)    AS debit_fee,
-                    COALESCE(SUM(CASE WHEN l.type='credit' THEN l.fee END),0)   AS credit_fee
+                    COALESCE(SUM(CASE WHEN l.transfer_direction='debit' THEN l.amount END),0) AS debit_amount,
+                    COALESCE(SUM(CASE WHEN l.transfer_direction='credit' THEN l.amount END),0) AS credit_amount,
+                    COALESCE(SUM(CASE WHEN l.transfer_direction='debit' THEN l.fee END),0)    AS debit_fee,
+                    COALESCE(SUM(CASE WHEN l.transfer_direction='credit' THEN l.fee END),0)   AS credit_fee
                 FROM atlaxchange_ledger l
                 LEFT JOIN supported_currency w ON w.id = l.wallet
                 WHERE {" AND ".join(where)}
@@ -157,7 +157,7 @@ class LedgerDashboardController(http.Controller):
             'fee': rec.fee,
             'status': rec.status,
             'date': rec.datetime.strftime('%Y-%m-%d %H:%M:%S') if rec.datetime else '',
-            'type': rec.type,
+            'transfer_direction': rec.transfer_direction,
         } for rec in ledgers]
 
         metrics = {

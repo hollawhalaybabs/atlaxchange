@@ -12,6 +12,7 @@
                 <field name="bank"/>
                 <field name="beneficiary"/>
                 <field name="beneficiary_acct"/>
+                <field name="transfer_direction"/>
                 <field name="wallet"/>
                 <field name="destination_currency"/>
                 <field name="amount"/>
@@ -19,6 +20,7 @@
                 <field name="conversion_rate"/>
                 <field name="total_amount"/>
                 <field name="status"/>
+                <field name="env_source"/>
             </tree>
         </field>
     </record>
@@ -34,13 +36,15 @@
                 <field name="wallet"/>
                 <field name="destination_currency"/>
                 <field name="status"/>
-                <field name="type"/>
+                <field name="transfer_direction"/>
+                <field name="env_source"/>
                 <filter name="today" string="Today" domain="[('datetime','&gt;=',(context_today()))]"/>
                 <group expand="1" string="Group By">
                     <filter name="group_by_status" string="Status" context="{'group_by':'status'}"/>
-                    <filter name="group_by_type" string="Type" context="{'group_by':'type'}"/>
+                    <filter name="group_by_type" string="Type" context="{'group_by':'transfer_direction'}"/>
                     <filter name="group_by_partner" string="Customer" context="{'group_by':'partner_id'}"/>
                     <filter name="group_by_wallet" string="Wallet" context="{'group_by':'wallet'}"/>
+                    <filter name="group_by_env" string="Environment" context="{'group_by':'env_source'}"/>
                 </group>
             </search>
         </field>
@@ -71,6 +75,8 @@
                         <field name="total_amount" readonly="1"/>
                         <field name="session_id" readonly="1"/>
                         <field name="error_message" readonly="1"/>
+                        <field name="env_source" readonly="1"/>
+                        <field name="transfer_direction" readonly="1"/>
                     </group>
                 </sheet>
             </form>
@@ -127,7 +133,7 @@
                 <!-- <field name="conversion_rate" type="count" string="Rate"/> -->
                 <field name="id" type="count" string="Transaction Count"/>
                 <field name="status" type="row"/>
-                <field name="type" type="row"/>
+                <field name="transfer_direction" type="row"/>
             </pivot>
         </field>
     </record>
@@ -159,20 +165,6 @@
         </field>
     </record>
 
-    <!-- Action for Atlaxchange Ledger -->
-    <record id="action_atlaxchange_ledger" model="ir.actions.act_window">
-        <field name="name">Transaction History</field>
-        <field name="res_model">atlaxchange.ledger</field>
-        <field name="view_mode">tree,form,pivot,graph</field>
-        <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
-        <field name="view_ids" eval="[(5, 0, 0), 
-            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_atlaxchange_ledger_tree')}),
-            (0, 0, {'view_mode': 'form', 'view_id': ref('view_atlaxchange_ledger_form')}),
-            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_atlaxchange_ledger_pivot')}),
-            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_atlaxchange_ledger_graph')}),
-        ]"/>
-    </record>
-
     <!-- Separate action for the second graph view -->
     <record id="action_atlaxchange_ledger_graph_time" model="ir.actions.act_window">
         <field name="name">Ledger Volume Over Time</field>
@@ -183,14 +175,38 @@
 
     <!-- Menu Items -->
     <menuitem id="menu_atlaxchange_ledger" name="Transaction History" parent="atlaxchange_app.atlaxchange_menu" sequence="3"/>
-    <menuitem id="menu_atlaxchange_ledger_all" name="All Transaction" parent="menu_atlaxchange_ledger" action="action_atlaxchange_ledger" sequence="1" groups="atlaxchange_app.group_operation_officer"/>
+    <record id="action_ledger_prod" model="ir.actions.act_window">
+        <field name="name">Transactions (Production)</field>
+        <field name="res_model">atlaxchange.ledger</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
+        <field name="domain">[('env_source', '=', 'production')]</field>
+        <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
+        <field name="view_ids" eval="[(5, 0, 0), 
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_atlaxchange_ledger_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_atlaxchange_ledger_form')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_atlaxchange_ledger_pivot')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_atlaxchange_ledger_graph')}),
+        ]"/>
+    </record>
+    <record id="action_ledger_sandbox" model="ir.actions.act_window">
+        <field name="name">Transactions (Sandbox)</field>
+        <field name="res_model">atlaxchange.ledger</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('env_source', '=', 'staging')]</field>
+        <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
+    </record>
+
+    <menuitem id="menu_ledger_prod" name="Transactions (Production)"
+              parent="menu_atlaxchange_ledger" action="action_ledger_prod" sequence="1"/>
+    <menuitem id="menu_ledger_sandbox" name="Transactions (Sandbox)"
+              parent="menu_atlaxchange_ledger" action="action_ledger_sandbox" sequence="6"/>
 
     <!-- Collection History -->
     <record id="action_collection_history" model="ir.actions.act_window">
         <field name="name">Collection History</field>
         <field name="res_model">atlaxchange.ledger</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[("type", "=", "credit")]</field>
+        <field name="domain">[("transfer_direction", "=", "credit"), ("env_source", "=", "production")]</field>
         <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
     </record>
     <menuitem id="menu_collection_history" name="Collection History"
@@ -201,18 +217,18 @@
         <field name="name">Local Payout History</field>
         <field name="res_model">atlaxchange.ledger</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[("type", "=", "debit")]</field>
+        <field name="domain">[("transfer_direction", "=", "debit"), ("env_source", "=", "production")]</field>
         <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
     </record>
     <menuitem id="menu_payout_history" name="Local Payout History"
               parent="menu_atlaxchange_ledger" action="action_payout_history" sequence="3"/>
 
-    <!-- Remittance Transfer (type=debit and conversion_rate != 0) -->
+    <!-- Remittance Transfer (transfer_direction=debit and conversion_rate != 0) -->
     <record id="action_remittance_transfer" model="ir.actions.act_window">
         <field name="name">Remittance Transfer</field>
         <field name="res_model">atlaxchange.ledger</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[("type", "=", "debit"), ("conversion_rate", "!=", 0)]</field>
+        <field name="domain">[("transfer_direction", "=", "debit"), ("conversion_rate", "!=", 0), ("env_source", "=", "production")]</field>
         <field name="search_view_id" ref="view_atlaxchange_ledger_search"/>
     </record>
     <menuitem id="menu_remittance_transfer" name="Remittance Payout Transfer"

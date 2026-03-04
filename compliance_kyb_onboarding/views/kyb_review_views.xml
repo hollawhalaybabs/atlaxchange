@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <record id="view_kyb_review_tree" model="ir.ui.view">
+      <field name="name">compliance.kyb.review.tree</field>
+      <field name="model">compliance.kyb.review</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <!-- <field name="partner_id"/> -->
+          <field name="company_name"/>
+          <field name="type"/>
+          <field name="country_id"/>
+          <field name="assigned_to"/>
+          <field name="submitted_on"/>
+          <field name="missing_requirement_count" string="Missing"/>
+          <field name="state"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="view_kyb_review_form" model="ir.ui.view">
+      <field name="name">compliance.kyb.review.form</field>
+      <field name="model">compliance.kyb.review</field>
+      <field name="arch" type="xml">
+        <form string="KYB Review">
+          <header>
+            <button name="action_start_review" type="object" string="Start Review" class="btn-primary"
+                    attrs="{'invisible': [('state','!=','draft')]}"/>
+            <button name="action_approve" type="object" string="Approve" class="btn-success"
+                    attrs="{'invisible': [('state','!=','in_review')]}"/>
+            <button name="action_reject" type="object" string="Reject" class="btn-danger"
+                    attrs="{'invisible': [('state','!=','in_review')]}"/>
+            <button name="action_request_more_info" type="object" string="Send Email"
+                    attrs="{'invisible': [('state','not in',('draft','in_review'))]}"/>
+            <button name="action_download_all_kyb_documents" type="object" string="Download Documents" class="btn-secondary"/>
+            <button name="action_copy_onboarding_link" type="object" string="Show Onboarding Link"/>
+            <field name="state" widget="statusbar" statusbar_visible="draft,in_review,approved,rejected"/>
+          </header>
+
+          <sheet>
+            <div class="oe_title">
+              <h1><field name="name"/></h1>
+            </div>
+
+            <group>
+              <group>
+                <!-- <field name="partner_id"/> -->
+                <field name="company_name"/>
+                <field name="trade_name"/>
+                <field name="type"/>
+                <field name="risk_assessment"/>
+                <field name="country_id"/>
+                <field name="assigned_to"/>
+              </group>
+              <group>
+                <field name="contact_name"/>
+                <field name="contact_role"/>
+                <field name="contact_email"/>
+                <field name="contact_phone"/>
+              </group>
+            </group>
+
+            <group string="Business Development Reference" col="4">
+              <field name="bd_id"/>
+              <field name="bd_model" invisible="1"/>
+              <field name="bd_res_id" invisible="1"/>
+              <field name="bd_minute_url" readonly="1" widget="url" string="Minute (Open BD Record)"/>
+            </group>
+
+            <notebook>
+              <page string="NDA">
+                <field name="nda_document_ids" context="{'default_review_id': active_id}">
+                  <tree editable="bottom">
+                    <field name="state"/>
+                    <field name="nda_sent_received_attachment_ids" widget="many2many_binary"/>
+                    <field name="nda_approved_attachment_ids" widget="many2many_binary"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-primary"
+                            attrs="{'invisible': [('state', '=', 'approved')]}"/>
+                    <field name="approved_by"/>
+                    <field name="approved_on"/>
+                  </tree>
+                </field>
+              </page>
+              <page string="KYB Checklist">
+                <field name="requirement_line_ids" context="{'default_review_id': active_id}">
+                  <tree editable="bottom">
+                    <field name="sequence" invisible="1"/>
+                    <field name="template_id"/>
+                    <field name="provided"/>
+                    <field name="verified_by"/>
+                    <field name="date"/>
+                    <field name="remarks"/>
+                    <field name="attachment_ids" widget="many2many_binary"/>
+                  </tree>
+                </field>
+              </page>
+
+              <page string="Documents">
+                <field name="message_follower_ids" invisible="1"/>
+                <field name="activity_ids" invisible="1"/>
+                <field name="message_ids" widget="mail_thread"/>
+              </page>
+
+              <page string="Audit / Notes">
+                <group>
+                  <field name="submitted_by_email"/>
+                  <field name="submitted_on"/>
+                  <field name="verified_by"/>
+                  <field name="verified_on"/>
+                  <field name="remarks"/>
+                  <field name="onboarding_url" widget="url"/>
+                </group>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Action used by menuitem in views/kyb_menu.xml -->
+    <record id="action_kyb_review" model="ir.actions.act_window">
+      <field name="name">KYB Reviews</field>
+      <field name="res_model">compliance.kyb.review</field>
+      <field name="view_mode">tree,form</field>
+      <field name="context">{}</field>
+    </record>
+  </data>
+</odoo>

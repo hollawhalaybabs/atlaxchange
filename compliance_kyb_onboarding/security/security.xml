@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="rule_kyb_review_compliance_user" model="ir.rule">
+            <field name="name">KYB Reviews: compliance users can see all</field>
+            <field name="model_id" ref="model_compliance_kyb_review"/>
+            <field name="groups" eval="[(4, ref('atlaxchange_app.group_compliance_officer'))]"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+        </record>
+
+        <record id="rule_kyb_requirement_line_compliance_user" model="ir.rule">
+            <field name="name">KYB Lines: compliance users can see all</field>
+            <field name="model_id" ref="model_compliance_kyb_requirement_line"/>
+            <field name="groups" eval="[(4, ref('atlaxchange_app.group_compliance_officer'))]"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+        </record>
+    </data>
+</odoo>

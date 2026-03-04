@@ -31,21 +31,12 @@ class SupportedCurrency(models.Model):
 
     def fetch_supported_currencies(self):
         """Fetch supported currencies from the API and update the database."""
-        api_url = "https://api.atlaxchange.com/api/v1/currencies"
-
-        # Fetch API key and secret from system parameters
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-
-        if not api_key or not api_secret:
-            _logger.error("API key or secret is missing. Set them in System Parameters.")
+        client = self.env['atlax.api.client']
+        api_url = client.url('/v1/currencies')
+        headers = client.build_headers()
+        if not headers.get('X-API-KEY') or not headers.get('X-API-SECRET'):
+            _logger.error("API key or secret is missing. Configure env or system parameters.")
             return
-
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
 
         try:
             response = requests.get(api_url, headers=headers, timeout=10)
@@ -82,20 +73,11 @@ class SupportedCurrency(models.Model):
 
     def post_new_currency(self):
         """Post a new supported currency to the API."""
-        api_url = "https://api.atlaxchange.com/api/v1/currencies"
-
-        # Fetch API key and secret from system parameters
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-
-        if not api_key or not api_secret:
-            raise ValidationError(_("API key or secret is missing. Set them in System Parameters."))
-
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
+        client = self.env['atlax.api.client']
+        api_url = client.url('/v1/currencies')
+        headers = client.build_headers()
+        if not headers.get('X-API-KEY') or not headers.get('X-API-SECRET'):
+            raise ValidationError(_("API key or secret is missing. Configure env or system parameters."))
 
         # Prepare the payload for the POST request
         exchanges_codes = ', '.join(self.exchanges.mapped('currency_code'))
@@ -118,17 +100,11 @@ class SupportedCurrency(models.Model):
 
     def action_update_exchanges(self):
         self.ensure_one()
-        api_url = f"https://api.atlaxchange.com/api/v1/currencies/{self.currency_code}"
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-        if not api_key or not api_secret:
-            raise ValidationError(_("API key or secret is missing. Set them in System Parameters."))
-
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
+        client = self.env['atlax.api.client']
+        api_url = client.url(f"/v1/currencies/{self.currency_code}")
+        headers = client.build_headers()
+        if not headers.get('X-API-KEY') or not headers.get('X-API-SECRET'):
+            raise ValidationError(_("API key or secret is missing. Configure env or system parameters."))
         exchanges_codes = ', '.join(self.exchanges.mapped('currency_code'))
         payload = {
             "exchanges": exchanges_codes

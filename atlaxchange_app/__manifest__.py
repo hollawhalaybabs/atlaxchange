@@ -17,13 +17,24 @@
         "views/conversion_fee_views.xml",
         "views/create_conversion_fee_view.xml",
         "views/update_conversion_fee_wizard_view.xml",
+        "views/create_transaction_fee_wizard_views.xml",
         "views/transaction_fee_views.xml",
         "views/update_trnx_fee_wizard_view.xml",
+        "views/create_transaction_fee_v2_wizard_views.xml",
+        "views/update_transaction_fee_v2_wizard_views.xml",
+        "views/delete_transaction_fee_v2_wizard_views.xml",
+        "views/transaction_fee_v2_views.xml",
+        "views/atlax_api_settings_views.xml",
         "data/email_templates.xml",
         "data/automated_actions.xml",
         "data/scheduled_actions.xml",
         "views/reject_wizard_views.xml"
     ],
+    "assets": {
+        "web.assets_backend": [
+            "atlaxchange_app/static/src/js/transaction_fee_v2_buttons.js",
+        ],
+    },
     "installable": True,
     "application": True
 }

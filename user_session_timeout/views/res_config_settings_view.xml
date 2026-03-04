@@ -5,7 +5,7 @@
         <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[hasclass('settings')]" position="inside">
-                <div class="app_settings_block" string="Security" data-string="Security">
+                <div class="app_settings_block" string="Security" data-string="Security" data-key="user_session_timeout">
                     <h2>Session Timeout</h2>
                     <div class="row mt16 o_settings_container">
                         <div class="col-12 col-lg-6 o_setting_box">

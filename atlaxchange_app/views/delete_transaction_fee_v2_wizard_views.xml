@@ -1,0 +1,30 @@
+<odoo>
+    <record id="view_delete_transaction_fee_v2_wizard_form" model="ir.ui.view">
+        <field name="name">delete.transaction.fee.v2.wizard.form</field>
+        <field name="model">delete.transaction.fee.v2.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Delete Transaction Fee (v2)">
+                <group>
+                    <field name="fee_line_ids">
+                        <tree editable="false">
+                            <field name="fee_id"/>
+                            <field name="name"/>
+                            <field name="business_id"/>
+                            <field name="transfer_direction"/>
+                            <field name="payment_method"/>
+                            <field name="amount_type"/>
+                            <field name="fixed_fee"/>
+                            <field name="percentage_fee"/>
+                            <field name="max_fee"/>
+                        </tree>
+                    </field>
+                </group>
+                <footer>
+                    <button name="action_delete_fee_v2" type="object" string="Delete" class="btn-primary"
+                            confirm="This will delete the selected fee(s) from Atlax. Continue?"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

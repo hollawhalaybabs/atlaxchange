@@ -25,17 +25,11 @@ class UpdateTransactionFeeWizard(models.TransientModel):
         self.ensure_one()
         if not self.fee_id:
             raise UserError(_("Fee ID is missing."))
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-        if not api_key or not api_secret:
-            raise UserError(_("API key or secret is missing. Set them in System Parameters."))
-
-        url = f"https://api.atlaxchange.com/api/v1/admin/fees/{self.fee_id}"
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
+        client = self.env['atlax.api.client']
+        url = client.url(f"/v1/admin/fees/{self.fee_id}")
+        headers = client.build_headers()
+        if not headers.get('X-API-KEY') or not headers.get('X-API-SECRET'):
+            raise UserError(_("API key or secret is missing. Configure env or system parameters."))
         payload = {
             "fee": int(self.fee * 100),  # Ensure integer for API
         }

@@ -15,5 +15,6 @@
               name="Overview"
               parent="atlaxchange_app.atlaxchange_menu"
               action="action_ledger_dashboard"
-              sequence="-1"/>
+              sequence="-1"
+              groups="atlaxchange_app.group_etiti_officer,atlaxchange_app.group_operation_officer,atlaxchange_app.group_treasury_officer,atlaxchange_app.group_finance_officer,atlaxchange_app.group_finance_manager,atlaxchange_app.group_hoo,atlaxchange_app.group_hot,atlaxchange_app.group_coo,atlaxchange_app.group_ceo"/>
 </odoo>

@@ -12,7 +12,6 @@
     ],
     'data': [
         'data/cron_job.xml',
-        'data/system_parameters.xml',
         'security/ir.model.access.csv',
         'views/fetch_users_audit_view.xml',
         'views/res_partner_views.xml',

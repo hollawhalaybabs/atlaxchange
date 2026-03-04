@@ -8,6 +8,7 @@
                 <field name="is_email_verified" widget="boolean_toggle" options="{'color': 'green'}" readonly="1"/>
                 <field name="business_id" readonly="1" groups="base.group_system"/>
                 <field name="external_user_id" readonly="1" groups="base.group_system"/>
+                <field name="atlax_env_source" readonly="1" groups="base.group_system"/>
             </field>
        
             <notebook position="inside">
@@ -19,7 +20,8 @@
                         </tree>
                     </field>
                 </page>
-                <page string="Business Payment Settings">
+                <page string="Business Payment Settings"
+                      groups="base.group_system,atlaxchange_app.group_it_systems_admin">
                     <field name="payment_settings_ids" nolabel="1">
                         <tree create="false" delete="false">
                             <field name="can_make_transfer" readonly="1"/>
@@ -29,8 +31,11 @@
                         </tree>
                         <form>
                             <header>
-                                <button name="action_update_payment_settings" type="object" string="Update Payment Settings" class="btn-primary" groups="base.group_system"
-                                        confirm="Are you sure you want to cotinue?"/>
+                                <button name="action_update_payment_settings" type="object"
+                                        string="Update Payment Settings"
+                                        class="btn-primary"
+                                        groups="base.group_system,atlaxchange_app.group_it_systems_admin"
+                                        confirm="Are you sure you want to continue?"/>
                             </header>
                             <sheet>
                                 <group>
@@ -56,13 +61,23 @@
                         context="{'partner_id': active_id}">
                     <field string="Ledgers" name="partner_ledger_count" widget="statinfo"/>
                 </button>
-                <button name="action_fetch_payment_settings" type="object" string="Fetch Payment Settings" class="btn-primary" 
-                        groups="base.group_system"/>
+                <!-- Environment badge: shows current env source (Production/Sandbox)
+                <button class="oe_stat_button" type="object" name="action_noop"
+                        attrs="{'invisible': [('atlax_env_source', '=', False)]}">
+                    <field name="atlax_env_source" widget="statinfo" string="Env"/>
+                </button> -->
             </xpath>
             <xpath expr="//form/sheet" position="before">
                 <header>
                     <button name="action_refresh_balance" type="object" string="Refresh Balance" class="btn-primary" groups="base.group_user"/>
-                    <button name="action_kyc_verification" type="object" string="KYC Verification" class="btn-primary" groups="base.group_system"/>
+                    <button name="action_kyc_verification" type="object" string="KYC Verification" class="btn-primary" groups="base.group_system,atlaxchange_app.group_compliance_officer,atlaxchange_app.group_compliance_manager"/>
+                    <button name="action_fetch_payment_settings" type="object" string="Fetch Payment Settings" class="btn-primary" 
+                        groups="base.group_system, atlaxchange_app.group_it_systems_admin"/>
+                    <button name="action_create_transaction_fee"
+                            type="object"
+                            string="Create Transaction Fee"
+                            class="btn-primary"
+                            groups="base.group_system,atlaxchange_app.group_hoo,atlaxchange_app.group_hoo,atlaxchange_app.group_operation_officer"/>
                 </header>
             </xpath>
         </field>
@@ -75,10 +90,33 @@
         <field name="domain">[('is_atlax_customer', '=', True)]</field>
     </record>
 
+    <!-- Sub-actions to differentiate Production vs Sandbox clients -->
+    <record id="action_atlax_customers_prod" model="ir.actions.act_window">
+        <field name="name">Atlax Customers (Production)</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('is_atlax_customer', '=', True), ('atlax_env_source', '=', 'production')]</field>
+    </record>
+    <record id="action_atlax_customers_sandbox" model="ir.actions.act_window">
+        <field name="name">Atlax Customers (Sandbox)</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('is_atlax_customer', '=', True), ('atlax_env_source', '=', 'staging')]</field>
+    </record>
+
     <!-- Menu Item for Atlax Customers -->
-    <menuitem id="menu_atlax_customers" 
-              name="Clients" 
-              parent="atlaxchange_app.atlaxchange_menu" 
-              action="action_atlax_customers" 
-              sequence="2"/>
+    <menuitem id="menu_atlax_customers"
+              name="Clients"
+              parent="atlaxchange_app.atlaxchange_menu"
+              action="action_atlax_customers"
+              sequence="2"
+              groups="atlaxchange_app.group_operation_officer,atlaxchange_app.group_treasury_officer,atlaxchange_app.group_finance_officer,atlaxchange_app.group_finance_manager,atlaxchange_app.group_business_dev_officer,atlaxchange_app.group_business_dev_manager,atlaxchange_app.group_compliance_officer,atlaxchange_app.group_compliance_manager,atlaxchange_app.group_hoo,atlaxchange_app.group_hot,atlaxchange_app.group_coo,atlaxchange_app.group_ceo,atlaxchange_app.group_it_systems_officer,atlaxchange_app.group_it_systems_admin"/>
+
+    <!-- Submenus for environment differentiation -->
+    <menuitem id="menu_atlax_customers_prod" name="Clients (Live)"
+              parent="menu_atlax_customers" action="action_atlax_customers_prod" sequence="21"
+              groups="atlaxchange_app.group_operation_officer,atlaxchange_app.group_treasury_officer,atlaxchange_app.group_finance_officer,atlaxchange_app.group_finance_manager,atlaxchange_app.group_business_dev_officer,atlaxchange_app.group_business_dev_manager,atlaxchange_app.group_compliance_officer,atlaxchange_app.group_compliance_manager,atlaxchange_app.group_hoo,atlaxchange_app.group_hot,atlaxchange_app.group_coo,atlaxchange_app.group_ceo,atlaxchange_app.group_it_systems_officer,atlaxchange_app.group_it_systems_admin"/>
+    <menuitem id="menu_atlax_customers_sandbox" name="Clients (Sandbox)"
+              parent="menu_atlax_customers" action="action_atlax_customers_sandbox" sequence="22"
+              groups="atlaxchange_app.group_operation_officer,atlaxchange_app.group_treasury_officer,atlaxchange_app.group_finance_officer,atlaxchange_app.group_finance_manager,atlaxchange_app.group_business_dev_officer,atlaxchange_app.group_business_dev_manager,atlaxchange_app.group_compliance_officer,atlaxchange_app.group_compliance_manager,atlaxchange_app.group_hoo,atlaxchange_app.group_hot,atlaxchange_app.group_coo,atlaxchange_app.group_ceo,atlaxchange_app.group_it_systems_officer,atlaxchange_app.group_it_systems_admin"/>
 </odoo>

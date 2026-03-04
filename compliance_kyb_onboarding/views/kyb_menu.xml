@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <menuitem id="menu_compliance_root" name="Compliance" sequence="21"
+              parent="atlaxchange_app.atlaxchange_menu" groups="atlaxchange_app.group_compliance_officer"/>
+
+    <menuitem id="menu_kyb_reviews" name="KYB Reviews" parent="menu_compliance_root" sequence="10"
+              action="action_kyb_review"/>
+
+    <menuitem id="menu_kyb_config" name="Configuration" parent="menu_compliance_root" sequence="90"
+              groups="atlaxchange_app.group_compliance_officer"/>
+
+    <menuitem id="menu_kyb_templates" name="Requirement Templates" parent="menu_kyb_config" sequence="10"
+              action="action_kyb_requirement_template" groups="atlaxchange_app.group_compliance_officer" />
+  </data>
+</odoo>

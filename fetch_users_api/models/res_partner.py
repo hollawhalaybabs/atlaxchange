@@ -1,6 +1,6 @@
 from odoo import models, fields, api, _
-import requests
 from odoo.exceptions import UserError
+import requests
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -27,6 +27,10 @@ class ResPartner(models.Model):
     payment_settings_ids = fields.One2many(
         'business.payment.settings', 'partner_id', string='Business Payment Settings'
     )
+    atlax_env_source = fields.Selection([
+        ('production', 'Production'),
+        ('staging', 'Sandbox')
+    ], string='Atlax Env', readonly=True, help="Environment source from Atlax API when the customer was fetched.")
 
     @api.depends('name', 'company_name')
     def _compute_partner_ledger_ids(self):
@@ -71,18 +75,11 @@ class ResPartner(models.Model):
         self.ensure_one()
         if not self.business_id:
             raise UserError(_("Business ID is required to fetch payment settings."))
-
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-        if not api_key or not api_secret:
-            raise UserError(_("API key or secret is missing. Set them in System Parameters."))
-
-        url = f"https://api.atlaxchange.com/api/v1/business/payment-settings/{self.business_id}"
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
+        client = self.env['atlax.api.client']
+        url = client.url(f"/v1/business/payment-settings/{self.business_id}")
+        headers = client.build_headers()
+        if not headers.get('X-API-KEY') or not headers.get('X-API-SECRET'):
+            raise UserError(_("API key or secret is missing. Configure env or system parameters."))
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             raise UserError(_("Failed to fetch payment settings: %s") % response.text)
@@ -127,20 +124,19 @@ class ResPartner(models.Model):
         """Button to fetch payment settings, can be used in the form view."""
         return self.action_fetch_payment_settings()
 
+    def action_noop(self):
+        """A no-op action used for stat badges (click does nothing)."""
+        return True
+
     def action_refresh_balance(self):
         """Refresh this partner's ledger balances from the API and fetch supported currencies."""
         self.ensure_one()
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-        if not api_key or not api_secret:
-            raise UserError(_("API key or secret is missing. Set them in System Parameters."))
-
-        url = "https://api.atlaxchange.com/api/v1/users"
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
+        client = self.env['atlax.api.client']
+        cfg = client.get_api_config()
+        url = client.url('/v1/users')
+        headers = client.build_headers()
+        if not headers.get('X-API-KEY') or not headers.get('X-API-SECRET'):
+            raise UserError(_("API key or secret is missing. Configure env or system parameters."))
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             raise UserError(_("Failed to fetch users: %s") % response.text)
@@ -190,6 +186,8 @@ class ResPartner(models.Model):
 
         # Also refresh supported currencies
         self.env['supported.currency'].fetch_supported_currencies()
+        # Mark partner with current env source
+        self.atlax_env_source = cfg.get('env')
         return True
 
     def action_kyc_verification(self):
@@ -197,21 +195,32 @@ class ResPartner(models.Model):
         self.ensure_one()
         if not self.business_id:
             raise UserError(_("Business ID is required for KYC verification."))
-
-        api_key = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_key')
-        api_secret = self.env['ir.config_parameter'].sudo().get_param('fetch_users_api.api_secret')
-        if not api_key or not api_secret:
-            raise UserError(_("API key or secret is missing. Set them in System Parameters."))
-
-        url = f"https://api.atlaxchange.com/api/v1/admin/business-kyc/{self.business_id}"
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": api_key,
-            "X-API-SECRET": api_secret
-        }
+        client = self.env['atlax.api.client']
+        url = client.url(f"/v1/admin/business-kyc/{self.business_id}")
+        headers = client.build_headers()
+        if not headers.get('X-API-KEY') or not headers.get('X-API-SECRET'):
+            raise UserError(_("API key or secret is missing. Configure env or system parameters."))
         # You may need to adjust the payload as per your API requirements
         payload = {"kyc_verified": True}
         response = requests.patch(url, json=payload, headers=headers)
         if response.status_code not in (200, 201):
             raise UserError(_("Failed to update KYC verification: %s") % response.text)
         return True
+
+    def action_create_transaction_fee(self):
+        """Open wizard to create a transaction fee for this Atlax customer."""
+        self.ensure_one()
+        if not self.is_atlax_customer:
+            raise UserError(_("Only Atlax customers can have transaction fees."))
+        if not self.business_id:
+            raise UserError(_("This customer does not have a Business ID set."))
+
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'create.transaction.fee.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_partner_id': self.id,
+            },
+        }

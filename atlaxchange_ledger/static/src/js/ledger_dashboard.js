@@ -22,7 +22,7 @@ export class LedgerDashboard extends Component {
                 customer_name: "", // fallback when partner_id is missing
                 reference: "",
                 status: "",
-                type: "",
+                transfer_direction: "",
                 wallet: "",
                 date_from: "",
                 date_to: "",
@@ -105,13 +105,13 @@ export class LedgerDashboard extends Component {
     async prevPage() { await this.gotoPage((this.state.paging.page || 1) - 1); }
 
     exportCSV() {
-        const headers = ["Date","Reference","Customer","Bank","Beneficiary","Currency","Dest Currency","Amount","Fee","Rate","Dest Amount","Status","Type"];
+        const headers = ["Date","Reference","Customer","Bank","Beneficiary","Currency","Dest Currency","Amount","Fee","Rate","Dest Amount","Status","transfer_direction"];
         let csv = headers.join(",") + "\n";
         for (const rec of this.state.records) {
             csv += [
                 rec.date, rec.reference, rec.customer, rec.bank, rec.beneficiary,
                 rec.currency, rec.dest_currency, rec.amount, rec.fee, rec.conversion_rate,
-                rec.total_amount, rec.status, rec.type
+                rec.total_amount, rec.status, rec.transfer_direction
             ].join(",") + "\n";
         }
         const blob = new Blob([csv], { type: "text/csv" });

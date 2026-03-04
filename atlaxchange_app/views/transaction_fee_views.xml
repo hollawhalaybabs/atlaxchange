@@ -20,7 +20,7 @@
             <form string="Transaction Fee" create="false" delete="false">
                 <header>
                     <button name="fetch_transaction_fees"
-                            string="Fetch Rate"
+                            string="Fetch Fees"
                             type="object"
                             class="btn-warning"/>
                     <button name="action_open_update_fee_wizard"

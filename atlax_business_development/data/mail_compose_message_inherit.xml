@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="atlax_bd_mail_compose_message_show_email_to" model="ir.ui.view">
+            <field name="name">mail.compose.message.form (atlax bd: show email_to)</field>
+            <field name="model">mail.compose.message</field>
+            <field name="inherit_id" ref="mail.email_compose_message_wizard_form"/>
+            <field name="arch" type="xml">
+                <!-- Insert "To" (email_to) before the existing Recipients label -->
+                <xpath expr="//label[@for='partner_ids']" position="before">
+                    <label for="email_to" string="To"
+                           attrs="{'invisible': ['|', ('is_log', '=', True), ('composition_mode', '!=', 'comment')]}"/>
+                    <field name="email_to"
+                           placeholder="e.g. user@example.com, other@example.com"
+                           attrs="{'invisible': ['|', ('is_log', '=', True), ('composition_mode', '!=', 'comment')]}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

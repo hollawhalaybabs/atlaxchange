@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Inherit the general settings view to add an Atlax API section -->
+    <record id="res_config_settings_view_form_inherit_atlax_api" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.atlax.api</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[contains(@class, 'settings')]" position="inside">
+                <div class="app_settings_block" data-string="Atlax API" string="Atlax API" data-key="atlax_api" groups="base.group_system">
+                    <h2>Atlax API</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="atlax_env" string="Environment"/>
+                                <div class="text-muted">Select the target environment for API calls.</div>
+                                <field name="atlax_env"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="atlax_base_url_staging" string="Base URL (Staging)"/>
+                                <div class="text-muted">Optional override. Defaults to https://api.atlaxchange.com/api</div>
+                                <field name="atlax_base_url_staging" placeholder="https://..."/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="atlax_base_url_production" string="Base URL (Production)"/>
+                                <div class="text-muted">Optional override. Defaults to https://api.atlaxchange.com/api</div>
+                                <field name="atlax_base_url_production" placeholder="https://..."/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="atlax_api_key_staging" string="API Key (Staging)"/>
+                                <field name="atlax_api_key_staging" password="True"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="atlax_api_secret_staging" string="API Secret (Staging)"/>
+                                <field name="atlax_api_secret_staging" password="True"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="atlax_api_key_production" string="API Key (Production)"/>
+                                <field name="atlax_api_key_production" password="True"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="atlax_api_secret_production" string="API Secret (Production)"/>
+                                <field name="atlax_api_secret_production" password="True"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Dedicated action and menu for convenience -->
+    <record id="action_atlax_api_settings" model="ir.actions.act_window">
+        <field name="name">Atlax API Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{"default_atlax_env":"production"}</field>
+    </record>
+
+    <menuitem id="menu_atlax_api_settings" name="Atlax API Settings"
+              parent="base.menu_administration"
+              action="action_atlax_api_settings"
+              groups="base.group_system"/>
+</odoo>

@@ -72,7 +72,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Type</label>
-                        <select class="form-select" name="type" t-att-value="state.filters.type" t-on-change="onFilterChange">
+                        <select class="form-select" name="transfer_direction" t-att-value="state.filters.transfer_direction" t-on-change="onFilterChange">
                             <option value="">All</option>
                             <option value="debit">Debit</option>
                             <option value="credit">Credit</option>

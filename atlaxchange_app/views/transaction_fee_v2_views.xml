@@ -1,0 +1,75 @@
+<odoo>
+    <!-- Tree View -->
+    <record id="view_transaction_fee_v2_tree" model="ir.ui.view">
+        <field name="name">transaction.fee.v2.tree</field>
+        <field name="model">transaction.fee.v2</field>
+        <field name="arch" type="xml">
+            <tree create="false" js_class="transaction_fee_v2_list_with_buttons">
+                <field name="display_name"/>
+                <field name="partner_id"/>
+                <field name="business_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_transaction_fee_v2_form" model="ir.ui.view">
+        <field name="name">transaction.fee.v2.form</field>
+        <field name="model">transaction.fee.v2</field>
+        <field name="arch" type="xml">
+            <form string="Transaction Fee" create="false" delete="false">
+                <header>
+                    <button name="action_open_update_fee_wizard_v2"
+                            string="Update Fee (v2)"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="action_open_delete_fee_wizard_v2"
+                        string="Delete Fee (v2)"
+                        type="object"
+                        class="btn-danger"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="display_name" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="business_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Fee Lines">
+                            <field name="fee_line_ids">
+                                <tree editable="false" create="false" delete="false">
+                                    <field name="fee_id" readonly="1"/>
+                                    <field name="name" readonly="1"/>
+                                    <field name="transfer_direction" readonly="1"/>
+                                    <field name="payment_method" readonly="1"/>
+                                    <field name="payment_method_type" readonly="1"/>
+                                    <field name="amount_type" readonly="1"/>
+                                    <field name="fixed_fee" readonly="1"/>
+                                    <field name="percentage_fee" readonly="1"/>
+                                    <field name="percentage_cap" readonly="1"/>
+                                    <field name="max_fee" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_transaction_fee_v2" model="ir.actions.act_window">
+        <field name="name">Fees Setup</field>
+        <field name="res_model">transaction.fee.v2</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menuitem -->
+    <menuitem id="menu_transaction_fee_v2"
+              name="Fees Setup"
+              parent="atlaxchange_app.menu_transaction_fee"
+              action="action_transaction_fee_v2"
+              sequence="30"/>
+</odoo>

@@ -4,10 +4,11 @@
     "summary": "Business development pipeline for customers and vendors",
     "author": "Novus Solutions",
     "category": "CRM",
-    "depends": ["base", "mail", "helpdesk", "atlaxchange_app"],
+    "depends": ["base", "mail", "helpdesk", "atlaxchange_app", "hr"],
     "data": [
         "security/ir.model.access.csv",
         "data/email_templates.xml",
+        # "data/mail_compose_message_inherit.xml",
         "views/bd_opportunity_views.xml"
     ],
     "installable": True,

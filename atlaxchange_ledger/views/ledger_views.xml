@@ -74,6 +74,7 @@
                         <field name="conversion_rate" readonly="1"/>
                         <field name="total_amount" readonly="1"/>
                         <field name="session_id" readonly="1"/>
+                        <field name="service_name" readonly="1"/>
                         <field name="error_message" readonly="1"/>
                         <field name="env_source" readonly="1"/>
                         <field name="transfer_direction" readonly="1"/>

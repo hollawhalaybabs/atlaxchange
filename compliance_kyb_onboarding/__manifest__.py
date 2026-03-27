@@ -19,6 +19,8 @@
         "data/sequence.xml",
         "data/kyb_requirement_templates.xml",
         "data/mail_templates.xml",
+        "wizard/kyb_report_wizard_views.xml",
+        "reports/kyb_review_report.xml",
         "views/kyb_review_views.xml",
         "views/kyb_requirement_template_views.xml",
         "views/kyb_menu.xml",

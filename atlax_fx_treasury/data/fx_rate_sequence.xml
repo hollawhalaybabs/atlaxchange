@@ -6,6 +6,20 @@
     <field name="prefix">FXR/%(year)s/</field>
     <field name="padding">4</field>
   </record>
+
+  <record id="seq_treasury_stock" model="ir.sequence">
+    <field name="name">Treasury Stock Batch</field>
+    <field name="code">atlax.treasury.stock</field>
+    <field name="prefix">TS/%(year)s/%(month)s/</field>
+    <field name="padding">5</field>
+  </record>
+
+  <record id="seq_treasury_daily_batch" model="ir.sequence">
+    <field name="name">Treasury Daily Batch</field>
+    <field name="code">atlax.treasury.daily.batch</field>
+    <field name="prefix">TDB/%(year)s/%(month)s/%(day)s/</field>
+    <field name="padding">4</field>
+  </record>
 </odoo>
 
     

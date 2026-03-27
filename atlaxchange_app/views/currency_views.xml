@@ -18,8 +18,10 @@
                             <field name="currency_code" required="1"/>
                             <field name="name" required="1"/>
                             <field name="symbol" required="1"/>
+                            <field name="use_cases"/>
                         </group>
                         <group>
+                            <field name="icon" widget="url"/>
                             <field name="exchanges" widget="many2many_tags"/>
                             <field name="status" required="1"/>
                         </group>
@@ -38,6 +40,8 @@
                 <field name="currency_code"/>
                 <field name="name"/>
                 <field name="symbol"/>
+                <field name="use_cases"/>
+                <field name="icon" optional="hide"/>
                 <field name="exchanges" widget="many2many_tags"/>
                 <field name="status"/>
             </tree>

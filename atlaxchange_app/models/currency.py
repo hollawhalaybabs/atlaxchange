@@ -11,10 +11,22 @@ class SupportedCurrency(models.Model):
     _order = 'id desc'
     _rec_name = 'currency_code'
 
+    _USE_CASE_SELECTION = [
+        ('collection', 'Collection'),
+        ('payout', 'Payout'),
+        ('payout,collection', 'Payout, Collection'),
+    ]
+
     currency_code = fields.Char(string='Currency Code', size=4, required=True, help="Currency Code (ISO 4217)")
     currency_id = fields.Char(string='ID')
     name = fields.Char(string='Currency Name', required=True, help="Full name of the currency")
     symbol = fields.Char(string='Symbol', help="Symbol of the currency (e.g., $)")
+    icon = fields.Char(string='Icon', help="Currency icon URL")
+    use_cases = fields.Selection(
+        selection=_USE_CASE_SELECTION,
+        string='Use Case',
+        help="Primary use case for this currency"
+    )
     exchanges = fields.Many2many(
         'supported.currency',
         'supported_currency_rel',
@@ -28,6 +40,18 @@ class SupportedCurrency(models.Model):
         default=True,
         help="Indicates whether the currency is active"
     )
+
+    def _normalize_use_cases(self, value):
+        if not value:
+            return False
+        normalized_value = str(value).strip().lower()
+        if normalized_value == 'both':
+            return 'payout,collection'
+        if normalized_value in {'collection,payout', 'payout,collection'}:
+            return 'payout,collection'
+        if normalized_value in dict(self._USE_CASE_SELECTION):
+            return normalized_value
+        return False
 
     def fetch_supported_currencies(self):
         """Fetch supported currencies from the API and update the database."""
@@ -55,6 +79,8 @@ class SupportedCurrency(models.Model):
                         existing_currency.write({
                             'name': currency['name'],
                             'symbol': currency['symbol'],
+                            'icon': currency.get('icon'),
+                            'use_cases': self._normalize_use_cases(currency.get('use_cases')),
                             'status': currency['status'] == 'active',
                         })
                     else:
@@ -62,6 +88,8 @@ class SupportedCurrency(models.Model):
                             'currency_code': currency['code'],
                             'name': currency['name'],
                             'symbol': currency['symbol'],
+                            'icon': currency.get('icon'),
+                            'use_cases': self._normalize_use_cases(currency.get('use_cases')),
                             'status': currency['status'] == 'active',
                         })
                 except Exception as e:
@@ -86,6 +114,8 @@ class SupportedCurrency(models.Model):
             "name": self.name,
             "symbol": self.symbol,
             "exchanges": exchanges_codes,
+            "use_cases": self.use_cases,
+            "icon": self.icon,
             "status": "active" if self.status else "inactive"
         }
 
@@ -107,7 +137,12 @@ class SupportedCurrency(models.Model):
             raise ValidationError(_("API key or secret is missing. Configure env or system parameters."))
         exchanges_codes = ', '.join(self.exchanges.mapped('currency_code'))
         payload = {
-            "exchanges": exchanges_codes
+            "name": self.name,
+            "symbol": self.symbol,
+            "exchanges": exchanges_codes,
+            "use_cases": self.use_cases,
+            "icon": self.icon,
+            "status": "active" if self.status else "inactive",
         }
         try:
             response = requests.patch(api_url, headers=headers, json=payload, timeout=10)

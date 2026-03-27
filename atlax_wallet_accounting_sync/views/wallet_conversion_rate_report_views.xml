@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wallet_conversion_rate_report_search" model="ir.ui.view">
+        <field name="name">wallet.conversion.rate.report.search</field>
+        <field name="model">wallet.conversion.rate.report</field>
+        <field name="arch" type="xml">
+            <search string="Wallet Conversion Rate Report">
+                <field name="partner_id"/>
+                <field name="source_currency_id"/>
+                <field name="destination_currency_id"/>
+                <field name="pair_name"/>
+                <field name="period_start"/>
+
+                <searchpanel>
+                    <field name="partner_id" string="Customer"/>
+                </searchpanel>
+
+                <filter name="filter_daily" string="Daily" domain="[('period_type', '=', 'day')]"/>
+                <filter name="filter_weekly" string="Weekly" domain="[('period_type', '=', 'week')]"/>
+                <filter name="filter_monthly" string="Monthly" domain="[('period_type', '=', 'month')]"/>
+
+                <separator/>
+                <filter name="group_period_type" string="Period Type" context="{'group_by': 'period_type'}"/>
+                <filter name="group_period_start" string="Period Start" context="{'group_by': 'period_start'}"/>
+                <filter name="group_pair" string="Currency Pair" context="{'group_by': 'pair_name'}"/>
+                <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                <filter name="group_source_currency" string="Source Currency" context="{'group_by': 'source_currency_id'}"/>
+                <filter name="group_destination_currency" string="Destination Currency" context="{'group_by': 'destination_currency_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_wallet_conversion_rate_report_tree" model="ir.ui.view">
+        <field name="name">wallet.conversion.rate.report.tree</field>
+        <field name="model">wallet.conversion.rate.report</field>
+        <field name="arch" type="xml">
+            <tree string="Wallet Conversion Rate Report" create="false" edit="false" delete="false" default_order="period_start desc">
+                <field name="period_type"/>
+                <field name="period_start"/>
+                <field name="period_end"/>
+                <field name="partner_id"/>
+                <field name="pair_name"/>
+                <field name="source_currency_id" optional="hide"/>
+                <field name="destination_currency_id" optional="hide"/>
+                <field name="average_conversion_rate"/>
+                <field name="transaction_count"/>
+                <field name="source_amount_total" optional="show"/>
+                <field name="destination_amount_total" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_wallet_conversion_rate_report_pivot" model="ir.ui.view">
+        <field name="name">wallet.conversion.rate.report.pivot</field>
+        <field name="model">wallet.conversion.rate.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Wallet Conversion Rate Report" disable_linking="false">
+                <field name="period_type" type="row"/>
+                <field name="period_start" type="col" interval="month"/>
+                <field name="pair_name" type="row"/>
+                <field name="partner_id" type="row"/>
+                <field name="average_conversion_rate" type="measure"/>
+                <field name="transaction_count" type="measure"/>
+                <field name="source_amount_total" type="measure"/>
+                <field name="destination_amount_total" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_wallet_conversion_rate_report_graph" model="ir.ui.view">
+        <field name="name">wallet.conversion.rate.report.graph</field>
+        <field name="model">wallet.conversion.rate.report</field>
+        <field name="arch" type="xml">
+            <graph string="Wallet Conversion Rate Report" type="line">
+                <field name="period_start" type="row" interval="month"/>
+                <field name="average_conversion_rate" type="measure"/>
+                <field name="pair_name" type="col"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="wallet_conversion_rate_report_action" model="ir.actions.act_window">
+        <field name="name">Conversion Rate Report</field>
+        <field name="res_model">wallet.conversion.rate.report</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="search_view_id" ref="view_wallet_conversion_rate_report_search"/>
+        <field name="context">{'search_default_filter_monthly': 1, 'search_default_group_customer': 1, 'group_by_no_leaf': 1}</field>
+        <field name="groups_id" eval="[(6, 0, [ref('atlaxchange_app.group_finance_manager')])]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Review daily, weekly, and monthly average customer conversion rates by currency pair.
+            </p>
+            <p>
+                Use the customer filter to isolate the average conversion rate a specific Atlax customer used across pairs such as EUR-NGN, EUR-GHS, or GBP-NGN.
+            </p>
+        </field>
+    </record>
+
+    <record id="wallet_conversion_rate_report_export_xlsx_action" model="ir.actions.server">
+        <field name="name">Export XLSX</field>
+        <field name="model_id" ref="model_wallet_conversion_rate_report"/>
+        <field name="binding_model_id" ref="model_wallet_conversion_rate_report"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_export_xlsx()</field>
+        <field name="groups_id" eval="[(6, 0, [ref('atlaxchange_app.group_finance_manager')])]"/>
+    </record>
+</odoo>

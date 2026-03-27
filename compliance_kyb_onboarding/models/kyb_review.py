@@ -89,6 +89,12 @@ class ComplianceKYBReview(models.Model):
         string="NDA Documents",
     )
 
+    sla_document_ids = fields.One2many(
+        "sla.document",
+        "review_id",
+        string="SLA Documents",
+    )
+
     missing_requirement_count = fields.Integer(compute="_compute_missing_requirement_count", store=False)
 
     @api.depends("requirement_line_ids.provided", "requirement_line_ids.attachment_ids")

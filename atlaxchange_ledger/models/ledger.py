@@ -29,6 +29,7 @@ class AtlaxchangeLedger(models.Model):
     bank = fields.Char(string='Bank')
     bank_code = fields.Char(string='Bank Code')
     beneficiary = fields.Char(string='Beneficiary')
+    service_name = fields.Char(string='Service Name', index=True)
     customer_name = fields.Char(string='Customer Name', store=True)
     wallet = fields.Many2one('supported.currency', string='Wallet')
     amount = fields.Float(string='Amount', store=True, digits=(16, 2))
@@ -237,6 +238,55 @@ class AtlaxchangeLedger(models.Model):
         return True
 
     @api.model
+    def backfill_customer_partner_ids(self):
+        Partner = self.env['res.partner'].with_context(active_test=False).sudo()
+        if 'is_atlax_customer' not in Partner._fields:
+            raise UserError(_("The Atlax customer fields are not available on res.partner."))
+
+        query = """
+            WITH unique_partners AS (
+                SELECT
+                    MIN(id) AS partner_id,
+                    LOWER(BTRIM(name)) AS normalized_name
+                FROM res_partner
+                WHERE is_atlax_customer = TRUE
+                  AND parent_id IS NULL
+                  AND name IS NOT NULL
+                  AND BTRIM(name) <> ''
+                GROUP BY LOWER(BTRIM(name))
+                HAVING COUNT(*) = 1
+            ),
+            updated_rows AS (
+                UPDATE atlaxchange_ledger AS ledger
+                   SET partner_id = unique_partners.partner_id
+                  FROM unique_partners
+                 WHERE ledger.partner_id IS NULL
+                   AND ledger.customer_name IS NOT NULL
+                   AND BTRIM(ledger.customer_name) <> ''
+                   AND LOWER(BTRIM(ledger.customer_name)) = unique_partners.normalized_name
+                RETURNING ledger.id
+            )
+            SELECT COUNT(*) FROM updated_rows
+        """
+        self.env.cr.execute(query)
+        updated_count = int((self.env.cr.fetchone() or [0])[0] or 0)
+
+        unresolved_query = """
+            SELECT COUNT(*)
+              FROM atlaxchange_ledger ledger
+             WHERE ledger.partner_id IS NULL
+               AND ledger.customer_name IS NOT NULL
+               AND BTRIM(ledger.customer_name) <> ''
+        """
+        self.env.cr.execute(unresolved_query)
+        unresolved_count = int((self.env.cr.fetchone() or [0])[0] or 0)
+
+        return {
+            'updated_partner_ids': updated_count,
+            'remaining_unresolved': unresolved_count,
+        }
+
+    @api.model
     def fetch_ledger_history(
         self,
         target_count=None,
@@ -440,6 +490,7 @@ class AtlaxchangeLedger(models.Model):
                     'bank': rec.get('bank_name'),
                     'bank_code': rec.get('bank_code'),
                     'beneficiary': rec.get('beneficiary_name'),
+                    'service_name': rec.get('service_name') or rec.get('service') or rec.get('serviceName') or False,
                     'customer_name': rec.get('customer_name', 'N/A'),
                     'transaction_reference': ref,
                     'amount': abs((rec.get('amount') or 0) / 100),
@@ -460,10 +511,9 @@ class AtlaxchangeLedger(models.Model):
                     rec_to_update = existing_map[ref]
                     upd = {
                         'status': vals['status'],
-                        'beneficiary_acct': vals['beneficiary_acct'],
                         'session_id': vals['session_id'],
                         'error_message': vals['error_message'],
-                        'transfer_direction': vals['transfer_direction'],
+                        'service_name': vals.get('service_name'),
                     }
                     if any(getattr(rec_to_update, k) != v for k, v in upd.items()):
                         to_update.append((rec_to_update, upd))

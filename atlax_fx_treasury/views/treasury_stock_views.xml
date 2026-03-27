@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Treasury Stock: Tree -->
+    <record id="view_atlax_treasury_stock_tree" model="ir.ui.view">
+        <field name="name">atlax.treasury.stock.tree</field>
+        <field name="model">atlax.treasury.stock</field>
+        <field name="arch" type="xml">
+            <tree string="Treasury Stock" default_order="date desc">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="source_currency_id"/>
+                <field name="destination_currency_id"/>
+                <field name="amount_total"/>
+                <field name="amount_allocated"/>
+                <field name="amount_remaining"/>
+                <field name="purchase_rate"/>
+                <field name="sale_rate"/>
+                <field name="state"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Treasury Stock: Form -->
+    <record id="view_atlax_treasury_stock_form" model="ir.ui.view">
+        <field name="name">atlax.treasury.stock.form</field>
+        <field name="model">atlax.treasury.stock</field>
+        <field name="arch" type="xml">
+            <form string="Treasury Stock">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm" states="draft" class="btn-primary"/>
+                    <button name="%(action_allocate_transactions_wizard)d" type="action" string="Allocate Transactions" states="confirmed,partially_allocated" class="btn-primary"/>
+                    <button name="action_set_draft" type="object" string="Set to Draft" states="confirmed" class="btn-secondary"/>
+                    <button name="action_cancel" type="object" string="Cancel" states="draft,confirmed" class="btn-secondary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,partially_allocated,fully_allocated,cancelled"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="action_open_allocations" class="oe_stat_button" icon="fa-exchange">
+                            <field name="allocation_count" widget="statinfo" string="Allocations"/>
+                        </button>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="date"/>
+                            <field name="partner_id"/>
+                            <field name="bank_journal_id"/>
+                            <field name="bank_reference"/>
+                        </group>
+                        <group>
+                            <field name="source_currency_id"/>
+                            <field name="destination_currency_id"/>
+                            <field name="amount_total"/>
+                            <field name="amount_allocated" readonly="1"/>
+                            <field name="amount_remaining" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group>
+                            <field name="purchase_rate"/>
+                            <field name="sale_rate"/>
+                        </group>
+                        <group>
+                            <field name="active"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Allocations">
+                            <field name="allocation_line_ids" context="{'default_stock_id': active_id}">
+                                <tree create="false" delete="false">
+                                    <field name="allocation_date"/>
+                                    <field name="transaction_line_id"/>
+                                    <field name="allocated_amount"/>
+                                    <field name="stock_rate"/>
+                                    <field name="transaction_rate"/>
+                                    <field name="rate_difference"/>
+                                    <field name="realized_margin"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+
+                        <page string="Chatter">
+                            <field name="message_follower_ids" widget="many2many_tags"/>
+                            <field name="activity_ids"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Treasury Stock: Search -->
+    <record id="view_atlax_treasury_stock_search" model="ir.ui.view">
+        <field name="name">atlax.treasury.stock.search</field>
+        <field name="model">atlax.treasury.stock</field>
+        <field name="arch" type="xml">
+            <search string="Treasury Stock">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="source_currency_id"/>
+                <field name="destination_currency_id"/>
+                <field name="state"/>
+                <filter name="active" string="Active" domain="[('active','=',True)]"/>
+                <filter name="inactive" string="Archived" domain="[('active','=',False)]"/>
+
+                <group expand="1" string="Group By">
+                    <filter name="group_by_date" string="Date" context="{'group_by':'date'}"/>
+                    <filter name="group_by_partner" string="Liquidity Partner" context="{'group_by':'partner_id'}"/>
+                    <filter name="group_by_source" string="Source Currency" context="{'group_by':'source_currency_id'}"/>
+                    <filter name="group_by_dest" string="Destination Currency" context="{'group_by':'destination_currency_id'}"/>
+                    <filter name="group_by_state" string="State" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Treasury Stock: Action -->
+    <record id="action_atlax_treasury_stock" model="ir.actions.act_window">
+        <field name="name">Treasury Stock</field>
+        <field name="res_model">atlax.treasury.stock</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_atlax_treasury_stock_search"/>
+    </record>
+</odoo>

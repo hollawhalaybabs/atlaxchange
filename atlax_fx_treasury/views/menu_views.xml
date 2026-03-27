@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Root menu (update existing id from older versions of this addon) -->
+    <menuitem id="menu_trade_treasury_root" name="Treasury FX" sequence="8"
+              parent="atlaxchange_app.atlaxchange_menu"
+              groups="atlax_fx_treasury.group_treasury_user,atlax_fx_treasury.group_treasury_manager,atlax_fx_treasury.group_fx_officer,atlax_fx_treasury.group_fx_manager"/>
+
+    <!-- Phase 1 Treasury Allocation menus -->
+    <menuitem id="menu_treasury_daily_batches" name="Dashboard / Daily Batches" parent="menu_trade_treasury_root"
+              action="action_atlax_treasury_daily_batch" sequence="10"
+              groups="atlax_fx_treasury.group_treasury_user,atlax_fx_treasury.group_treasury_manager"/>
+
+    <menuitem id="menu_treasury_stock" name="Treasury Stock" parent="menu_trade_treasury_root"
+              action="action_atlax_treasury_stock" sequence="20"
+              groups="atlax_fx_treasury.group_treasury_user,atlax_fx_treasury.group_treasury_manager"/>
+
+    <menuitem id="menu_treasury_transaction_lines" name="Transaction Lines" parent="menu_trade_treasury_root"
+              action="action_atlax_treasury_transaction_line" sequence="30"
+              groups="atlax_fx_treasury.group_treasury_user,atlax_fx_treasury.group_treasury_manager"/>
+
+    <menuitem id="menu_treasury_allocations" name="Allocations" parent="menu_trade_treasury_root"
+              action="action_atlax_treasury_allocation" sequence="40"
+              groups="atlax_fx_treasury.group_treasury_user,atlax_fx_treasury.group_treasury_manager"/>
+
+    <!-- Existing FX rate computation menu kept for backward compatibility -->
+    <menuitem id="menu_fx_rates" name="FX Rate Computations" parent="menu_trade_treasury_root"
+              action="atlax_fx_treasury.action_fx_rate_window" sequence="90"
+              groups="atlax_fx_treasury.group_fx_officer,atlax_fx_treasury.group_fx_manager,base.group_system"/>
+</odoo>

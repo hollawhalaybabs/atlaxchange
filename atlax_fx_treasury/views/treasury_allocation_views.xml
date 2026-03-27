@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Treasury Transaction Line: Tree -->
+    <record id="view_atlax_treasury_transaction_line_tree" model="ir.ui.view">
+        <field name="name">atlax.treasury.transaction.line.tree</field>
+        <field name="model">atlax.treasury.transaction.line</field>
+        <field name="arch" type="xml">
+            <tree string="Treasury Transaction Lines" default_order="transaction_datetime desc">
+                <field name="transaction_reference"/>
+                <field name="transaction_datetime"/>
+                <field name="transaction_date"/>
+                <field name="customer_id"/>
+                <field name="source_currency_id"/>
+                <field name="destination_currency_id"/>
+                <field name="source_amount"/>
+                <field name="allocated_amount"/>
+                <field name="unallocated_amount"/>
+                <field name="transaction_rate"/>
+                <field name="fee_amount"/>
+                <field name="status"/>
+                <field name="allocation_state"/>
+                <field name="daily_batch_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Treasury Transaction Line: Form -->
+    <record id="view_atlax_treasury_transaction_line_form" model="ir.ui.view">
+        <field name="name">atlax.treasury.transaction.line.form</field>
+        <field name="model">atlax.treasury.transaction.line</field>
+        <field name="arch" type="xml">
+            <form string="Treasury Transaction Line">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="transaction_reference"/>
+                            <field name="transaction_datetime"/>
+                            <field name="transaction_date" readonly="1"/>
+                            <field name="customer_id"/>
+                            <field name="status"/>
+                            <field name="original_ledger_ref"/>
+                        </group>
+                        <group>
+                            <field name="source_currency_id"/>
+                            <field name="destination_currency_id"/>
+                            <field name="source_amount"/>
+                            <field name="destination_amount"/>
+                            <field name="transaction_rate"/>
+                            <field name="fee_amount"/>
+                            <field name="daily_batch_id"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group>
+                            <field name="allocation_state" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="allocated_amount" readonly="1"/>
+                            <field name="unallocated_amount" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Allocations">
+                            <field name="allocation_line_ids" context="{'default_transaction_line_id': active_id}">
+                                <tree create="false" delete="false">
+                                    <field name="allocation_date"/>
+                                    <field name="stock_id"/>
+                                    <field name="allocated_amount"/>
+                                    <field name="stock_rate"/>
+                                    <field name="transaction_rate"/>
+                                    <field name="rate_difference"/>
+                                    <field name="realized_margin"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Treasury Transaction Line: Search -->
+    <record id="view_atlax_treasury_transaction_line_search" model="ir.ui.view">
+        <field name="name">atlax.treasury.transaction.line.search</field>
+        <field name="model">atlax.treasury.transaction.line</field>
+        <field name="arch" type="xml">
+            <search string="Treasury Transaction Lines">
+                <field name="transaction_reference"/>
+                <field name="customer_id"/>
+                <field name="transaction_date"/>
+                <field name="source_currency_id"/>
+                <field name="destination_currency_id"/>
+                <field name="status"/>
+                <field name="allocation_state"/>
+                <field name="daily_batch_id"/>
+
+                <group expand="1" string="Group By">
+                    <filter name="group_by_date" string="Date" context="{'group_by':'transaction_date'}"/>
+                    <filter name="group_by_customer" string="Customer" context="{'group_by':'customer_id'}"/>
+                    <filter name="group_by_source" string="Source Currency" context="{'group_by':'source_currency_id'}"/>
+                    <filter name="group_by_dest" string="Destination Currency" context="{'group_by':'destination_currency_id'}"/>
+                    <filter name="group_by_state" string="Allocation State" context="{'group_by':'allocation_state'}"/>
+                    <filter name="group_by_batch" string="Daily Batch" context="{'group_by':'daily_batch_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Treasury Transaction Line: Action -->
+    <record id="action_atlax_treasury_transaction_line" model="ir.actions.act_window">
+        <field name="name">Transaction Lines</field>
+        <field name="res_model">atlax.treasury.transaction.line</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_atlax_treasury_transaction_line_search"/>
+    </record>
+
+    <!-- Treasury Allocation: Tree -->
+    <record id="view_atlax_treasury_allocation_tree" model="ir.ui.view">
+        <field name="name">atlax.treasury.allocation.tree</field>
+        <field name="model">atlax.treasury.allocation</field>
+        <field name="arch" type="xml">
+            <tree string="Treasury Allocations" default_order="allocation_date desc">
+                <field name="allocation_date"/>
+                <field name="stock_id"/>
+                <field name="transaction_line_id"/>
+                <field name="source_currency_id"/>
+                <field name="destination_currency_id"/>
+                <field name="allocated_amount"/>
+                <field name="stock_rate"/>
+                <field name="transaction_rate"/>
+                <field name="rate_difference"/>
+                <field name="realized_margin"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Treasury Allocation: Form -->
+    <record id="view_atlax_treasury_allocation_form" model="ir.ui.view">
+        <field name="name">atlax.treasury.allocation.form</field>
+        <field name="model">atlax.treasury.allocation</field>
+        <field name="arch" type="xml">
+            <form string="Treasury Allocation">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="allocation_date"/>
+                            <field name="stock_id"/>
+                            <field name="transaction_line_id"/>
+                        </group>
+                        <group>
+                            <field name="source_currency_id" readonly="1"/>
+                            <field name="destination_currency_id" readonly="1"/>
+                            <field name="allocated_amount"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group>
+                            <field name="stock_rate" readonly="1"/>
+                            <field name="transaction_rate" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="rate_difference" readonly="1"/>
+                            <field name="realized_margin" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <field name="notes"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Treasury Allocation: Search -->
+    <record id="view_atlax_treasury_allocation_search" model="ir.ui.view">
+        <field name="name">atlax.treasury.allocation.search</field>
+        <field name="model">atlax.treasury.allocation</field>
+        <field name="arch" type="xml">
+            <search string="Treasury Allocations">
+                <field name="allocation_date"/>
+                <field name="stock_id"/>
+                <field name="transaction_line_id"/>
+                <field name="source_currency_id"/>
+                <field name="destination_currency_id"/>
+
+                <group expand="1" string="Group By">
+                    <filter name="group_by_date" string="Allocation Date" context="{'group_by':'allocation_date'}"/>
+                    <filter name="group_by_stock" string="Stock Batch" context="{'group_by':'stock_id'}"/>
+                    <filter name="group_by_source" string="Source Currency" context="{'group_by':'source_currency_id'}"/>
+                    <filter name="group_by_dest" string="Destination Currency" context="{'group_by':'destination_currency_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Treasury Allocation: Action -->
+    <record id="action_atlax_treasury_allocation" model="ir.actions.act_window">
+        <field name="name">Allocations</field>
+        <field name="res_model">atlax.treasury.allocation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_atlax_treasury_allocation_search"/>
+    </record>
+</odoo>

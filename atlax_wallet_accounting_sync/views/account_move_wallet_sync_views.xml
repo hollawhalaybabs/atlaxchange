@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form_wallet_sync_currency_display" model="ir.ui.view">
+        <field name="name">account.move.form.wallet.sync.currency.display</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@id='aml_tab']/field[@name='line_ids']" position="before">
+                <field name="is_wallet_sync_move" invisible="1"/>
+            </xpath>
+            <xpath expr="//page[@id='aml_tab']//field[@name='line_ids']/tree/field[@name='debit']" position="replace">
+                <field name="debit"
+                       sum="Total Debit"
+                       attrs="{'column_invisible': [('parent.is_wallet_sync_move', '=', True)], 'invisible': [('display_type', 'in', ('line_section', 'line_note'))], 'readonly': [('parent.move_type', 'in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')), ('display_type', 'in', ('line_section', 'line_note', 'product'))]}"/>
+                <field name="wallet_display_currency_id" invisible="1"/>
+                <field name="wallet_display_debit"
+                       string="Debit"
+                       sum="Total Debit"
+                      readonly="1"
+                      attrs="{'column_invisible': [('parent.is_wallet_sync_move', '=', False)], 'invisible': [('display_type', 'in', ('line_section', 'line_note'))]}"/>
+            </xpath>
+            <xpath expr="//page[@id='aml_tab']//field[@name='line_ids']/tree/field[@name='credit']" position="replace">
+                <field name="credit"
+                       sum="Total Credit"
+                       attrs="{'column_invisible': [('parent.is_wallet_sync_move', '=', True)], 'invisible': [('display_type', 'in', ('line_section', 'line_note'))], 'readonly': [('parent.move_type', 'in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')), ('display_type', 'in', ('line_section', 'line_note', 'product'))]}"/>
+                <field name="wallet_display_credit"
+                       string="Credit"
+                       sum="Total Credit"
+                      readonly="1"
+                      attrs="{'column_invisible': [('parent.is_wallet_sync_move', '=', False)], 'invisible': [('display_type', 'in', ('line_section', 'line_note'))]}"/>
+            </xpath>
+            <xpath expr="//page[@id='aml_tab']//field[@name='line_ids']/form/group/field[@name='debit']" position="replace">
+                <field name="wallet_display_currency_id" invisible="1"/>
+                <field name="debit" attrs="{'invisible': [('parent.is_wallet_sync_move', '=', True)]}" sum="Total Debit"/>
+                <field name="wallet_display_debit" attrs="{'invisible': [('parent.is_wallet_sync_move', '=', False)]}" sum="Total Debit" readonly="1"/>
+            </xpath>
+            <xpath expr="//page[@id='aml_tab']//field[@name='line_ids']/form/group/field[@name='credit']" position="replace">
+                <field name="credit" attrs="{'invisible': [('parent.is_wallet_sync_move', '=', True)]}" sum="Total Credit"/>
+                <field name="wallet_display_credit" attrs="{'invisible': [('parent.is_wallet_sync_move', '=', False)]}" sum="Total Credit" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

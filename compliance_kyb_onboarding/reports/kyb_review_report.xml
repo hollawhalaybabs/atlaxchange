@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="paperformat_kyb_review_a4" model="report.paperformat">
+    <field name="name">KYB Review Report A4</field>
+    <field name="default" eval="False"/>
+    <field name="format">A4</field>
+    <field name="orientation">Portrait</field>
+    <field name="margin_top">20</field>
+    <field name="margin_bottom">15</field>
+    <field name="margin_left">10</field>
+    <field name="margin_right">10</field>
+    <field name="header_line" eval="False"/>
+    <field name="header_spacing">10</field>
+    <field name="dpi">90</field>
+  </record>
+
+  <report
+      id="action_report_kyb_review_pdf"
+      model="compliance.kyb.report.wizard"
+      string="KYB General Report"
+      report_type="qweb-pdf"
+      name="compliance_kyb_onboarding.report_kyb_review_pdf"
+      file="compliance_kyb_onboarding.report_kyb_review_pdf"
+      print_report_name="'KYB General Report - %s to %s' % (object.date_from, object.date_to)"
+      paperformat="paperformat_kyb_review_a4"
+  />
+
+  <template id="report_kyb_review_pdf">
+    <t t-call="web.external_layout_boxed">
+      <main>
+        <h2 style="margin-bottom: 10px;">KYB General Report</h2>
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 24%;"><strong>Period:</strong></td>
+            <td><t t-esc="report_data['date_from']"/> to <t t-esc="report_data['date_to']"/></td>
+          </tr>
+          <tr>
+            <td><strong>Period Based On:</strong></td>
+            <td><t t-esc="report_data['date_basis_label']"/></td>
+          </tr>
+          <tr>
+            <td><strong>State Filter:</strong></td>
+            <td><t t-esc="report_data['state_filter_label']"/></td>
+          </tr>
+          <tr>
+            <td><strong>Assigned To:</strong></td>
+            <td><t t-esc="report_data['assigned_to_name']"/></td>
+          </tr>
+        </table>
+
+        <h4>Summary</h4>
+        <table class="table table-sm" style="width: 100%; margin-bottom: 20px;">
+          <tbody>
+            <tr><td><strong>Total Reviews</strong></td><td><t t-esc="report_data['summary']['total_reviews']"/></td></tr>
+            <tr><td><strong>Draft</strong></td><td><t t-esc="report_data['summary']['draft_count']"/></td></tr>
+            <tr><td><strong>In Review</strong></td><td><t t-esc="report_data['summary']['in_review_count']"/></td></tr>
+            <tr><td><strong>Approved</strong></td><td><t t-esc="report_data['summary']['approved_count']"/></td></tr>
+            <tr><td><strong>Rejected</strong></td><td><t t-esc="report_data['summary']['rejected_count']"/></td></tr>
+            <tr><td><strong>High Risk</strong></td><td><t t-esc="report_data['summary']['high_risk_count']"/></td></tr>
+            <tr><td><strong>Medium Risk</strong></td><td><t t-esc="report_data['summary']['medium_risk_count']"/></td></tr>
+            <tr><td><strong>Low Risk</strong></td><td><t t-esc="report_data['summary']['low_risk_count']"/></td></tr>
+            <tr><td><strong>Missing Requirements</strong></td><td><t t-esc="report_data['summary']['missing_requirement_total']"/></td></tr>
+            <tr><td><strong>Pending NDA</strong></td><td><t t-esc="report_data['summary']['pending_nda_count']"/></td></tr>
+            <tr><td><strong>Pending SLA</strong></td><td><t t-esc="report_data['summary']['pending_sla_count']"/></td></tr>
+          </tbody>
+        </table>
+
+        <h4>Review Details</h4>
+        <table class="table table-sm" style="width: 100%; font-size: 11px;">
+          <thead>
+            <tr>
+              <th><strong>Reference</strong></th>
+              <th><strong>Business Name</strong></th>
+              <th><strong>Type</strong></th>
+              <th><strong>Country</strong></th>
+              <th><strong>Assigned To</strong></th>
+              <th><strong>State</strong></th>
+              <th><strong>Risk</strong></th>
+              <th><strong>Missing</strong></th>
+              <th><strong>NDA</strong></th>
+              <th><strong>SLA</strong></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr t-if="not report_data['rows']">
+              <td colspan="10">No KYB reviews found for the selected period.</td>
+            </tr>
+            <t t-foreach="report_data['rows']" t-as="row">
+              <tr>
+                <td><t t-esc="row['reference']"/></td>
+                <td><t t-esc="row['company_name']"/></td>
+                <td><t t-esc="row['partnership_type']"/></td>
+                <td><t t-esc="row['country']"/></td>
+                <td><t t-esc="row['assigned_to']"/></td>
+                <td><t t-esc="row['state']"/></td>
+                <td><t t-esc="row['risk_assessment']"/></td>
+                <td><t t-esc="row['missing_requirement_count']"/></td>
+                <td><t t-esc="row['nda_status']"/></td>
+                <td><t t-esc="row['sla_status']"/></td>
+              </tr>
+            </t>
+          </tbody>
+        </table>
+      </main>
+    </t>
+  </template>
+</odoo>

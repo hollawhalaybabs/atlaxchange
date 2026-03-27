@@ -5,7 +5,10 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <field name="vat" position="before">
+                <field name="role" readonly="1" groups="base.group_system"/>
                 <field name="is_email_verified" widget="boolean_toggle" options="{'color': 'green'}" readonly="1"/>
+                <field name="business_email" readonly="1" groups="base.group_system"/>
+                <field name="kyc_status" readonly="1" groups="base.group_system"/>
                 <field name="business_id" readonly="1" groups="base.group_system"/>
                 <field name="external_user_id" readonly="1" groups="base.group_system"/>
                 <field name="atlax_env_source" readonly="1" groups="base.group_system"/>
@@ -87,7 +90,7 @@
         <field name="name">Atlax Customers</field>
         <field name="res_model">res.partner</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('is_atlax_customer', '=', True)]</field>
+        <field name="domain">[('is_atlax_customer', '=', True), ('parent_id', '=', False)]</field>
     </record>
 
     <!-- Sub-actions to differentiate Production vs Sandbox clients -->
@@ -95,13 +98,13 @@
         <field name="name">Atlax Customers (Production)</field>
         <field name="res_model">res.partner</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('is_atlax_customer', '=', True), ('atlax_env_source', '=', 'production')]</field>
+        <field name="domain">[('is_atlax_customer', '=', True), ('parent_id', '=', False), ('atlax_env_source', '=', 'production')]</field>
     </record>
     <record id="action_atlax_customers_sandbox" model="ir.actions.act_window">
         <field name="name">Atlax Customers (Sandbox)</field>
         <field name="res_model">res.partner</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('is_atlax_customer', '=', True), ('atlax_env_source', '=', 'staging')]</field>
+        <field name="domain">[('is_atlax_customer', '=', True), ('parent_id', '=', False), ('atlax_env_source', '=', 'staging')]</field>
     </record>
 
     <!-- Menu Item for Atlax Customers -->

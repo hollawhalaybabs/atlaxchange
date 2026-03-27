@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Treasury Daily Batch: Tree -->
+    <record id="view_atlax_treasury_daily_batch_tree" model="ir.ui.view">
+        <field name="name">atlax.treasury.daily.batch.tree</field>
+        <field name="model">atlax.treasury.daily.batch</field>
+        <field name="arch" type="xml">
+            <tree string="Treasury Daily Batches" default_order="batch_date desc">
+                <field name="name"/>
+                <field name="batch_date"/>
+                <field name="source_currency_id"/>
+                <field name="destination_currency_id"/>
+                <field name="total_transaction_amount"/>
+                <field name="total_allocated_amount"/>
+                <field name="total_unallocated_amount"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Treasury Daily Batch: Form -->
+    <record id="view_atlax_treasury_daily_batch_form" model="ir.ui.view">
+        <field name="name">atlax.treasury.daily.batch.form</field>
+        <field name="model">atlax.treasury.daily.batch</field>
+        <field name="arch" type="xml">
+            <form string="Treasury Daily Batch">
+                <header>
+                    <button name="action_set_open" type="object" string="Open" states="draft" class="btn-primary"/>
+                    <button name="action_set_allocated" type="object" string="Mark Allocated" states="open" class="btn-primary"/>
+                    <button name="action_close" type="object" string="Close" states="draft,open,allocated" class="btn-secondary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,open,allocated,closed"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="action_open_transactions" class="oe_stat_button" icon="fa-list">
+                            <field name="transaction_count" widget="statinfo" string="Transactions"/>
+                        </button>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="batch_date"/>
+                        </group>
+                        <group>
+                            <field name="source_currency_id"/>
+                            <field name="destination_currency_id"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group>
+                            <field name="total_transaction_amount" readonly="1"/>
+                            <field name="total_allocated_amount" readonly="1"/>
+                            <field name="total_unallocated_amount" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Transaction Lines">
+                            <field name="transaction_line_ids" context="{'default_daily_batch_id': active_id, 'default_source_currency_id': source_currency_id, 'default_destination_currency_id': destination_currency_id}">
+                                <tree editable="false" create="true" delete="false">
+                                    <field name="transaction_reference"/>
+                                    <field name="transaction_datetime"/>
+                                    <field name="customer_id"/>
+                                    <field name="source_currency_id"/>
+                                    <field name="destination_currency_id"/>
+                                    <field name="source_amount"/>
+                                    <field name="allocated_amount"/>
+                                    <field name="unallocated_amount"/>
+                                    <field name="allocation_state"/>
+                                    <field name="status"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+
+                        <page string="Chatter">
+                            <field name="message_follower_ids" widget="many2many_tags"/>
+                            <field name="activity_ids"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Treasury Daily Batch: Search -->
+    <record id="view_atlax_treasury_daily_batch_search" model="ir.ui.view">
+        <field name="name">atlax.treasury.daily.batch.search</field>
+        <field name="model">atlax.treasury.daily.batch</field>
+        <field name="arch" type="xml">
+            <search string="Treasury Daily Batches">
+                <field name="name"/>
+                <field name="batch_date"/>
+                <field name="source_currency_id"/>
+                <field name="destination_currency_id"/>
+                <field name="state"/>
+
+                <group expand="1" string="Group By">
+                    <filter name="group_by_date" string="Batch Date" context="{'group_by':'batch_date'}"/>
+                    <filter name="group_by_source" string="Source Currency" context="{'group_by':'source_currency_id'}"/>
+                    <filter name="group_by_dest" string="Destination Currency" context="{'group_by':'destination_currency_id'}"/>
+                    <filter name="group_by_state" string="State" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Treasury Daily Batch: Action -->
+    <record id="action_atlax_treasury_daily_batch" model="ir.actions.act_window">
+        <field name="name">Dashboard / Daily Batches</field>
+        <field name="res_model">atlax.treasury.daily.batch</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_atlax_treasury_daily_batch_search"/>
+    </record>
+</odoo>

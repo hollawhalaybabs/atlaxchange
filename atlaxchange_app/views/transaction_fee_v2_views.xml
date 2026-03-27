@@ -60,6 +60,11 @@
     </record>
 
     <!-- Action -->
+    <record id="action_transaction_fee" model="ir.actions.act_window">
+        <field name="name">Transaction Fees</field>
+        <field name="res_model">transaction.fee.v2</field>
+        <field name="view_mode">tree,form</field>
+    </record>
     <record id="action_transaction_fee_v2" model="ir.actions.act_window">
         <field name="name">Fees Setup</field>
         <field name="res_model">transaction.fee.v2</field>
@@ -67,6 +72,11 @@
     </record>
 
     <!-- Menuitem -->
+    <menuitem id="menu_transaction_fee"
+              name="Transaction Fees"
+              parent="atlaxchange_app.menu_atlaxchange_config"
+              action="action_transaction_fee"
+              sequence="20"/>
     <menuitem id="menu_transaction_fee_v2"
               name="Fees Setup"
               parent="atlaxchange_app.menu_transaction_fee"

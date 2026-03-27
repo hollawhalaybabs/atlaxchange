@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_wallet_accounting_sync_root" name="Accounting" parent="atlaxchange_app.atlaxchange_menu" sequence="90" groups="atlaxchange_app.group_finance_manager"/>
+
+    <menuitem id="menu_wallet_account_map" name="Account Mapping" parent="menu_wallet_accounting_sync_root" action="wallet_account_map_action" sequence="10" groups="atlaxchange_app.group_finance_manager"/>
+    <menuitem id="menu_wallet_operational_report" name="Operational Report" parent="menu_atlaxchange_operational_reports" action="wallet_operational_move_line_action" sequence="20" groups="atlaxchange_app.group_finance_manager"/>
+    <menuitem id="menu_wallet_conversion_rate_report" name="Conversion Rate Report" parent="menu_atlaxchange_operational_reports" action="wallet_conversion_rate_report_action" sequence="30" groups="atlaxchange_app.group_finance_manager"/>
+    <menuitem id="menu_wallet_posting_log" name="Posting Log" parent="menu_wallet_accounting_sync_root" action="wallet_accounting_posting_action" sequence="20" groups="atlaxchange_app.group_finance_manager"/>
+</odoo>

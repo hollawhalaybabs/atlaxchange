@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="wallet_account_map_tree" model="ir.ui.view">
+        <field name="name">wallet.account.map.tree</field>
+        <field name="model">wallet.account.map</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="active"/>
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="source_currency_id"/>
+                <field name="destination_currency_id"/>
+                <field name="funding_journal_id"/>
+                <field name="payout_journal_id"/>
+                <field name="treasury_journal_id"/>
+                <field name="bank_settlement_account_id"/>
+                <field name="wallet_liability_account_id"/>
+                <field name="fx_position_account_id"/>
+                <field name="payout_clearing_account_id"/>
+                <field name="fee_income_account_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="wallet_account_map_form" model="ir.ui.view">
+        <field name="name">wallet.account.map.form</field>
+        <field name="model">wallet.account.map</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="active"/>
+                        <field name="company_id"/>
+                    </group>
+                    <group>
+                        <field name="source_currency_id" required="1"/>
+                        <field name="destination_currency_id"/>
+                    </group>
+                    <group string="Journals">
+                        <field name="funding_journal_id"/>
+                        <field name="payout_journal_id"/>
+                        <field name="treasury_journal_id"/>
+                        <field name="fx_journal_id"/>
+                    </group>
+                    <group string="Accounts">
+                        <field name="bank_settlement_account_id"/>
+                        <field name="wallet_liability_account_id" required="1"/>
+                        <field name="fx_position_account_id"/>
+                        <field name="payout_clearing_account_id" attrs="{'required': [('destination_currency_id','!=',False)]}"/>
+                        <field name="fee_income_account_id" attrs="{'required': [('destination_currency_id','!=',False)]}"/>
+                        <field name="fx_adjustment_account_id"/>
+                    </group>
+                    <group string="Notes">
+                        <div class="text-muted">
+                            Source-only mappings are used for daily wallet funding aggregates. Source+destination mappings are used for payout wallet-side and destination settlement aggregates. FX Position is only needed for cross-currency payout mappings.
+                        </div>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="wallet_account_map_action" model="ir.actions.act_window">
+        <field name="name">Wallet Account Mapping</field>
+        <field name="res_model">wallet.account.map</field>
+        <field name="view_mode">tree,form</field>
+        <field name="groups_id" eval="[(6, 0, [ref('atlaxchange_app.group_finance_manager')])]"/>
+    </record>
+</odoo>

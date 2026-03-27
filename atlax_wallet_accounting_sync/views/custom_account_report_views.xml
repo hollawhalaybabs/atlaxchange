@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_atlax_report_balance_sheet" model="ir.actions.client">
+        <field name="name">Atlax Balance Sheet</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('atlax_balance_sheet_report')}"/>
+    </record>
+
+    <record id="action_atlax_report_profit_and_loss" model="ir.actions.client">
+        <field name="name">Atlax Profit and Loss</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('atlax_profit_and_loss_report')}"/>
+    </record>
+
+    <record id="action_atlax_report_executive_summary" model="ir.actions.client">
+        <field name="name">Atlax Executive Summary</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('atlax_executive_summary_report')}"/>
+    </record>
+
+    <record id="action_atlax_report_general_ledger" model="ir.actions.client">
+        <field name="name">Atlax General Ledger</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('atlax_general_ledger_report')}"/>
+    </record>
+
+    <record id="action_atlax_report_trial_balance" model="ir.actions.client">
+        <field name="name">Atlax Trial Balance</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('atlax_trial_balance_report')}"/>
+    </record>
+
+    <record id="action_atlax_report_partner_ledger" model="ir.actions.client">
+        <field name="name">Atlax Partner Ledger</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('atlax_partner_ledger_report')}"/>
+    </record>
+
+    <record id="action_atlax_report_journal_report" model="ir.actions.client">
+        <field name="name">Atlax Journal Report</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('atlax_journal_report')}"/>
+    </record>
+
+    <menuitem id="menu_atlaxchange_financial_reports" name="Financial Statements" parent="atlaxchange_ledger.menu_atlaxchange_report" sequence="20" groups="atlaxchange_app.group_finance_manager"/>
+    <menuitem id="menu_atlaxchange_ledger_reports" name="Ledger Reports" parent="atlaxchange_ledger.menu_atlaxchange_report" sequence="30" groups="atlaxchange_app.group_finance_manager"/>
+    <menuitem id="menu_atlaxchange_operational_reports" name="Operational Reports" parent="atlaxchange_ledger.menu_atlaxchange_report" sequence="40" groups="atlaxchange_app.group_finance_manager"/>
+
+    <menuitem id="menu_atlax_report_balance_sheet" name="Balance Sheet" parent="menu_atlaxchange_financial_reports" action="action_atlax_report_balance_sheet" sequence="10" groups="atlaxchange_app.group_finance_manager"/>
+    <menuitem id="menu_atlax_report_profit_and_loss" name="Profit and Loss" parent="menu_atlaxchange_financial_reports" action="action_atlax_report_profit_and_loss" sequence="20" groups="atlaxchange_app.group_finance_manager"/>
+    <menuitem id="menu_atlax_report_executive_summary" name="Executive Summary" parent="menu_atlaxchange_financial_reports" action="action_atlax_report_executive_summary" sequence="30" groups="atlaxchange_app.group_finance_manager"/>
+
+    <menuitem id="menu_atlax_report_general_ledger" name="General Ledger" parent="menu_atlaxchange_ledger_reports" action="action_atlax_report_general_ledger" sequence="10" groups="atlaxchange_app.group_finance_manager"/>
+    <menuitem id="menu_atlax_report_trial_balance" name="Trial Balance" parent="menu_atlaxchange_ledger_reports" action="action_atlax_report_trial_balance" sequence="20" groups="atlaxchange_app.group_finance_manager"/>
+    <menuitem id="menu_atlax_report_partner_ledger" name="Partner Ledger" parent="menu_atlaxchange_ledger_reports" action="action_atlax_report_partner_ledger" sequence="30" groups="atlaxchange_app.group_finance_manager"/>
+    <menuitem id="menu_atlax_report_journal_report" name="Journal Report" parent="menu_atlaxchange_ledger_reports" action="action_atlax_report_journal_report" sequence="40" groups="atlaxchange_app.group_finance_manager"/>
+
+    <record id="atlaxchange_ledger.menu_atlaxchange_report" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('atlaxchange_app.group_finance_manager'))]"/>
+    </record>
+
+    <record id="atlaxchange_ledger.menu_account_statement_wizard" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_atlaxchange_operational_reports"/>
+        <field name="sequence">10</field>
+    </record>
+</odoo>

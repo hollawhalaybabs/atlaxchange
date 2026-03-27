@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="search_template_atlax_wallet_currency">
+        <button type="button" class="o-no-caret btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
+            <span class="fa fa-money"/>
+            Currency:
+            <t t-if="options.get('atlax_selected_currency')">
+                <t t-out="options['atlax_selected_currency']['name']"/>
+            </t>
+            <t t-else="">None</t>
+        </button>
+        <div class="dropdown-menu o_filter_menu" role="menu">
+            <t t-foreach="options.get('atlax_available_currencies', [])" t-as="currency">
+                <a role="menuitem"
+                   class="dropdown-item js_account_reports_one_choice_filter"
+                   data-filter="atlax_currency_id"
+                   t-att-data-id="currency['id']">
+                    <t t-out="currency['name']"/>
+                </a>
+            </t>
+        </div>
+    </template>
+
+    <template id="search_template_atlax_wallet_report" inherit_id="account_reports.search_template" primary="True">
+        <xpath expr="//div[contains(@class, 'o_account_reports_filter_journals')]" position="after">
+            <div class="btn-group dropdown o_account_reports_filter_atlax_currency" t-if="options.get('atlax_available_currencies')">
+                <t t-call="atlax_wallet_accounting_sync.search_template_atlax_wallet_currency"/>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="search_template_atlax_journal_report" inherit_id="account_reports.search_template_journal_audit_report" primary="True">
+        <xpath expr="//div[contains(@class, 'o_account_reports_filter_journals')]" position="after">
+            <div class="btn-group dropdown o_account_reports_filter_atlax_currency" t-if="options.get('atlax_available_currencies')">
+                <t t-call="atlax_wallet_accounting_sync.search_template_atlax_wallet_currency"/>
+            </div>
+        </xpath>
+    </template>
+</odoo>

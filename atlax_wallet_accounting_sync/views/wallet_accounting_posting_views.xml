@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="wallet_accounting_posting_tree" model="ir.ui.view">
+        <field name="name">wallet.accounting.posting.tree</field>
+        <field name="model">wallet.accounting.posting</field>
+        <field name="arch" type="xml">
+            <tree create="false" delete="false" edit="false">
+                <field name="name"/>
+                <field name="posting_type"/>
+                <field name="posting_date"/>
+                <field name="posted_at"/>
+                <field name="state"/>
+                <field name="company_id"/>
+                <field name="ledger_count"/>
+                <field name="journal_entry_id"/>
+                <field name="source_currency_id"/>
+                <field name="destination_currency_id"/>
+                <field name="principal_amount"/>
+                <field name="fee_amount"/>
+                <field name="destination_amount"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="wallet_accounting_posting_form" model="ir.ui.view">
+        <field name="name">wallet.accounting.posting.form</field>
+        <field name="model">wallet.accounting.posting</field>
+        <field name="arch" type="xml">
+            <form create="false" delete="false">
+                <header>
+                    <button name="action_retry" type="object" string="Retry" class="oe_highlight" attrs="{'invisible': ['|', ('state','!=','error'), ('ledger_ids','=',False)]}"/>
+                    <button name="action_rebuild_journal_entry" type="object" string="Rebuild Journal Entry" attrs="{'invisible': ['|', ('ledger_ids','=',False), ('state', 'not in', ('draft', 'posted'))]}"/>
+                    <button name="action_open_journal_entry" type="object" string="Open Journal Entry" class="oe_highlight" attrs="{'invisible': [('journal_entry_id','=',False)]}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="posting_type"/>
+                        <field name="posting_date"/>
+                        <field name="state"/>
+                        <field name="posted_at"/>
+                        <field name="company_id"/>
+                    </group>
+                    <group>
+                        <field name="aggregation_key"/>
+                        <field name="transaction_direction"/>
+                        <field name="ledger_count"/>
+                        <field name="journal_entry_id"/>
+                    </group>
+                    <group string="Amounts">
+                        <field name="source_currency_id"/>
+                        <field name="destination_currency_id"/>
+                        <field name="principal_amount"/>
+                        <field name="fee_amount"/>
+                        <field name="destination_amount"/>
+                    </group>
+                    <group string="Error" attrs="{'invisible': [('state','!=','error')]}">
+                        <field name="error_message" readonly="1"/>
+                    </group>
+                    <group string="Ledger Rows">
+                        <field name="ledger_ids" readonly="1" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="wallet_accounting_posting_action" model="ir.actions.act_window">
+        <field name="name">Wallet Posting Log</field>
+        <field name="res_model">wallet.accounting.posting</field>
+        <field name="view_mode">tree,form</field>
+        <field name="groups_id" eval="[(6, 0, [ref('atlaxchange_app.group_finance_manager')])]"/>
+    </record>
+</odoo>

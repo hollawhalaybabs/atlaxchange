@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_wallet_account_map_finance_manager,wallet.account.map finance manager,model_wallet_account_map,atlaxchange_app.group_finance_manager,1,1,1,1
+access_wallet_accounting_posting_finance_manager,wallet.accounting.posting finance manager,model_wallet_accounting_posting,atlaxchange_app.group_finance_manager,1,0,0,1
+access_wallet_conversion_rate_report_finance_manager,wallet.conversion.rate.report finance manager,model_wallet_conversion_rate_report,atlaxchange_app.group_finance_manager,1,0,0,0

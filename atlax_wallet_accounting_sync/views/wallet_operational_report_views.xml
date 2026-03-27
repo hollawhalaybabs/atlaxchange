@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wallet_operational_move_line_search" model="ir.ui.view">
+        <field name="name">wallet.operational.move.line.search</field>
+        <field name="model">account.move.line</field>
+        <field name="arch" type="xml">
+            <search string="Wallet Operational Report">
+                <field name="date"/>
+                <field name="move_id" string="Journal Entry"/>
+                <field name="journal_id"/>
+                <field name="account_id"/>
+                <field name="partner_id"/>
+                <field name="currency_id" string="Wallet Currency"/>
+                <field name="wallet_posting_type"/>
+
+                <filter name="filter_wallet_funding" string="Funding" domain="[('wallet_posting_type', '=', 'funding')]"/>
+                <filter name="filter_wallet_debit" string="Wallet Debit" domain="[('wallet_posting_type', '=', 'wallet_debit')]"/>
+                <filter name="filter_destination_settlement" string="Destination Settlement" domain="[('wallet_posting_type', '=', 'destination_settlement')]"/>
+                <filter name="filter_draft_moves" string="Draft Entries" domain="[('parent_state', '=', 'draft')]"/>
+
+                <separator/>
+                <filter name="group_currency" string="Currency" context="{'group_by': 'currency_id'}"/>
+                <filter name="group_posting_type" string="Posting Type" context="{'group_by': 'wallet_posting_type'}"/>
+                <filter name="group_date" string="Date" context="{'group_by': 'date'}"/>
+                <filter name="group_journal" string="Journal" context="{'group_by': 'journal_id'}"/>
+                <filter name="group_account" string="Account" context="{'group_by': 'account_id'}"/>
+                <filter name="group_partner" string="Partner" context="{'group_by': 'partner_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_wallet_operational_move_line_tree" model="ir.ui.view">
+        <field name="name">wallet.operational.move.line.tree</field>
+        <field name="model">account.move.line</field>
+        <field name="arch" type="xml">
+            <tree string="Wallet Operational Report" create="false" edit="false" delete="false" default_order="date desc, id desc">
+                <field name="wallet_display_currency_id" invisible="1"/>
+                <field name="date"/>
+                <field name="move_id" string="Journal Entry"/>
+                <field name="wallet_posting_type"/>
+                <field name="journal_id"/>
+                <field name="account_id"/>
+                <field name="partner_id" optional="show"/>
+                <field name="name" optional="show"/>
+                <field name="currency_id" string="Wallet Currency"/>
+                <field name="wallet_display_debit" string="Foreign Debit" optional="show"/>
+                <field name="wallet_display_credit" string="Foreign Credit" optional="show"/>
+                <field name="wallet_display_balance" string="Foreign Net" optional="show"/>
+                <field name="amount_currency" string="Signed Foreign Amount" optional="hide"/>
+                <field name="debit" string="Company Debit" optional="show"/>
+                <field name="credit" string="Company Credit" optional="show"/>
+                <field name="balance" string="Company Balance" optional="hide"/>
+                <field name="parent_state" string="Move State" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="wallet_operational_move_line_action" model="ir.actions.act_window">
+        <field name="name">Wallet Operational Report</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_wallet_operational_move_line_tree"/>
+        <field name="search_view_id" ref="view_wallet_operational_move_line_search"/>
+        <field name="domain">[('wallet_sync_move', '=', True)]</field>
+        <field name="context">{'search_default_group_currency': 1}</field>
+        <field name="groups_id" eval="[(6, 0, [ref('atlaxchange_app.group_finance_manager')])]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Review wallet-sync journal items by transaction currency.
+            </p>
+            <p>
+                This operational report is intended for staff review of foreign wallet activity. Standard financial statements such as Balance Sheet, Trial Balance, General Ledger, and Journal Report remain in company currency for correct accounting semantics.
+            </p>
+        </field>
+    </record>
+</odoo>

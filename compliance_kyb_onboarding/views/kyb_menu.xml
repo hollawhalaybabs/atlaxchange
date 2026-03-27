@@ -7,6 +7,9 @@
     <menuitem id="menu_kyb_reviews" name="KYB Reviews" parent="menu_compliance_root" sequence="10"
               action="action_kyb_review"/>
 
+    <menuitem id="menu_kyb_reports" name="KYB Reports" parent="menu_compliance_root" sequence="20"
+          action="action_compliance_kyb_report_wizard"/>
+
     <menuitem id="menu_kyb_config" name="Configuration" parent="menu_compliance_root" sequence="90"
               groups="atlaxchange_app.group_compliance_officer"/>
 

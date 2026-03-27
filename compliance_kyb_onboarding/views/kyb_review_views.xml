@@ -82,6 +82,19 @@
                   </tree>
                 </field>
               </page>
+              <page string="SLA">
+                <field name="sla_document_ids" context="{'default_review_id': active_id}">
+                  <tree editable="bottom">
+                    <field name="state"/>
+                    <field name="sla_sent_received_attachment_ids" widget="many2many_binary"/>
+                    <field name="sla_approved_attachment_ids" widget="many2many_binary"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-primary"
+                            attrs="{'invisible': [('state', '=', 'approved')]}"/>
+                    <field name="approved_by"/>
+                    <field name="approved_on"/>
+                  </tree>
+                </field>
+              </page>
               <page string="KYB Checklist">
                 <field name="requirement_line_ids" context="{'default_review_id': active_id}">
                   <tree editable="bottom">
